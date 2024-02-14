@@ -16,26 +16,27 @@
 import numpy as np
 from tkinter.filedialog import askopenfilename
 import bin.utils as utils
+import open3d as o3d
 print('\nPyRockFall is running\n')
 
 ''' Software parameters'''
-
+PCload_visualization = True
 
 
 ''' Workflow '''
-#load PointClouds (The software assume xyz file with one attribute: [x,y,z,A1])
 
-print('\nPointCloud #1')
-pc1_path = askopenfilename(title = "Select PointCloud 1") #use open GUI
-#pc1_path = 'path' #use path file
-pc1 = utils.loadPC(pc1_path)
+print('\nLoading PointCloud #1')
+#pc1_path = askopenfilename(title = "Select PointCloud 1") #use open GUI
+pc1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest1.xyz" #use path file
+utils.PCVisualization(pc1_path, enable=PCload_visualization)
 
-print('\nPointCloud #2')
-pc2_path = askopenfilename(title = "Select PointCloud 2") #use open GUI
-#pc2_path = 'path' #use path file
-pc2 = utils.loadPC(pc2_path)
+print('\nLoading PointCloud #2')
+#pc2_path = askopenfilename(title = "Select PointCloud 2") #use open GUI
+pc2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest2.xyz" #use path file
+utils.PCVisualization(pc2_path, enable=PCload_visualization)
 
 #Open CloudCompare for ICP aligment
 
-#use cloudcompare (open windows software)
-#use Open3D (automatically)
+
+#pc2 = utils.loadPC(pc2_path)
+#pc1 = utils.loadPC(pc1_path)

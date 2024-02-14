@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import open3d as o3d
+
 def loadPC(path):
     try:
         pc = np.loadtxt(path)
@@ -12,5 +13,11 @@ def loadPC(path):
         print(f'ERROR: {path}')
     return pc
 
-def PCVisualization(pc, enable=False):
-    plt.scatter3
+def PCVisualization(path, enable=False):
+    try:
+        if enable:
+            pcd = o3d.io.read_point_cloud(path, format='xyz')
+            o3d.visualization.draw_geometries([pcd])
+    except:
+        print(f'ERROR: {path}')
+    return

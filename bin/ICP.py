@@ -24,14 +24,12 @@ def draw_registration_result(source, target, transformation):
     target_temp.paint_uniform_color([0, 0.651, 0.929])
     source_temp.transform(transformation)
     o3d.visualization.draw_geometries([source_temp, target_temp])
-def prepare_dataset(voxel_size):
+def prepare_dataset(voxel_size, pc1_path, pc2_path):
     print(":: Load two point clouds and disturb initial pose.")
 
-    demo_icp_pcds = o3d.data.DemoICPPointClouds()
-    source = o3d.io.read_point_cloud(demo_icp_pcds.paths[0])
-    target = o3d.io.read_point_cloud(demo_icp_pcds.paths[1])
-    source = o3d.io.read_point_cloud(pc1_path)
-    target = o3d.io.read_point_cloud(pc2_path)
+    target = o3d.io.read_point_cloud(pc1_path)
+    source = o3d.io.read_point_cloud(pc2_path)
+
     draw_registration_result(source, target, np.identity(4))
 
     source_down, source_fpfh = preprocess_point_cloud(source, voxel_size)
@@ -56,14 +54,13 @@ def execute_global_registration(source_down, target_down, source_fpfh,
         ], o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999))
     return result
 
-pc1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest1.xyz" #use path file
-pc2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest2.xyz" #use path file
-
-voxel_size = 0.5  # means 5cm for this dataset
-source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(
-    voxel_size)
-result_ransac = execute_global_registration(source_down, target_down,
-                                            source_fpfh, target_fpfh,
-                                            voxel_size)
-print(result_ransac)
-draw_registration_result(source_down, target_down, result_ransac.transformation)
+def execute_fast_global_registration(source_down, target_down, source_fpfh,
+                                     target_fpfh, voxel_size):
+    distance_threshold = voxel_size * 0.5
+    print(":: Apply fast global registration with distance threshold %.3f" \
+            % distance_threshold)
+    result = o3d.pipelines.registration.registration_fgr_based_on_feature_matching(
+        source_down, target_down, source_fpfh, target_fpfh,
+        o3d.pipelines.registration.FastGlobalRegistrationOption(
+            maximum_correspondence_distance=distance_threshold))
+    return result

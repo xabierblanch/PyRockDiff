@@ -16,15 +16,21 @@
 import numpy as np
 from tkinter.filedialog import askopenfilename
 import bin.utils as utils
+import bin.ICP as ICP
 import open3d as o3d
+import subprocess
+import os
 print('\nPyRockFall is running\n')
 
 ''' Software parameters'''
-PCload_visualization = True
+PCload_visualization = False
+CloudComapare_ICP = False
+voxel_size = 0.25  # downsampling for ICP registration
+ICP_reg = True
+CloudComapare_path = "C:\Program Files\CloudCompare\cloudcompare.exe"
+output_path = r"C:\Users\XBG\Desktop\test"
 
-
-''' Workflow '''
-
+''' Loading ICP '''
 print('\nLoading PointCloud #1')
 #pc1_path = askopenfilename(title = "Select PointCloud 1") #use open GUI
 pc1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest1.xyz" #use path file
@@ -35,8 +41,38 @@ print('\nLoading PointCloud #2')
 pc2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest2.xyz" #use path file
 utils.PCVisualization(pc2_path, enable=PCload_visualization)
 
-#Open CloudCompare for ICP aligment
+''' Create folders '''
+pc1_name, pc2_name, source_path, registration_path = utils.folders(output_path, pc1_path, pc2_path)
+utils.copy_source(pc1_path, pc2_path, source_path)
+
+''' ICP Registration '''
+if ICP_reg:
+    if CloudComapare_ICP:
+        print("Launch CloudCompare for ICP Registration")
+        CCreg_Command = CloudComapare_path + ' -o "' + pc1_path + '" -o "' + pc2_path + '" -MATCH_CENTERS	'
+        subprocess.run(CCreg_Command)
+    else:
+        source, target, source_down, target_down, source_fpfh, target_fpfh = ICP.prepare_dataset(voxel_size, pc1_path, pc2_path)
+        result_fast = ICP.execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size)
+        #result_ransac = ICP.execute_global_registration(source_down, target_down,source_fpfh, target_fpfh, voxel_size)
+        #print(result_fast)
+        o3d.io.write_point_cloud(os.path.join(registration_path, pc1_name + '_reg.xyz'), target_down, format='auto',
+                                 write_ascii=True, compressed=False, print_progress=True)
+        o3d.io.write_point_cloud(os.path.join(registration_path, pc2_name + '_reg.xyz'), source_down, format='auto',
+                                 write_ascii=True, compressed=False, print_progress=True)
+
+        CC_ICP_Command = CloudComapare_path + ' -AUTO_SAVE OFF -C_EXPORT_FMT ASC -PREC 3 -o "' +\
+                         os.path.join(registration_path, pc1_name + '_reg.xyz') +\
+                         '" -o "' +\
+                         os.path.join(registration_path, pc2_name + '_reg.xyz') +\
+                         '" -ICP -REFERENCE_IS_FIRST -OVERLAP 95 -RANDOM_SAMPLING_LIMIT 999999999 -FARTHEST_REMOVAL -SAVE_CLOUDS FILE ""' +\
+                         os.path.join(registration_path, pc1_name + '_reg.xyz') +\
+                         '" "' + \
+                         os.path.join(registration_path, pc2_name + '_reg.xyz')+'""'
+
+        subprocess.run(CC_ICP_Command)
 
 
-#pc2 = utils.loadPC(pc2_path)
-#pc1 = utils.loadPC(pc1_path)
+#ICP.draw_registration_result(source_down, target_down, result_fast.transformation)
+o3d.io.write_point_cloud(os.path.join(registration_path,pc1_name+'_reg.xyz'), target_down, format='auto', write_ascii=True, compressed=False, print_progress=True)
+o3d.io.write_point_cloud(os.path.join(registration_path,pc2_name+'_reg.xyz'), source_down, format='auto', write_ascii=True, compressed=False, print_progress=True)

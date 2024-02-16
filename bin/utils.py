@@ -1,5 +1,8 @@
 import numpy as np
 import open3d as o3d
+from pathlib import Path
+import os
+import shutil
 
 def loadPC(path):
     try:
@@ -21,3 +24,16 @@ def PCVisualization(path, enable=False):
     except:
         print(f'ERROR: {path}')
     return
+
+def folders(output_path, pc1_path, pc2_path):
+    pc1_name = Path(pc1_path).stem
+    pc2_name = Path(pc2_path).stem
+    project_path = os.path.join(output_path,pc1_name + '_vs_' + pc2_name)
+    os.makedirs(project_path, exist_ok=True)
+    os.makedirs(os.path.join(project_path,'source'), exist_ok=True)
+    os.makedirs(os.path.join(project_path,'registration'), exist_ok=True)
+    return pc1_name, pc2_name, os.path.join(project_path,'source'), os.path.join(project_path,'registration')
+
+def copy_source(pc1_path, pc2_path, source_path):
+    shutil.copyfile(pc1_path, os.path.join(source_path, Path(pc1_path).stem + '.xyz'))
+    shutil.copyfile(pc2_path, os.path.join(source_path, Path(pc2_path).stem + '.xyz'))

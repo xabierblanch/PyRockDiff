@@ -46,5 +46,5 @@ def copy_source(pc1_path, pc2_path, source_path):
 
 def savePC(path, pointcloud):
     np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
-    return pointcloud, path
+    return path
 

@@ -27,8 +27,9 @@ PCload_visualization = False
 voxel_size = 0.5  # downsampling for fast registration
 ite = 4 # ICP iterations for fine adjustment
 
-CloudComapare_path = "C:\Program Files\CloudCompare\cloudcompare.exe"
+CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
 output_path = r"C:\Users\XBG\Desktop\test"
+m3c2_param = r'C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\PyRockFall_PointClouds\bin\m3c2_params.txt'
 
 ''' PointCloud Paths '''
 #epoch1_path = askopenfilename(title = "Select PointCloud 1") #use open GUI
@@ -56,5 +57,7 @@ e1_Reg_path, e2_Reg_path = reg.ICP_CC(e1_Reg_path, e2_Reg_path, CloudComapare_pa
 e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_Reg_path, e2_Reg_path, registration_path)
 
 ''' M3C2 '''
-e1ve2_path = m3c2(e1_RegCut_path, e2_RegCut_path, m3c2_param, m3c2_path)
+e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_RegCut_path, e2_RegCut_path, m3c2_param, m3c2_path)
+
+''' Rockfall Extraction'''
 

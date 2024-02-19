@@ -1,42 +1,60 @@
 import numpy as np
-from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
+import alphashape
+from bin.utils import loadPC, savePC, get_file_name
 import os
-import subprocess
+def extract_boundary(epoch_xz):
+    #alpha = 0.95 * alphashape.optimizealpha(epoch_xz)
+    alpha = 0.5
+    hull = alphashape.alphashape(epoch_xz, alpha)
+    if hull.geom_type =='Polygon':
+        hull_pts = hull.exterior.coords.xy
+    else:
+        polygon = list(hull.geoms) #get all polygons
+        max_area = 0
+        for i, poly in enumerate(polygon):
+            area = poly.area
+            if area > max_area:
+                max_area = area
+                id = i
+        hull_pts = polygon[i]
+        hull_pts = hull_pts.exterior.coords.xy
+    line = plt.plot(hull_pts[0], hull_pts[1])
+    return hull_pts, line
 
-epoch1_path = r"C:\Users\XBG\Desktop\test\PCTest1_vs_PCTest2\registration\PCTest1_reg.xyz"
-epoch2_path =  r"C:\Users\XBG\Desktop\test\PCTest1_vs_PCTest2\registration\PCTest2_reg.xyz"
-CloudComapare_path = "C:\Program Files\CloudCompare\cloudcompare.exe"
+def plot_boundary(epoch, hull_pts, plot=False):
+    if plot:
+        fig = plt.figure()
+        plt.scatter(hull_pts[0], hull_pts[1])
+        plt.scatter(epoch[:,0], epoch[:,2], c='r', s=0.001)
+        plt.show()
+def remove_points(epoch, line):
+    mask = line[0].get_path().contains_points(epoch[:,[0,2]])
+    filtered_epoch = epoch[mask]
+    return filtered_epoch
 
-registration_path = r"C:\Users\XBG\Desktop\test\PCTest1_vs_PCTest2\registration"
-e1_name = 'epoch1'
-e2_name = 'epoch2'
+def main_2Dcut(epoch1_path, epoch2_path, registration_path):
+    epoch1 = loadPC(epoch1_path)
+    epoch2 = loadPC(epoch2_path)
+    epoch1_name = get_file_name(epoch1_path)
+    epoch2_name = get_file_name(epoch2_path)
 
-epoch1 = np.loadtxt(epoch1_path)
+    epoch_xz = epoch1[:, [0, 2]]
+    hull_pts, line = extract_boundary(epoch_xz)
+    plot_boundary(epoch2, hull_pts, plot=True)
+    plot_boundary(epoch1, hull_pts, plot=True)
+    epoch1_cut = remove_points(epoch1, line)
+    epoch2_cut = remove_points(epoch2, line)
 
-hull  = ConvexHull(epoch1[:,[0,2]])
-fig = plt.figure()
-plt.scatter(epoch1[hull.vertices,0], epoch1[hull.vertices,2], s=10)
-plt.scatter(epoch1[:,0], epoch1[:,2], c='r', s=0.001)
-plt.show()
+    epoch_xz = epoch2_cut[:, [0, 2]]
+    hull_pts, line = extract_boundary(epoch_xz)
+    plot_boundary(epoch1_cut, hull_pts, plot=True)
+    plot_boundary(epoch2_cut, hull_pts, plot=True)
 
-XY_list = []
-sep = ' '
-for point in hull.vertices:
-    XY = str(epoch1[point,0]) + ' ' + str(epoch1[point,2])
-    XY_list.append(XY)
-n = len(XY_list)
-XY_list = sep.join(XY_list)
-dim = 'Y'
+    epoch1_cut = remove_points(epoch1_cut, line)
+    epoch2_cut = remove_points(epoch2_cut, line)
+    epoch1_cut_path = savePC(os.path.join(registration_path, epoch1_name + '_reg_cut.xyz'), epoch1_cut)
+    epoch2_cut_path = savePC(os.path.join(registration_path, epoch2_name + '_reg_cut.xyz'), epoch2_cut)
 
-CC_ICP_Command = CloudComapare_path + ' -AUTO_SAVE OFF -C_EXPORT_FMT ASC -PREC 3 -o "' + \
-                 epoch1_path + \
-                 '" -o "' + \
-                 epoch1_path + \
-                 '" -CROP2D ' + dim + " " + str(n) + " " + XY_list +\
-                 ' -SAVE_CLOUDS FILE ""' + \
-                 os.path.join(registration_path, e1_name + '_reg_cut.xyz') + \
-                 '" "' + \
-                 os.path.join(registration_path, e2_name + '_reg_cut.xyz') + '""'
+    return epoch1_cut_path, epoch2_cut_path
 
-subprocess.run(CC_ICP_Command)

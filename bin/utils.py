@@ -25,15 +25,26 @@ def PCVisualization(path, enable=False):
         print(f'ERROR: {path}')
     return
 
-def folders(output_path, pc1_path, pc2_path):
-    pc1_name = Path(pc1_path).stem
-    pc2_name = Path(pc2_path).stem
-    project_path = os.path.join(output_path,pc1_name + '_vs_' + pc2_name)
+def get_file_name(path):
+    file_name = Path(path).stem
+    return file_name
+
+
+def folders(output_path, epoch1_path, epoch2_path):
+    epoch1_name = get_file_name(epoch1_path)
+    epoch2_name = get_file_name(epoch2_path)
+    project_path = os.path.join(output_path, epoch1_name + '_vs_' + epoch2_name)
     os.makedirs(project_path, exist_ok=True)
     os.makedirs(os.path.join(project_path,'source'), exist_ok=True)
     os.makedirs(os.path.join(project_path,'registration'), exist_ok=True)
-    return pc1_name, pc2_name, os.path.join(project_path,'source'), os.path.join(project_path,'registration')
+    os.makedirs(os.path.join(project_path, 'm3c2'), exist_ok=True)
+    return os.path.join(project_path,'source'), os.path.join(project_path,'registration'), os.path.join(project_path, 'm3c2')
 
 def copy_source(pc1_path, pc2_path, source_path):
     shutil.copyfile(pc1_path, os.path.join(source_path, Path(pc1_path).stem + '.xyz'))
     shutil.copyfile(pc2_path, os.path.join(source_path, Path(pc2_path).stem + '.xyz'))
+
+def savePC(path, pointcloud):
+    np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
+    return pointcloud, path
+

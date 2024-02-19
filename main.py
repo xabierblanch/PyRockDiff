@@ -18,6 +18,7 @@ from tkinter.filedialog import askopenfilename
 import bin.utils as utils
 import bin.registration as reg
 from bin.Boundary3D import main_2Dcut
+import bin.m3c2 as m3c2
 import open3d as o3d
 import os
 
@@ -55,4 +56,5 @@ e1_Reg_path, e2_Reg_path = reg.ICP_CC(e1_Reg_path, e2_Reg_path, CloudComapare_pa
 e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_Reg_path, e2_Reg_path, registration_path)
 
 ''' M3C2 '''
+e1ve2_path = m3c2(e1_RegCut_path, e2_RegCut_path, m3c2_param, m3c2_path)
 

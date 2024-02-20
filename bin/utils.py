@@ -30,15 +30,16 @@ def get_file_name(path):
     return file_name
 
 
-def folders(output_path, epoch1_path, epoch2_path):
+def create_project_folders(output_path, epoch1_path, epoch2_path):
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
     project_path = os.path.join(output_path, epoch1_name + '_vs_' + epoch2_name)
     os.makedirs(project_path, exist_ok=True)
-    os.makedirs(os.path.join(project_path,'source'), exist_ok=True)
-    os.makedirs(os.path.join(project_path,'registration'), exist_ok=True)
-    os.makedirs(os.path.join(project_path, 'm3c2'), exist_ok=True)
-    return os.path.join(project_path,'source'), os.path.join(project_path,'registration'), os.path.join(project_path, 'm3c2')
+    return project_path
+
+def create_folder(project_path, folder):
+    os.makedirs(os.path.join(project_path, folder), exist_ok=True)
+    return os.path.join(project_path, folder)
 
 def copy_source(pc1_path, pc2_path, source_path):
     shutil.copyfile(pc1_path, os.path.join(source_path, Path(pc1_path).stem + '.xyz'))

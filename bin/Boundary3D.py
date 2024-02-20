@@ -17,7 +17,7 @@ def extract_boundary(epoch_xz):
             if area > max_area:
                 max_area = area
                 id = i
-        hull_pts = polygon[i]
+        hull_pts = polygon[id]
         hull_pts = hull_pts.exterior.coords.xy
     line = plt.plot(hull_pts[0], hull_pts[1])
     return hull_pts, line
@@ -53,8 +53,8 @@ def main_2Dcut(epoch1_path, epoch2_path, registration_path):
 
     epoch1_cut = remove_points(epoch1_cut, line)
     epoch2_cut = remove_points(epoch2_cut, line)
-    epoch1_cut_path = savePC(os.path.join(registration_path, epoch1_name + '_reg_cut.xyz'), epoch1_cut)
-    epoch2_cut_path = savePC(os.path.join(registration_path, epoch2_name + '_reg_cut.xyz'), epoch2_cut)
+    epoch1_cut_path = savePC(os.path.join(registration_path, epoch1_name + '_cut.xyz'), epoch1_cut)
+    epoch2_cut_path = savePC(os.path.join(registration_path, epoch2_name + '_cut.xyz'), epoch2_cut)
 
     return epoch1_cut_path, epoch2_cut_path
 

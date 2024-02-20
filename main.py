@@ -27,11 +27,12 @@ import os
 PCload_visualization = False
 auto_aligment = True
 visualizations = True
+save_rockfalls = True
 voxel_size = 0.5                #downsampling for fast registration
 ite = 4                         #ICP iterations for fine adjustment
-diff_threshold = 0.05           #Threshold for filtering pointclouds (in cm)
-eps = 0.10                      #DBSCAN: Max distance to search points
-min_samples = 20                #DBSCAN: Min number of points to be cluster
+diff_threshold = 0.20           #Threshold for filtering pointclouds (in cm)
+eps = 1                         #DBSCAN: Max distance to search points
+min_samples = 15                #DBSCAN: Min number of points to be cluster
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
@@ -74,6 +75,6 @@ e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_Reg_path, e2_Reg_path, registrati
 e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_RegCut_path, e2_RegCut_path, m3c2_param, m3c2_folder, epoch1_path, epoch2_path)
 
 ''' Rockfall Extraction'''
-e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1ve2_path, diff_threshold, eps, min_samples)
+e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1ve2_path, diff_threshold, eps, min_samples, save_rockfalls)
 
 ''' Volume Calculation '''

@@ -3,19 +3,18 @@ import copy
 import numpy as np
 import os
 import subprocess
-from bin.utils import get_file_name
+from bin.utils import get_file_name, _print
 
 def preprocess_point_cloud(pcd, voxel_size):
-    print(":: Downsample with a voxel size %.3f." % voxel_size)
+    _print("Downsample with a voxel size %.3f." % voxel_size)
     pcd_down = pcd.voxel_down_sample(voxel_size)
 
     radius_normal = voxel_size * 2
-    print(":: Estimate normal with search radius %.3f." % radius_normal)
-    pcd_down.estimate_normals(
-        o3d.geometry.KDTreeSearchParamHybrid(radius=radius_normal, max_nn=30))
+    _print("Estimate normal with search radius %.3f." % radius_normal)
+    pcd_down.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=radius_normal, max_nn=30))
 
     radius_feature = voxel_size * 5
-    print(":: Compute FPFH feature with search radius %.3f." % radius_feature)
+    _print("Compute FPFH feature with search radius %.3f." % radius_feature)
     pcd_fpfh = o3d.pipelines.registration.compute_fpfh_feature(
         pcd_down,
         o3d.geometry.KDTreeSearchParamHybrid(radius=radius_feature, max_nn=100))
@@ -29,13 +28,16 @@ def draw_registration_result(source, target, transformation):
     source_temp.transform(transformation)
     o3d.visualization.draw_geometries([source_temp, target_temp])
 
-def prepare_dataset(voxel_size, pc1_path, pc2_path):
-    print(":: Load two point clouds and disturb initial pose.")
-    target = o3d.io.read_point_cloud(pc1_path)
-    source = o3d.io.read_point_cloud(pc2_path)
-    draw_registration_result(source, target, np.identity(4))
+def prepare_dataset(voxel_size, target_pc, source_pc):
+    _print("Load two point clouds and disturb initial pose.")
+    target = o3d.io.read_point_cloud(target_pc, format='xyz')
+    source = o3d.io.read_point_cloud(source_pc, format='xyz')
+
     source_down, source_fpfh = preprocess_point_cloud(source, voxel_size)
     target_down, target_fpfh = preprocess_point_cloud(target, voxel_size)
+
+    draw_registration_result(source_down, target_down, np.identity(4))
+
     return source, target, source_down, target_down, source_fpfh, target_fpfh
 
 def execute_global_registration(source_down, target_down, source_fpfh,
@@ -56,11 +58,9 @@ def execute_global_registration(source_down, target_down, source_fpfh,
         ], o3d.pipelines.registration.RANSACConvergenceCriteria(100000, 0.999))
     return result
 
-def execute_fast_global_registration(source_down, target_down, source_fpfh,
-                                     target_fpfh, voxel_size):
+def execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size):
     distance_threshold = voxel_size * 0.5
-    print(":: Apply fast global registration with distance threshold %.3f" \
-            % distance_threshold)
+    _print("Apply fast global registration with distance threshold %.3f" % distance_threshold)
     result = o3d.pipelines.registration.registration_fgr_based_on_feature_matching(
         source_down, target_down, source_fpfh, target_fpfh,
         o3d.pipelines.registration.FastGlobalRegistrationOption(
@@ -68,16 +68,22 @@ def execute_fast_global_registration(source_down, target_down, source_fpfh,
     return result
 
 
-def fast_reg(voxel_size, epoch1_path, epoch2_path, registration_path):
-    epoch1_name = get_file_name(epoch1_path)
-    epoch2_name = get_file_name(epoch2_path)
-    source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, epoch1_path, epoch2_path)
+def fast_reg(voxel_size, e1_path, e2_path, registration_folder):
+    e1_name = get_file_name(e1_path)
+    e2_name = get_file_name(e2_path)
+    source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, target_pc=e1_path, source_pc=e2_path)
     result_fast = execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size)
-    o3d.io.write_point_cloud(os.path.join(registration_path, epoch1_name + '_reg.xyz'), target_down, format='auto',
-                             write_ascii=True, compressed=False, print_progress=True)
-    o3d.io.write_point_cloud(os.path.join(registration_path, epoch2_name + '_reg.xyz'), source_down, format='auto',
-                             write_ascii=True, compressed=False, print_progress=True)
-    return os.path.join(registration_path, epoch1_name + '_reg.xyz'), os.path.join(registration_path, epoch2_name + '_reg.xyz')
+    source_reg = source.transform(result_fast.transformation)
+    draw_registration_result(source_down.transform(result_fast.transformation), target_down, np.identity(4))
+    # draw_registration_result(target, source_reg, np.identity(4))
+
+    o3d.io.write_point_cloud(os.path.join(registration_folder, e1_name + '_reg.xyz'), target, format='xyzn',
+                             write_ascii=True, compressed=False)
+
+    o3d.io.write_point_cloud(os.path.join(registration_folder, e2_name + '_reg.xyz'), source_reg, format='xyzn',
+                             write_ascii=True, compressed=False)
+
+    return os.path.join(registration_folder, e1_name + '_reg.xyz'), os.path.join(registration_folder, e2_name + '_reg.xyz')
 
 def ICP_CC(epoch1_path, epoch2_path, CloudComapare_path, ite):
     CC_ICP_Command = CloudComapare_path + ' -AUTO_SAVE OFF -C_EXPORT_FMT ASC -PREC 3 -o "' +\

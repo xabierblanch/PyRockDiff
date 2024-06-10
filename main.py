@@ -19,15 +19,22 @@ import bin.utils as utils
 import bin.registration as reg
 from bin.Boundary3D import main_2Dcut
 import bin.m3c2 as m3c2
+import bin.canupo as canupo
 import bin.rockfalls as rf
 import open3d as o3d
 import os
 
 ''' Parameters'''
-PCload_visualization = False
-auto_aligment = True
-visualizations = True
-save_rockfalls = True
+transform_data = True
+subsample = True
+vegetation_filter = True
+auto_aligment = False
+cut_pointcloud = False
+m3c2_dist = True
+visualizations = False
+save_rockfalls = False
+
+spatial_distance = 0.05
 voxel_size = 0.5                #downsampling for fast registration
 ite = 4                         #ICP iterations for fine adjustment
 diff_threshold = 0.20           #Threshold for filtering pointclouds (in cm)
@@ -36,45 +43,67 @@ min_samples = 15                #DBSCAN: Min number of points to be cluster
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
-output_path = r"C:\Users\XBG\Desktop\test"
-m3c2_param = r'C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\PyRockFall_PointClouds\bin\m3c2_params.txt'
+output_path = r"C:\Users\Xabier\Desktop\PyRockDiff_ICGCData"
+m3c2_param = r'.\bin\m3c2_params.txt'
+canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-#epoch1_path = askopenfilename(title = "Select PointCloud 1") #use open GUI
-#epoch2_path = askopenfilename(title = "Select PointCloud 2") #use open GUI
-epoch1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest2_1848.xyz"
-epoch2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Data_test\PCTest1_2135.xyz"
+e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
+e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
 
-utils.PCVisualization(epoch1_path, enable=PCload_visualization)
-utils.PCVisualization(epoch2_path, enable=PCload_visualization)
-
-''' Create folders '''
-project_folder = utils.create_project_folders(output_path, epoch1_path, epoch2_path)
+'''Main code'''
+project_folder = utils.create_project_folders(output_path, e1_path, e2_path)
 raw_folder = utils.create_folder(project_folder, 'raw')
-registration_folder = utils.create_folder(project_folder, 'registration')
-m3c2_folder = utils.create_folder(project_folder, 'm2c2')
-dbscan_folder = utils.create_folder(project_folder, 'dbscan')
+e1_raw_path = utils.copy_source(e1_path, raw_folder)
+e2_raw_path = utils.copy_source(e2_path, raw_folder)
 
-'''Copy original PC'''
-utils.copy_source(epoch1_path, epoch2_path, raw_folder)
+if transform_data:
+    data_folder = utils.create_folder(project_folder, 'XYZ')
+    e1_xyz_path = utils.transform_files(e1_path, data_folder)
+    e2_xyz_path = utils.transform_files(e2_path, data_folder)
+else:
+    e1_xyz_path = e1_raw_path
+    e2_xyz_path = e2_raw_path
+
+if subsample:
+    subsample_folder = utils.create_folder(project_folder, 'subsample')
+    e1_sub_path = utils.subsampling(e1_xyz_path, spatial_distance, CloudComapare_path, subsample_folder)
+    e2_sub_path = utils.subsampling(e2_xyz_path, spatial_distance, CloudComapare_path, subsample_folder)
+else:
+    e1_sub_path = e1_xyz_path
+    e2_sub_path = e2_xyz_path
+
+if vegetation_filter:
+    canupo_folder = utils.create_folder(project_folder, 'canupo')
+    e1_filtered_path = canupo.canupo_core(CloudComapare_path, e1_sub_path, canupo_file, canupo_folder)
+    e2_filtered_path = canupo.canupo_core(CloudComapare_path, e2_sub_path, canupo_file, canupo_folder)
+else:
+    e1_filtered_path = e1_sub_path
+    e2_filtered_path = e2_sub_path
 
 if auto_aligment == True:
+    registration_folder = utils.create_folder(project_folder, 'registration')
     ''' Fast Registration '''
-    e1_Reg_path, e2_Reg_path = reg.fast_reg(voxel_size, epoch1_path, epoch2_path, registration_folder)
+    e1_reg_path, e2_reg_path = reg.fast_reg(voxel_size, e1_filtered_path, e2_filtered_path, registration_folder)
     ''' ICP Registration '''
-    e1_Reg_path, e2_Reg_path = reg.ICP_CC(e1_Reg_path, e2_Reg_path, CloudComapare_path, ite)
-
+    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, CloudComapare_path, ite)
 else:
-    e1_Reg_path = epoch1_path
-    e2_Reg_path = epoch2_path
+    e1_reg_path = e1_filtered_path
+    e2_reg_path = e2_filtered_path
 
-'''' cut '''
-e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_Reg_path, e2_Reg_path, registration_folder)
+if cut_pointcloud:
+    e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_reg_path, e2_reg_path, registration_folder)
+else:
+    e1_cut_path = e1_reg_path
+    e2_cut_path = e2_reg_path
 
-''' M3C2 '''
-e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_RegCut_path, e2_RegCut_path, m3c2_param, m3c2_folder, epoch1_path, epoch2_path)
-
-''' Rockfall Extraction'''
-e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1ve2_path, diff_threshold, eps, min_samples, save_rockfalls)
-
-''' Volume Calculation '''
+if m3c2_dist:
+    m3c2_folder = utils.create_folder(project_folder, 'm2c2')
+    e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_cut_path, e2_cut_path, m3c2_param, m3c2_folder, e1_path, e2_path)
+#
+# ''' Rockfall Extraction'''
+# dbscan_folder = utils.create_folder(project_folder, 'dbscan')
+#
+# e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1ve2_path, diff_threshold, eps, min_samples, save_rockfalls)
+#
+# ''' Volume Calculation '''

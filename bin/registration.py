@@ -93,7 +93,7 @@ def ICP_CC(e1_path, e2_path, CloudComapare_path, ite):
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", e1_path,
                       "-O", e2_path,
-                      "-ICP", "-REFERENCE_IS_FIRST", "-OVERLAP", "95",
+                      "-ICP", "-REFERENCE_IS_FIRST", "-OVERLAP", "99",
                       "-RANDOM_SAMPLING_LIMIT", "1000000000", "-FARTHEST_REMOVAL",
                       "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}"']
 

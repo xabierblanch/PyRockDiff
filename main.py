@@ -30,7 +30,7 @@ options = {
     "transform_data": False,            #Transform data to XYZ format, remove headers and empty lines
     "subsample": False,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
     "vegetation_filter": False,         #Vegetation filter (CANUPO)
-    "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
+    "cleaning_filtering": False,        #Apply DBSCAN filtering and outliers filtering
     "fast_registration": True,         #Fast registration to approximate both Point Clouds
     "icp_registration": True,          #ICP registration
     "roi_focus": False,                #Cut and remove areas out of ROI
@@ -39,8 +39,8 @@ options = {
 
 parameters = {
     "spatial_distance": 0.05,          #Value [in m] for the subsampling
-    "voxel_size": 1,                    #downsampling for fast registration
-    "ite": 1,                          #ICP iterations for fine adjustment
+    "voxel_size": 0.25,                   #downsampling for fast registration
+    "ite": 3,                          #ICP iterations for fine adjustment
 
     "diff_threshold": 0.20,            #Threshold for filtering pointclouds (in cm)
     "eps_rockfalls": 1,                #DBSCAN: Max distance to search points
@@ -53,16 +53,16 @@ parameters = {
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
-output_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
+output_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
 m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
-e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
+e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
+e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
 
-e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\canupo\190711_Apostols_sub_rock.xyz"
-e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\canupo\240423_Apostols_sub_rock.xyz"
+e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
+e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\240423_Apostols_sub_rock_dbscan.xyz"
 
 '''Main code'''
 project_folder = utils.create_project_folders(output_path, e1_path, e2_path)
@@ -111,6 +111,8 @@ if options['fast_registration']:
     print("\nFast registration")
     registration_folder = utils.create_folder(project_folder, 'registration')
     e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder)
+    e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_reg_path, e2_reg_path, registration_folder)
+
 
 if options['icp_registration']:
     print("\nICP registration")

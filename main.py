@@ -27,10 +27,10 @@ import bin.canupo as canupo
 import bin.cleaning as cleaning
 
 options = {
-    "transform_data": False,            #Transform data to XYZ format, remove headers and empty lines
-    "subsample": False,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
-    "vegetation_filter": False,         #Vegetation filter (CANUPO)
-    "cleaning_filtering": False,        #Apply DBSCAN filtering and outliers filtering
+    "transform_data": True,            #Transform data to XYZ format, remove headers and empty lines
+    "subsample": True,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
+    "vegetation_filter": True,         #Vegetation filter (CANUPO)
+    "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
     "fast_registration": True,         #Fast registration to approximate both Point Clouds
     "icp_registration": True,          #ICP registration
     "roi_focus": False,                #Cut and remove areas out of ROI
@@ -58,11 +58,11 @@ m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
-e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
+e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\190711_DegotallsN.xyz"
+e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\240423_DegotallsN.xyz"
 
-e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
-e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\240423_Apostols_sub_rock_dbscan.xyz"
+# e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
+# e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\240423_Apostols_sub_rock_dbscan.xyz"
 
 '''Main code'''
 project_folder = utils.create_project_folders(output_path, e1_path, e2_path)

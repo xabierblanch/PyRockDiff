@@ -38,9 +38,9 @@ options = {
     "save_rockfalls": False}
 
 parameters = {
-    "spatial_distance": 0.05,          #Value [in m] for the subsampling
-    "voxel_size": 0.25,                   #downsampling for fast registration
-    "ite": 3,                          #ICP iterations for fine adjustment
+    "spatial_distance": 0.05,         #Value [in m] for the subsampling
+    "voxel_size": 0.25,               #downsampling for fast registration
+    "ite_icp": 3,                     #ICP iterations for fine adjustment
 
     "diff_threshold": 0.20,            #Threshold for filtering pointclouds (in cm)
     "eps_rockfalls": 1,                #DBSCAN: Max distance to search points
@@ -113,11 +113,10 @@ if options['fast_registration']:
     e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder)
     e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_reg_path, e2_reg_path, registration_folder)
 
-
 if options['icp_registration']:
     print("\nICP registration")
     registration_folder = utils.create_folder(project_folder, 'registration')
-    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, CloudComapare_path, parameters['ite'])
+    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, CloudComapare_path, parameters['ite_icp'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path

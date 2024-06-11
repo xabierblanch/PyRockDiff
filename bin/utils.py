@@ -118,9 +118,9 @@ def transform_files(path, raw_folder):
 
 def dbscan_core(pc_path, eps, min_samples):
     pc = loadPC(pc_path)
-    _print("Running DBSCAN clustering")
+    _print(f"Running DBSCAN clustering: {get_file_name(pc_path)}")
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(pc[:,[0,1,2]])
     labels = clustering.labels_.reshape((-1, 1))
     pc_cluster = np.append(pc, labels, axis=1)
-    _print("DBSCAN clustering complete")
+    _print("DBSCAN clustering complete successfully")
     return pc_cluster

@@ -27,29 +27,29 @@ import bin.canupo as canupo
 import bin.cleaning as cleaning
 
 options = {
-    "transform_data": True,            #Transform data to XYZ format, remove headers and empty lines
-    "subsample": True,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
-    "vegetation_filter": True,         #Vegetation filter (CANUPO)
-    "cleaning_filtering": True,         #Apply DBSCAN filtering and outliers filtering
-    "fast_registration": True,          #Fast registration to approximate both Point Clouds
-    "icp_registration": True,           #ICP registration
-    "roi_focus": False,                  #Cut and remove areas out of ROI
-    "m3c2_dist": True,                  #Compute the M3C2 differences
+    "transform_data": False,            #Transform data to XYZ format, remove headers and empty lines
+    "subsample": False,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
+    "vegetation_filter": False,         #Vegetation filter (CANUPO)
+    "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
+    "fast_registration": True,         #Fast registration to approximate both Point Clouds
+    "icp_registration": True,          #ICP registration
+    "roi_focus": False,                #Cut and remove areas out of ROI
+    "m3c2_dist": True,                 #Compute the M3C2 differences
     "save_rockfalls": False}
 
 parameters = {
-    "spatial_distance": 0.05,           #Value [in m] for the subsampling
-    "voxel_size": 0.5,                  #downsampling for fast registration
-    "ite": 1,                           #ICP iterations for fine adjustment
+    "spatial_distance": 0.05,          #Value [in m] for the subsampling
+    "voxel_size": 1,                    #downsampling for fast registration
+    "ite": 1,                          #ICP iterations for fine adjustment
 
-    "diff_threshold": 0.20,             #Threshold for filtering pointclouds (in cm)
-    "eps_rockfalls": 1,                 #DBSCAN: Max distance to search points
-    "min_samples_rockfalls": 15,        #DBSCAN: Min number of points to be cluster
+    "diff_threshold": 0.20,            #Threshold for filtering pointclouds (in cm)
+    "eps_rockfalls": 1,                #DBSCAN: Max distance to search points
+    "min_samples_rockfalls": 15,       #DBSCAN: Min number of points to be cluster
 
-    "eps_filter" : 0.5,
-    "min_samples_filter" : 50,
-    "nb_neighbors_filter" : 20,
-    "std_ratio_filter" : 2}
+    "eps_f" : 0.5,
+    "min_samples_f" : 50,
+    "nb_neighbors_f" : 20,
+    "std_ratio_f" : 2}
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
@@ -96,12 +96,13 @@ else:
     e2_canupo_path = e2_sub_path
 
 if options['cleaning_filtering']:
-    print("\nCleaning and outliers filtering")
     clean_folder = utils.create_folder(project_folder, 'clean')
-    e1_filtered_path = cleaning.dbscan_filter(e1_canupo_path, clean_folder, parameters['eps_filter'], parameters['min_samples_filter'])
-    e2_filtered_path = cleaning.dbscan_filter(e2_canupo_path, clean_folder, parameters['eps_filter'], parameters['min_samples_filter'])
-    e1_filtered_path = cleaning.outlier_filter(e1_filtered_path, parameters['nb_neighbors'], parameters['std_ratio'])
-    e2_filtered_path = cleaning.outlier_filter(e2_filtered_path, parameters['nb_neighbors'], parameters['std_ratio'])
+    print("\nDBSCAN Filtering started")
+    e1_filtered_path = cleaning.dbscan_filter(e1_canupo_path, clean_folder, parameters['eps_f'], parameters['min_samples_f'])
+    e2_filtered_path = cleaning.dbscan_filter(e2_canupo_path, clean_folder, parameters['eps_f'], parameters['min_samples_f'])
+    print("\nStatistical oulier removal")
+    e1_filtered_path = cleaning.outlier_filter(e1_filtered_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
+    e2_filtered_path = cleaning.outlier_filter(e2_filtered_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
 else:
     e1_filtered_path = e1_canupo_path
     e2_filtered_path = e2_canupo_path
@@ -130,7 +131,7 @@ if options['m3c2_dist']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, 'm2c2')
     e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_cut_path, e2_cut_path, m3c2_param, m3c2_folder, e1_path, e2_path)
-#
+
 # ''' Rockfall Extraction'''
 # dbscan_folder = utils.create_folder(project_folder, 'dbscan')
 #

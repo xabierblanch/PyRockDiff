@@ -85,16 +85,19 @@ def fast_reg(voxel_size, e1_path, e2_path, registration_folder):
 
     return os.path.join(registration_folder, e1_name + '_reg.xyz'), os.path.join(registration_folder, e2_name + '_reg.xyz')
 
-def ICP_CC(epoch1_path, epoch2_path, CloudComapare_path, ite):
-    CC_ICP_Command = CloudComapare_path + ' -AUTO_SAVE OFF -C_EXPORT_FMT ASC -PREC 3 -o "' +\
-                     epoch1_path +\
-                     '" -o "' + \
-                     epoch2_path +\
-                     '" -ICP -REFERENCE_IS_FIRST -OVERLAP 99 -RANDOM_SAMPLING_LIMIT 1000000000 -FARTHEST_REMOVAL -SAVE_CLOUDS FILE ""' +\
-                     epoch1_path +\
-                     '" "' + \
-                     epoch2_path +'""'
+def ICP_CC(e1_path, e2_path, CloudComapare_path, ite):
+
+    CC_ICP_Command = [CloudComapare_path,
+                      "-AUTO_SAVE", "OFF",
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-O", e1_path,
+                      "-O", e2_path,
+                      "-ICP", "-REFERENCE_IS_FIRST", "-OVERLAP", "95",
+                      "-RANDOM_SAMPLING_LIMIT", "1000", "-FARTHEST_REMOVAL",
+                      "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}"']
+
+    #1000000000
     for i in range(ite):
         subprocess.run(CC_ICP_Command)
 
-    return epoch1_path, epoch2_path
+    return e1_path, e2_path

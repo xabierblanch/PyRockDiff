@@ -5,16 +5,33 @@ import os
 import shutil
 import subprocess
 import datetime
-import pandas as pd
+from sklearn.cluster import DBSCAN
+
+
+def start_code(options, parameters, e1_path, e2_path):
+    e1 = get_file_name(e1_path)
+    e2 = get_file_name(e2_path)
+    print('\n\n*****************************************************')
+    print(f'PyRockDiff will automatically perform a 3D comparison'
+          f' between the point cloud {e1} and the point cloud {e2}.\n'
+          f'\nThe following functions are enabled:\n')
+
+    for option in options:
+        print(f'{option}: {options[option]}')
+
+    print(f'\nAnd the following parameters will be used:\n')
+    for parameter in parameters:
+        print(f'{parameter}: {parameters[parameter]}')
+    print('\n\n*****************************************************')
 
 
 def loadPC(path):
-    _print(f'Loading: {get_file_name(path)}. Some skiprows will be tested')
+    _print(f'File {get_file_name(path)}: Loading')
     get_file_name(path)
     for skiprows in range (25):
         try:
             pc = np.loadtxt(path, skiprows=skiprows)
-            _print(f'File: {get_file_name(path)} loaded')
+            _print(f'File {get_file_name(path)}: Done')
             return pc
         except:
             _print(f'Skipping line: {skiprows}, and trying to load the file again')
@@ -53,19 +70,27 @@ def copy_source(pc1_path, project_folder):
 
 def savePC(path, pointcloud):
     pc_name = get_file_name(path)
-    _print(f"Saving transformed {pc_name} data in XYZ folder")
+    _print(f"Saving {pc_name} data in '{Path(path).parts[-2]}' folder")
     np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
-    _print(f"Saving transformed {pc_name} completed")
+    _print(f"Saving {pc_name} completed")
     return path
 
 def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
     output_path = os.path.join(subsample_folder, get_file_name(path) + "_sub.txt")
-    _print(f'Subsampling data. Spatial distance: {spatial_distance}')
 
-    CC_SUB_Command = ('"' + CloudComapare_path + '" -AUTO_SAVE OFF -C_EXPORT_FMT ASC -PREC 3 -o "' + path + '" -SS SPATIAL '
-                       + str(spatial_distance) + ' -SAVE_CLOUDS FILE "' + output_path + '"')
+    _print(f'Subsampling {get_file_name(path)}. Spatial distance: {spatial_distance} cm')
+
+    CC_SUB_Command = [CloudComapare_path,
+                      "-AUTO_SAVE", "OFF",
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-O", path,
+                      "-SS", "SPATIAL", str(spatial_distance),
+                      "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
+
     subprocess.run(CC_SUB_Command)
-    return output_path
+    _print(f'Subsampling {get_file_name(path)} completed')
+    _print(f'Subsampling {get_file_name(output_path)} saved')
+    return os.path.join(subsample_folder, get_file_name(path) + "_sub.txt")
 
 def _print(message):
     """Prints a message with a timestamp in the format [DD/MM/YYYY - HH:MM] :: """
@@ -90,3 +115,12 @@ def transform_files(path, raw_folder):
     _print(f"Line 0 to {skipLines} will be removed from your file")
     savePC(os.path.join(raw_folder,pc_name + '.txt'), pc_xyz_filtered)
     return os.path.join(raw_folder,pc_name + '.txt')
+
+def dbscan_core(pc_path, eps, min_samples):
+    pc = loadPC(pc_path)
+    _print("Running DBSCAN clustering")
+    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(pc[:,[0,1,2]])
+    labels = clustering.labels_.reshape((-1, 1))
+    pc_cluster = np.append(pc, labels, axis=1)
+    _print("DBSCAN clustering complete")
+    return pc_cluster

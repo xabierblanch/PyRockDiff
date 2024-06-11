@@ -4,100 +4,130 @@
 # Antonio Abellán (2010):
 # Manuel Royán (2015): https://diposit.ub.edu/dspace/handle/2445/68667
 # Xabier Blanch (2023): https://diposit.ub.edu/dspace/handle/2445/189157
-# Developed in the RISKNAT research group of the University of Barcelona.
+# developed in the RISKNAT research group of the University of Barcelona.
 
-# External software and libraries are used. Special mention to:
+# External Open Source software and libraries are used. Special mention to:
 # CloudCompare: https://www.danielgm.net/cc/ - used under GNU General Public License (GPL)
 # py4dgeo: https://github.com/3dgeo-heidelberg/py4dgeo - used under MIT License
 # Open3D: https://www.open3d.org/ - used under MIT License
 
 # You are free to use this software for any purpose. This freedom is being defined by the GNU General Public License (GPL).
+#TODO Include DBSCAN filter after CANUPO and other Outliers filter.
+#TODO Migrate from CloudCompare to other solutions
+#TODO Compute the volume of the clusters
+#TODO include verbososity option + Silent in cloudcompare
+#TODO Create some log file
 
 ''' Import libraries '''
-from tkinter.filedialog import askopenfilename
 import bin.utils as utils
 import bin.registration as reg
 from bin.Boundary3D import main_2Dcut
 import bin.m3c2 as m3c2
 import bin.canupo as canupo
-import bin.rockfalls as rf
-import open3d as o3d
-import os
+import bin.cleaning as cleaning
 
-''' Parameters'''
-transform_data = True
-subsample = True
-vegetation_filter = True
-auto_aligment = False
-cut_pointcloud = False
-m3c2_dist = True
-visualizations = False
-save_rockfalls = False
+options = {
+    "transform_data": True,            #Transform data to XYZ format, remove headers and empty lines
+    "subsample": True,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
+    "vegetation_filter": True,         #Vegetation filter (CANUPO)
+    "cleaning_filtering": True,         #Apply DBSCAN filtering and outliers filtering
+    "fast_registration": True,          #Fast registration to approximate both Point Clouds
+    "icp_registration": True,           #ICP registration
+    "roi_focus": False,                  #Cut and remove areas out of ROI
+    "m3c2_dist": True,                  #Compute the M3C2 differences
+    "save_rockfalls": False}
 
-spatial_distance = 0.05
-voxel_size = 0.5                #downsampling for fast registration
-ite = 4                         #ICP iterations for fine adjustment
-diff_threshold = 0.20           #Threshold for filtering pointclouds (in cm)
-eps = 1                         #DBSCAN: Max distance to search points
-min_samples = 15                #DBSCAN: Min number of points to be cluster
+parameters = {
+    "spatial_distance": 0.05,           #Value [in m] for the subsampling
+    "voxel_size": 0.5,                  #downsampling for fast registration
+    "ite": 1,                           #ICP iterations for fine adjustment
+
+    "diff_threshold": 0.20,             #Threshold for filtering pointclouds (in cm)
+    "eps_rockfalls": 1,                 #DBSCAN: Max distance to search points
+    "min_samples_rockfalls": 15,        #DBSCAN: Min number of points to be cluster
+
+    "eps_filter" : 0.5,
+    "min_samples_filter" : 50,
+    "nb_neighbors_filter" : 20,
+    "std_ratio_filter" : 2}
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
-output_path = r"C:\Users\Xabier\Desktop\PyRockDiff_ICGCData"
+output_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
 m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
-e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
+e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
+e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
+
+e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\canupo\190711_Apostols_sub_rock.xyz"
+e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\canupo\240423_Apostols_sub_rock.xyz"
 
 '''Main code'''
 project_folder = utils.create_project_folders(output_path, e1_path, e2_path)
-raw_folder = utils.create_folder(project_folder, 'raw')
-e1_raw_path = utils.copy_source(e1_path, raw_folder)
-e2_raw_path = utils.copy_source(e2_path, raw_folder)
+utils.start_code(options, parameters, e1_path, e2_path)
 
-if transform_data:
+if options['transform_data']:
+    print("\nData transformation")
     data_folder = utils.create_folder(project_folder, 'XYZ')
     e1_xyz_path = utils.transform_files(e1_path, data_folder)
     e2_xyz_path = utils.transform_files(e2_path, data_folder)
 else:
-    e1_xyz_path = e1_raw_path
-    e2_xyz_path = e2_raw_path
+    e1_xyz_path = e1_path
+    e2_xyz_path = e2_path
 
-if subsample:
+if options['subsample']:
+    print("\nData subsampling")
     subsample_folder = utils.create_folder(project_folder, 'subsample')
-    e1_sub_path = utils.subsampling(e1_xyz_path, spatial_distance, CloudComapare_path, subsample_folder)
-    e2_sub_path = utils.subsampling(e2_xyz_path, spatial_distance, CloudComapare_path, subsample_folder)
+    e1_sub_path = utils.subsampling(e1_xyz_path, parameters['spatial_distance'], CloudComapare_path, subsample_folder)
+    e2_sub_path = utils.subsampling(e2_xyz_path, parameters['spatial_distance'], CloudComapare_path, subsample_folder)
 else:
     e1_sub_path = e1_xyz_path
     e2_sub_path = e2_xyz_path
 
-if vegetation_filter:
+if options['vegetation_filter']:
+    print("\nData vegetation filtering")
     canupo_folder = utils.create_folder(project_folder, 'canupo')
-    e1_filtered_path = canupo.canupo_core(CloudComapare_path, e1_sub_path, canupo_file, canupo_folder)
-    e2_filtered_path = canupo.canupo_core(CloudComapare_path, e2_sub_path, canupo_file, canupo_folder)
+    e1_canupo_path = canupo.canupo_core(CloudComapare_path, e1_sub_path, canupo_file, canupo_folder)
+    e2_canupo_path = canupo.canupo_core(CloudComapare_path, e2_sub_path, canupo_file, canupo_folder)
 else:
-    e1_filtered_path = e1_sub_path
-    e2_filtered_path = e2_sub_path
+    e1_canupo_path = e1_sub_path
+    e2_canupo_path = e2_sub_path
 
-if auto_aligment == True:
+if options['cleaning_filtering']:
+    print("\nCleaning and outliers filtering")
+    clean_folder = utils.create_folder(project_folder, 'clean')
+    e1_filtered_path = cleaning.dbscan_filter(e1_canupo_path, clean_folder, parameters['eps_filter'], parameters['min_samples_filter'])
+    e2_filtered_path = cleaning.dbscan_filter(e2_canupo_path, clean_folder, parameters['eps_filter'], parameters['min_samples_filter'])
+    e1_filtered_path = cleaning.outlier_filter(e1_filtered_path, parameters['nb_neighbors'], parameters['std_ratio'])
+    e2_filtered_path = cleaning.outlier_filter(e2_filtered_path, parameters['nb_neighbors'], parameters['std_ratio'])
+else:
+    e1_filtered_path = e1_canupo_path
+    e2_filtered_path = e2_canupo_path
+
+if options['fast_registration']:
+    print("\nFast registration")
     registration_folder = utils.create_folder(project_folder, 'registration')
-    ''' Fast Registration '''
-    e1_reg_path, e2_reg_path = reg.fast_reg(voxel_size, e1_filtered_path, e2_filtered_path, registration_folder)
-    ''' ICP Registration '''
-    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, CloudComapare_path, ite)
+    e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder)
+
+if options['icp_registration']:
+    print("\nICP registration")
+    registration_folder = utils.create_folder(project_folder, 'registration')
+    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, CloudComapare_path, parameters['ite'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path
 
-if cut_pointcloud:
+if options['roi_focus']:
+    print("\nROI clipping")
     e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_reg_path, e2_reg_path, registration_folder)
 else:
     e1_cut_path = e1_reg_path
     e2_cut_path = e2_reg_path
 
-if m3c2_dist:
+if options['m3c2_dist']:
+    print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, 'm2c2')
     e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_cut_path, e2_cut_path, m3c2_param, m3c2_folder, e1_path, e2_path)
 #

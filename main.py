@@ -23,46 +23,47 @@ import bin.utils as utils
 import bin.registration as reg
 from bin.Boundary3D import main_2Dcut
 import bin.m3c2 as m3c2
-import bin.canupo as canupo
-import bin.cleaning as cleaning
+import bin.canupo as cp
+import bin.cleaning as cl
+import bin.rockfalls as rf
 
 options = {
     "transform_data": True,            #Transform data to XYZ format, remove headers and empty lines
-    "subsample": True,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
-    "vegetation_filter": True,         #Vegetation filter (CANUPO)
-    "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
-    "fast_registration": True,         #Fast registration to approximate both Point Clouds
-    "icp_registration": True,          #ICP registration
-    "roi_focus": False,                #Cut and remove areas out of ROI
-    "m3c2_dist": True,                 #Compute the M3C2 differences
-    "save_rockfalls": False}
+    "subsample": False,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
+    "vegetation_filter": False,         #Vegetation filter (CANUPO)
+    "cleaning_filtering": False,        #Apply DBSCAN filtering and outliers filtering
+    "fast_registration": False,         #Fast registration to approximate both Point Clouds
+    "icp_registration": False,          #ICP registration
+    "roi_focus": False,                 #Cut and remove areas out of ROI
+    "m3c2_dist": False,                 #Compute the M3C2 differences
+    "auto_parameters": False,
+    "rf_clustering": False,
+    "rockfalls_1by1": False}
 
 parameters = {
-    "spatial_distance": 0.05,         #Value [in m] for the subsampling
+    "spatial_distance": 0.05,         #Value [in m] for CloudCompare subsampling TODO: move to open3D
     "voxel_size": 0.25,               #downsampling for fast registration
     "ite_icp": 3,                     #ICP iterations for fine adjustment
 
-    "diff_threshold": 0.20,            #Threshold for filtering pointclouds (in cm)
-    "eps_rockfalls": 1,                #DBSCAN: Max distance to search points
-    "min_samples_rockfalls": 15,       #DBSCAN: Min number of points to be cluster
+    "diff_threshold": 0.05,           #Threshold for filtering pointclouds (in cm)
+    "eps_rockfalls": 0.3,             #DBSCAN: Max distance to search points
+    "min_samples_rockfalls": 15,      #DBSCAN: Min number of points to be cluster (Could be estimated automatically)
 
-    "eps_f" : 0.5,
-    "min_samples_f" : 50,
-    "nb_neighbors_f" : 20,
-    "std_ratio_f" : 2}
+    "nb_neighbors_f" : 10,            #statistic filtering / https://www.open3d.org/docs/0.9.0/tutorial/Advanced/pointcloud_outlier_removal.html
+    "std_ratio_f" : 2}                #statistic filtering
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
-output_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
+output_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
 m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\190711_DegotallsN.xyz"
-e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\240423_DegotallsN.xyz"
+e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\190711_DegotallsN.xyz"
+e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Detall_Cinglera\210712_Detall_Cinglera.e57"
 
-# e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
-# e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\240423_Apostols_sub_rock_dbscan.xyz"
+# e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
+# e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan\m2c2\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan_m3c2.xyz"
 
 '''Main code'''
 project_folder = utils.create_project_folders(output_path, e1_path, e2_path)
@@ -71,8 +72,8 @@ utils.start_code(options, parameters, e1_path, e2_path)
 if options['transform_data']:
     print("\nData transformation")
     data_folder = utils.create_folder(project_folder, 'XYZ')
-    e1_xyz_path = utils.transform_files(e1_path, data_folder)
-    e2_xyz_path = utils.transform_files(e2_path, data_folder)
+    e1_xyz_path = utils.transform_files(CloudComapare_path, e1_path, data_folder)
+    e2_xyz_path = utils.transform_files(CloudComapare_path, e2_path, data_folder)
 else:
     e1_xyz_path = e1_path
     e2_xyz_path = e2_path
@@ -89,20 +90,17 @@ else:
 if options['vegetation_filter']:
     print("\nData vegetation filtering")
     canupo_folder = utils.create_folder(project_folder, 'canupo')
-    e1_canupo_path = canupo.canupo_core(CloudComapare_path, e1_sub_path, canupo_file, canupo_folder)
-    e2_canupo_path = canupo.canupo_core(CloudComapare_path, e2_sub_path, canupo_file, canupo_folder)
+    e1_canupo_path = cp.canupo_core(CloudComapare_path, e1_sub_path, canupo_file, canupo_folder)
+    e2_canupo_path = cp.canupo_core(CloudComapare_path, e2_sub_path, canupo_file, canupo_folder)
 else:
     e1_canupo_path = e1_sub_path
     e2_canupo_path = e2_sub_path
 
 if options['cleaning_filtering']:
     clean_folder = utils.create_folder(project_folder, 'clean')
-    print("\nDBSCAN Filtering started")
-    e1_filtered_path = cleaning.dbscan_filter(e1_canupo_path, clean_folder, parameters['eps_f'], parameters['min_samples_f'])
-    e2_filtered_path = cleaning.dbscan_filter(e2_canupo_path, clean_folder, parameters['eps_f'], parameters['min_samples_f'])
     print("\nStatistical oulier removal")
-    e1_filtered_path = cleaning.outlier_filter(e1_filtered_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
-    e2_filtered_path = cleaning.outlier_filter(e2_filtered_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
+    e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
+    e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
 else:
     e1_filtered_path = e1_canupo_path
     e2_filtered_path = e2_canupo_path
@@ -131,11 +129,18 @@ else:
 if options['m3c2_dist']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, 'm2c2')
-    e1ve2_path = m3c2.m3c2_core(CloudComapare_path, e1_cut_path, e2_cut_path, m3c2_param, m3c2_folder, e1_path, e2_path)
+    e1vse2_path = m3c2.m3c2_core(CloudComapare_path, e1_cut_path, e2_cut_path, m3c2_param, m3c2_folder, e1_path, e2_path)
+else:
+    e1vse2_path = e1_reg_path
 
-# ''' Rockfall Extraction'''
-# dbscan_folder = utils.create_folder(project_folder, 'dbscan')
-#
-# e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1ve2_path, diff_threshold, eps, min_samples, save_rockfalls)
+if options['auto_parameters']:
+    print("\nAuto DBSCAN parameters computation")
+    dbscan_folder = utils.create_folder(project_folder, 'dbscan')
+    density_points, spatial_distance = utils.density(e1vse2_path, CloudComapare_path, dbscan_folder)
+    parameters['min_samples_rockfalls'] = utils.auto_param(density_points, parameters['eps_rockfalls'], safety_factor=0.9)
+
+if options["rf_clustering"]:
+    dbscan_folder = utils.create_folder(project_folder, 'dbscan')
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1vse2_path, parameters, options)
 #
 # ''' Volume Calculation '''

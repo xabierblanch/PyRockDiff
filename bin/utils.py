@@ -6,8 +6,8 @@ import shutil
 import subprocess
 import datetime
 from sklearn.cluster import DBSCAN
-
-
+import math
+import time
 def start_code(options, parameters, e1_path, e2_path):
     e1 = get_file_name(e1_path)
     e2 = get_file_name(e2_path)
@@ -90,7 +90,37 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
     subprocess.run(CC_SUB_Command)
     _print(f'Subsampling {get_file_name(path)} completed')
     _print(f'Subsampling {get_file_name(output_path)} saved')
-    return os.path.join(subsample_folder, get_file_name(path) + "_sub.txt")
+    return os.path.join(subsample_folder, get_file_name(path) + "_sub.xyz")
+
+def density(path, CloudComapare_path, dbscan_folder):
+    output_path = os.path.join(dbscan_folder, get_file_name(path) + "_density.xyz")
+    radius = 0.25
+    _print(f'Computing point density {get_file_name(path)}. Sphere radius: {radius} m')
+    CC_DEN_Command = [CloudComapare_path,
+                      "-AUTO_SAVE", "OFF",
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-O", path,
+                      "-DENSITY", str(radius), "-TYPE", "KNN",
+                      "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
+
+    subprocess.run(CC_DEN_Command)
+    _print(f"Computing the median density points for ¨{get_file_name(path)}: Done")
+    time.sleep(5)
+    densPC = loadPC(output_path)
+    num_points = densPC[:,6].mean()
+    density_points = num_points/(math.pi*(radius**2))
+    spatial_distance = math.sqrt(1/density_points)
+    _print(f'Point cloud density: {density_points:.2f} points/m2')
+    _print(f'Point cloud spatial distance: {spatial_distance:.3f} m')
+    return density_points, spatial_distance
+
+def auto_param(density_points, radius, safety_factor):
+    area_circle = math.pi * (radius ** 2)
+    min_points = math.ceil(density_points * area_circle * safety_factor)
+    _print(f'DBSCAN parameters:')
+    _print(f'DBSCAN eps: {radius:.2f}')
+    _print(f'DBSCAN min_points: {min_points:.2f}')
+    return min_points
 
 def _print(message):
     """Prints a message with a timestamp in the format [DD/MM/YYYY - HH:MM] :: """
@@ -98,23 +128,23 @@ def _print(message):
     formatted_time = current_time.strftime("[%d/%m/%Y - %H:%M]")
     print(f"{formatted_time} :: {message}")
 
-def transform_files(path, raw_folder):
-    pc = loadPC(path)
+def transform_files(CloudComapare_path, path, data_folder):
+    output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
+
+    CC_TRA_Command = [CloudComapare_path,
+                      "-AUTO_SAVE", "OFF",
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-O", path,
+                      "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
+
+    # subprocess.run(CC_TRA_Command)
+    time.sleep(5)
+    pc_xyz = loadPC(output_path)
     pc_name = get_file_name(path)
-    _print("Only X,Y,Z values will be loaded")
-    pc_xyz = pc[:, [0,1,2]]
-
-    _print("First 10 lines of pc_xyz:\n")
-    for i in range(10):
-        print(f'line {i} -> {pc_xyz[i]}')
-
-    skipLines = int(input("\nPlease select the first line with X,Y,Z data\n"))
-    pc_xyz = pc_xyz[skipLines:]
-    mask = np.all(pc_xyz != 0, axis=1)  # Create mask for non-zero rows
+    mask = np.all(pc_xyz != 0, axis=1)
     pc_xyz_filtered = pc_xyz[mask]
-    _print(f"Line 0 to {skipLines} will be removed from your file")
-    savePC(os.path.join(raw_folder,pc_name + '.txt'), pc_xyz_filtered)
-    return os.path.join(raw_folder,pc_name + '.txt')
+    savePC(os.path.join(data_folder,pc_name + '.xyz'), pc_xyz_filtered)
+    return output_path
 
 def dbscan_core(pc_path, eps, min_samples):
     pc = loadPC(pc_path)

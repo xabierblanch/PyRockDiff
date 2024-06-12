@@ -30,12 +30,13 @@ def database(dbscan_folder, diff_cluster, file_name):
     database = pd.DataFrame(diff_cluster[:,[0,1,2,5,-1]], columns=['x', 'y', 'z', 'diff', 'label'])
     database = database.groupby(['label']).median()
     database.to_csv(os.path.join(dbscan_folder, file_name + '.csv'))
-def dbscan(dbscan_folder, e1ve2_path, threshold, eps, min_samples, save_rockfalls):
-    diff_filter = threshold_filter(threshold, e1ve2_path)
-    diff_cluster = dbscan_core(diff_filter, eps, min_samples)
+
+def dbscan(dbscan_folder, e1ve2_path, parameters, options):
+    diff_filter = threshold_filter(parameters['diff_threshold'], e1ve2_path)
+    diff_cluster = dbscan_core(diff_filter, parameters['eps_rockfalls'], parameters['min_samples_rockfalls'])
     file_name = get_file_name(e1ve2_path)
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '_dbscan.xyz'), diff_cluster)
-    if save_rockfalls:
+    if options['rockfalls_1by1']:
         onebyone(dbscan_folder, diff_cluster, file_name)
     database(dbscan_folder, diff_cluster, file_name)
     return dbscan_path

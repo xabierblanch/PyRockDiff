@@ -12,7 +12,8 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     CC_m3c2_Command = [CloudComapare_path,
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
-                      "-O", e1_path, "-O", e2_path,
+                      "-O", e1_path, "-OCTREE_NORMALS", "0.12", "-ORIENT", "MINUS_ORIGIN",
+                      "-O", e2_path,
                       "-M3C2", m3c2_param,
                       "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
 

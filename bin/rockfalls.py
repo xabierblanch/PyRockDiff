@@ -7,7 +7,10 @@ import os
 
 def threshold_filter(threshold, e1ve2_path):
     diff = loadPC(e1ve2_path)
-    diff_filter = diff[diff[:,5] > threshold]
+    if threshold < 0:
+        diff_filter = diff[diff[:,5] < threshold]
+    if threshold > 0:
+        diff_filter = diff[diff[:, 5] > threshold]
     return diff_filter
 
 def dbscan_core(diff_filter, eps, min_samples):

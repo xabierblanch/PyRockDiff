@@ -135,10 +135,10 @@ def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance)
 
     CC_TRA_Command = [CloudComapare_path,
                       "-AUTO_SAVE", "OFF",
-                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
-                      "-REMOVE_ALL_SFS", "-REMOVE_RGB", "-REMOVE_NORMALS",
                       "-O", path,
                       "-SS", "SPATIAL", str(spatial_distance),
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-REMOVE_ALL_SFS", "-REMOVE_RGB", "-REMOVE_NORMALS",
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
     subprocess.run(CC_TRA_Command)

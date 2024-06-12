@@ -28,7 +28,7 @@ import bin.cleaning as cl
 import bin.rockfalls as rf
 
 options = {
-    'transform_and_subsample': False,    #Do the conversion to XYZ and subsampling together (save time)
+    'transform_and_subsample': True,    #Do the conversion to XYZ and subsampling together (save time)
     "vegetation_filter": True,         #Vegetation filter (CANUPO)
     "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
     "fast_registration": True,         #Fast registration to approximate both Point Clouds
@@ -44,22 +44,22 @@ parameters = {
     "voxel_size": 0.25,               #downsampling for fast registration
     "ite_icp": 3,                     #ICP iterations for fine adjustment
 
-    "diff_threshold": 0.05,           #Threshold for filtering pointclouds (in cm)
+    "diff_threshold": -0.05,           #Threshold for filtering pointclouds (in cm)
     "eps_rockfalls": 0.3,             #DBSCAN: Max distance to search points
     "min_samples_rockfalls": 15,      #DBSCAN: Min number of points to be cluster (Could be estimated automatically)
 
     "nb_neighbors_f" : 10,            #statistic filtering / https://www.open3d.org/docs/0.9.0/tutorial/Advanced/pointcloud_outlier_removal.html
-    "std_ratio_f" : 2}                #statistic filtering
+    "std_ratio_f" : 1.5}                #statistic filtering
 
 ''' Paths '''
 CloudComapare_path = r"C:\Program Files\CloudCompare\cloudcompare.exe"
-output_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
+output_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results"
 m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_DegotallsN_vs_240423_DegotallsN\XYZ_sub\190711_DegotallsN.xyz"
-e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_DegotallsN_vs_240423_DegotallsN\XYZ_sub\240423_DegotallsN.xyz"
+e1_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\190711_Apostols.xyz"
+e2_path = r"C:\Users\Xabier\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Apostols\240423_Apostols.xyz"
 
 # e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
 # e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan\m2c2\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan_m3c2.xyz"

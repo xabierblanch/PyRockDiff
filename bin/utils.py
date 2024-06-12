@@ -89,7 +89,7 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
 
     subprocess.run(CC_SUB_Command)
     _print(f'Subsampling {get_file_name(path)} completed')
-    _print(f'Subsampling {get_file_name(output_path)} saved')
+
     return os.path.join(subsample_folder, get_file_name(path) + "_sub.xyz")
 
 def density(path, CloudComapare_path, dbscan_folder):
@@ -128,7 +128,25 @@ def _print(message):
     formatted_time = current_time.strftime("[%d/%m/%Y - %H:%M]")
     print(f"{formatted_time} :: {message}")
 
-def transform_files(CloudComapare_path, path, data_folder):
+def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance):
+
+    output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
+    _print(f'Converting to XYZ and subsampling {get_file_name(path)}. Spatial distance: {spatial_distance} cm')
+
+    CC_TRA_Command = [CloudComapare_path,
+                      "-AUTO_SAVE", "OFF",
+                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                      "-REMOVE_ALL_SFS", "-REMOVE_RGB", "-REMOVE_NORMALS",
+                      "-O", path,
+                      "-SS", "SPATIAL", str(spatial_distance),
+                      "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
+
+    subprocess.run(CC_TRA_Command)
+    _print(f'Conversiond and subsampling {get_file_name(path)} completed')
+
+    return output_path
+
+def transform_file(CloudComapare_path, path, data_folder):
     output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
 
     CC_TRA_Command = [CloudComapare_path,
@@ -137,7 +155,7 @@ def transform_files(CloudComapare_path, path, data_folder):
                       "-O", path,
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    # subprocess.run(CC_TRA_Command)
+    subprocess.run(CC_TRA_Command)
     time.sleep(5)
     pc_xyz = loadPC(output_path)
     pc_name = get_file_name(path)

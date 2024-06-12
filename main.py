@@ -28,16 +28,15 @@ import bin.cleaning as cl
 import bin.rockfalls as rf
 
 options = {
-    "transform_data": True,            #Transform data to XYZ format, remove headers and empty lines
-    "subsample": False,                 #Subsample the pointcloud to homogeneize the density point (use spatial_distance)
-    "vegetation_filter": False,         #Vegetation filter (CANUPO)
-    "cleaning_filtering": False,        #Apply DBSCAN filtering and outliers filtering
-    "fast_registration": False,         #Fast registration to approximate both Point Clouds
-    "icp_registration": False,          #ICP registration
+    'transform_and_subsample': False,    #Do the conversion to XYZ and subsampling together (save time)
+    "vegetation_filter": True,         #Vegetation filter (CANUPO)
+    "cleaning_filtering": True,        #Apply DBSCAN filtering and outliers filtering
+    "fast_registration": True,         #Fast registration to approximate both Point Clouds
+    "icp_registration": True,          #ICP registration
     "roi_focus": False,                 #Cut and remove areas out of ROI
-    "m3c2_dist": False,                 #Compute the M3C2 differences
-    "auto_parameters": False,
-    "rf_clustering": False,
+    "m3c2_dist": True,                 #Compute the M3C2 differences
+    "auto_parameters": True,
+    "rf_clustering": True,
     "rockfalls_1by1": False}
 
 parameters = {
@@ -59,8 +58,8 @@ m3c2_param = r'.\bin\m3c2_params.txt'
 canupo_file = r'.\bin\canupo.prm'
 
 ''' PointCloud Paths '''
-e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Degotalls_N\190711_DegotallsN.xyz"
-e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Data\Detall_Cinglera\210712_Detall_Cinglera.e57"
+e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_DegotallsN_vs_240423_DegotallsN\XYZ_sub\190711_DegotallsN.xyz"
+e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_DegotallsN_vs_240423_DegotallsN\XYZ_sub\240423_DegotallsN.xyz"
 
 # e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_vs_240423_Apostols\clean\190711_Apostols_sub_rock_dbscan.xyz"
 # e1_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\Results\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan\m2c2\190711_Apostols_sub_rock_dbscan_vs_240423_Apostols_sub_rock_dbscan_m3c2.xyz"
@@ -69,23 +68,13 @@ e2_path = r"C:\Users\XBG\OneDrive - tu-dresden.de\XBG_Projects\2024_ICGC\ICGC_Da
 project_folder = utils.create_project_folders(output_path, e1_path, e2_path)
 utils.start_code(options, parameters, e1_path, e2_path)
 
-if options['transform_data']:
-    print("\nData transformation")
-    data_folder = utils.create_folder(project_folder, 'XYZ')
-    e1_xyz_path = utils.transform_files(CloudComapare_path, e1_path, data_folder)
-    e2_xyz_path = utils.transform_files(CloudComapare_path, e2_path, data_folder)
+if options['transform_and_subsample']:
+    XYZ_sub_folder = utils.create_folder(project_folder, 'XYZ_sub')
+    e1_sub_path = utils.transform_subsample(CloudComapare_path, e1_path, XYZ_sub_folder, parameters['spatial_distance'])
+    e2_sub_path = utils.transform_subsample(CloudComapare_path, e2_path, XYZ_sub_folder, parameters['spatial_distance'])
 else:
-    e1_xyz_path = e1_path
-    e2_xyz_path = e2_path
-
-if options['subsample']:
-    print("\nData subsampling")
-    subsample_folder = utils.create_folder(project_folder, 'subsample')
-    e1_sub_path = utils.subsampling(e1_xyz_path, parameters['spatial_distance'], CloudComapare_path, subsample_folder)
-    e2_sub_path = utils.subsampling(e2_xyz_path, parameters['spatial_distance'], CloudComapare_path, subsample_folder)
-else:
-    e1_sub_path = e1_xyz_path
-    e2_sub_path = e2_xyz_path
+    e1_sub_path = e1_path
+    e2_sub_path = e2_path
 
 if options['vegetation_filter']:
     print("\nData vegetation filtering")

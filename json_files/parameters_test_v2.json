@@ -1,0 +1,32 @@
+{
+    "options": {
+        "transform_and_subsample": true,
+        "vegetation_filter": true,
+        "cleaning_filtering": true,
+        "fast_registration": true,
+        "icp_registration": true,
+        "roi_focus": false,
+        "m3c2_dist": true,
+        "auto_parameters": true,
+        "rf_clustering": true,
+        "rockfalls_1by1": false
+    },
+    "parameters": {
+        "spatial_distance": 0.05,
+        "voxel_size": 0.25,
+        "ite_icp": 3,
+        "diff_threshold": -0.05,
+        "eps_rockfalls": 0.3,
+        "min_samples_rockfalls": 15,
+        "nb_neighbors_f": 10,
+        "std_ratio_f": 1.5
+    },
+    "paths": {
+        "CloudComapare_path": "C:\\Program Files\\CloudCompare\\cloudcompare.exe",
+        "output_path": "C:\\Users\\Xabier\\OneDrive - tu-dresden.de\\XBG_Projects\\2024_ICGC\\Results",
+        "m3c2_param": ".\\bin\\m3c2_params.txt",
+        "canupo_file": ".\\bin\\canupo.prm",
+        "e1_path": "C:\\Users\\Xabier\\OneDrive - tu-dresden.de\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Apostols\\190711_Apostols.xyz",
+        "e2_path": "C:\\Users\\Xabier\\OneDrive - tu-dresden.de\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Apostols\\240423_Apostols.xyz"
+    }
+}

@@ -8,10 +8,12 @@ import datetime
 from sklearn.cluster import DBSCAN
 import math
 import time
+import json
+
 def start_code(options, parameters, e1_path, e2_path):
     e1 = get_file_name(e1_path)
     e2 = get_file_name(e2_path)
-    print('\n\n*****************************************************')
+    print('\n*****************************************************\n')
     print(f'PyRockDiff will automatically perform a 3D comparison'
           f' between the point cloud {e1} and the point cloud {e2}.\n'
           f'\nThe following functions are enabled:\n')
@@ -22,7 +24,7 @@ def start_code(options, parameters, e1_path, e2_path):
     print(f'\nAnd the following parameters will be used:\n')
     for parameter in parameters:
         print(f'{parameter}: {parameters[parameter]}')
-    print('\n\n*****************************************************')
+    print('\n*****************************************************\n')
 
 
 def loadPC(path):
@@ -51,10 +53,25 @@ def get_file_name(path):
 
 
 def create_project_folders(output_path, epoch1_path, epoch2_path):
+    timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M')
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
-    project_path = os.path.join(output_path, epoch1_name + '_vs_' + epoch2_name)
-    os.makedirs(project_path, exist_ok=True)
+
+    timestamp = input(f"Do you want to include timestamp in the folder name? (y/n): ").strip().lower()
+    if timestamp == 'y':
+        project_path = os.path.join(output_path, timestamp + "__" + epoch1_name + '__' + epoch2_name)
+    else:
+        project_path = os.path.join(output_path, epoch1_name + '__' + epoch2_name)
+
+    if os.path.exists(project_path):
+        overwrite = input(f"The folder '{project_path}' already exists. Do you want to use same folder (content will be overwrited)) (y/n): ").strip().lower()
+        if overwrite == 'y':
+            os.makedirs(project_path, exist_ok=True)
+        else:
+            print("The folder will be created with a timestamp")
+            project_path = os.path.join(output_path, timestamp + "__" + epoch1_name + '__' + epoch2_name)
+            os.makedirs(project_path, exist_ok=True)
+
     return project_path
 
 def create_folder(project_path, folder):
@@ -172,3 +189,40 @@ def dbscan_core(pc_path, eps, min_samples):
     pc_cluster = np.append(pc, labels, axis=1)
     _print("DBSCAN clustering complete successfully")
     return pc_cluster
+
+def select_json_file():
+    print('\n*****************************************************\n')
+
+    main_directory = os.getcwd()
+    json_directory = os.path.join(main_directory, 'json_files')
+
+    _print(f"Looking for .json files in: {json_directory}")
+
+    json_files = [file for file in os.listdir(json_directory) if file.endswith('.json')]
+
+    _print("Available JSON files:\n")
+    for idx, file in enumerate(json_files):
+        print(f"-> {idx + 1}. {file}")
+
+    while True:
+        try:
+            selection = int(input(f"\nSelect the file number (1-{len(json_files)}): ")) - 1
+            if 0 <= selection < len(json_files):
+                file = os.path.join(json_directory, json_files[selection])
+
+                with open(file, 'r') as f:
+                    config = json.load(f)
+                    pointCloud = config['pointCloud']
+                    options = config['options']
+                    parameters = config['parameters']
+                    paths = config['paths']
+
+                return pointCloud, options, parameters, paths
+
+            else:
+                print("Invalid selection. Please try again.")
+
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+

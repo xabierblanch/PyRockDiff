@@ -56,22 +56,22 @@ def create_project_folders(output_path, epoch1_path, epoch2_path):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
-    filename = input(f"Default folder name: {epoch1_name + '__' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
+    filename = input(f"Default folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
     if filename == 'y':
         include_timestamp = input(f"Do you want to include timestamp in the folder name? (y/n): ").strip().lower()
         if include_timestamp == 'y':
-            project_path = os.path.join(output_path, timestamp + "__" + epoch1_name + '__' + epoch2_name)
+            project_path = os.path.join(output_path, timestamp + "_to_" + epoch1_name + '__' + epoch2_name)
         else:
             new_name = input("Write the new folder name:").strip()
             project_path = os.path.join(output_path, new_name)
     else:
-        project_path = os.path.join(output_path, epoch1_name + '__' + epoch2_name)
+        project_path = os.path.join(output_path, epoch1_name + '_to_' + epoch2_name)
 
     if os.path.exists(project_path):
         overwrite = input(f"The folder '{project_path}' already exists. Do you want to overwrite the contents? (y/n): ").strip().lower()
         if overwrite != 'y':
             print("The folder will be created with a new timestamp to avoid overwriting.")
-            project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}__{epoch2_name}")
+            project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}_to_{epoch2_name}")
 
     os.makedirs(project_path, exist_ok=True)
     print(f"Folder created at: {project_path}")

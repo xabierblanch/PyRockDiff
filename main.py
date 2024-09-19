@@ -12,7 +12,6 @@
 # Open3D: https://www.open3d.org/ - used under MIT License
 
 # You are free to use this software for any purpose. This freedom is being defined by the GNU General Public License (GPL).
-#TODO Include DBSCAN filter after CANUPO and other Outliers filter.
 #TODO Migrate from CloudCompare to other solutions
 #TODO Compute the volume of the clusters
 #TODO include verbososity option + Silent in cloudcompare
@@ -54,9 +53,9 @@ else:
 
 if options['cleaning_filtering']:
     clean_folder = utils.create_folder(project_folder, 'clean')
-    print("\nStatistical oulier removal")
-    e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
-    e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'])
+    print("\nStatistical outlier removal")
+    e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
+    e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
 else:
     e1_filtered_path = e1_canupo_path
     e2_filtered_path = e2_canupo_path
@@ -98,5 +97,7 @@ if options['auto_parameters']:
 if options["rf_clustering"]:
     dbscan_folder = utils.create_folder(project_folder, 'dbscan')
     e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1vse2_path, parameters, options)
-#
-# ''' Volume Calculation '''
+
+if options["rf_volume"]:
+    dbscan_folder = utils.create_folder(project_folder, 'volume')
+    

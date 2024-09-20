@@ -38,8 +38,8 @@ def calculate_triangle_volumes(points, simplices, diff):
         avg_diff = np.mean(diff[simplex])
         volume = area * avg_diff
         volumes.append(volume)
-    volume = np.sum(volumes)
-    return volume
+    total_volume = np.sum(volumes)
+    return total_volume
 
 def volume_plot(valid_simplices, alpha_shape, points_xz):
     fig, ax = plt.subplots(figsize=(6, 6))
@@ -48,7 +48,7 @@ def volume_plot(valid_simplices, alpha_shape, points_xz):
     x, y = alpha_shape.exterior.xy
     ax.plot(x, y, 'r--', linewidth=2)
     ax.set_title(f'Alpha Shape - Delaunay Triangulation (alpha={auto_alpha:.2f})\n'
-                 f'Estimated Total Volume: {volume:.2f} m³')
+                 f'Estimated Total Volume: {total_volume:.2f} m³')
     tri_diff = np.mean(diff[valid_simplices], axis=1)
     triangles = points_xz[valid_simplices]
     triangle_patchs = PolyCollection(triangles, array=tri_diff,
@@ -83,7 +83,7 @@ y_diff = rockfall[:,1]+diff
 auto_alpha = estimate_alpha(points_xz)
 print(f"Automatically calculated alpha: {auto_alpha}")
 valid_simplices, alpha_shape = alphashape_delaunay(points_xz, auto_alpha)
-volume = calculate_triangle_volumes(points_xz, valid_simplices, diff)
+total_volume = calculate_triangle_volumes(points_xz, valid_simplices, diff)
 volume_plot(valid_simplices, alpha_shape, points_xz)
 rockfall_plot(points_xyz, y_diff, valid_simplices)
 

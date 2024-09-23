@@ -72,8 +72,13 @@ def rockfall_plot(points_xyz, y_diff, valid_simplices):
     plt.savefig('3D_rockfall.png', bbox_inches='tight', dpi=300)
     plt.close()
 
-rockfall_path = r"C:\Users\XBG\Desktop\PyRockDiff_ICGCData\190711_Apostols_rock_to_240423_Apostols_rock\rockfall\rockfall_2.xyz"
-rockfall = loadPC(rockfall_path)
+def volume(e1ve2_DBSCAN_path):
+    e1ve2_DBSCAN_path = r"C:\Users\XBG\Desktop\PyRockDiff_ICGCData\190711_Apostols_rock_to_240423_Apostols_rock\dbscan\190711_Apostols_rock_vs_240423_Apostols_rock_m3c2_dbscan.xyz"
+    rockfalls = loadPC(e1ve2_DBSCAN_path)
+
+
+
+
 
 points_xz = rockfall[:,[0,2]]
 points_xyz = rockfall[:,[0,1,2]]

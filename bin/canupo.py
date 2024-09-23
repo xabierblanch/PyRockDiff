@@ -5,7 +5,7 @@ import numpy as np
 
 def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     name = get_file_name(epoch_path)
-    output_path = os.path.join(canupo_folder, name + "_canupo.xyz")
+    output_path = os.path.join(canupo_folder, name + "__canupo.xyz")
 
     _print(f'CANUPO Algorithm: {get_file_name(epoch_path)}')
 
@@ -25,8 +25,8 @@ def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     epoch_rock = epoch_filtered[epoch_filtered[:, 3] == 1]
     epoch_vegetation = epoch_filtered[epoch_filtered[:, 3] == 2]
 
-    savePC(os.path.join(canupo_folder, name + '_rock.xyz'), epoch_rock)
-    savePC(os.path.join(canupo_folder, name + '_veg.xyz'), epoch_vegetation)
+    savePC(os.path.join(canupo_folder, name + '__rock.xyz'), epoch_rock)
+    #savePC(os.path.join(canupo_folder, name + '__veg.xyz'), epoch_vegetation)
 
-    return os.path.join(canupo_folder, name + '_rock.xyz')
+    return os.path.join(canupo_folder, name + '__rock.xyz')
 

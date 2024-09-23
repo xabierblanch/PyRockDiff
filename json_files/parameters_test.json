@@ -6,8 +6,8 @@
     },
 
     "options": {
-        "transform_and_subsample": false,
-        "vegetation_filter": false,
+        "transform_and_subsample": true,
+        "vegetation_filter": true,
         "cleaning_filtering": true,
         "fast_registration": true,
         "icp_registration": true,

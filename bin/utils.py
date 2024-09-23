@@ -9,6 +9,7 @@ from sklearn.cluster import DBSCAN
 import math
 import time
 import json
+import pandas as pd
 
 def start_code(options, parameters, e1_path, e2_path):
     e1 = get_file_name(e1_path)
@@ -26,17 +27,28 @@ def start_code(options, parameters, e1_path, e2_path):
         print(f'{parameter}: {parameters[parameter]}')
     print('\n*****************************************************\n')
 
-
 def loadPC(path):
     _print(f'File {get_file_name(path)}: Loading')
     get_file_name(path)
-    for skiprows in range (25):
-        try:
-            pc = np.loadtxt(path, skiprows=skiprows)
-            _print(f'File {get_file_name(path)}: Done')
-            return pc
-        except:
-            _print(f'Skipping line: {skiprows}, and trying to load the file again')
+    try:
+        pc = pd.read_csv(path, sep=' ')
+        _print(f'File {get_file_name(path)}: Loaded as DataFrame. Number of points: {pc.shape[0]} with {pc.shape[1]} columns')
+        return pc
+    except pd.errors.EmptyDataError:
+        _print(f'File {get_file_name(path)} appears to be empty or cannot be read as CSV')
+        return None
+    except pd.errors.ParserError:
+        _print(f'File {get_file_name(path)}: Not a typical CSV format, trying with NumPy')
+        for skiprows in range (25):
+            try:
+                pc = np.loadtxt(path, skiprows=skiprows)
+                _print(f'File {get_file_name(path)}: Loaded as NumPy array')
+                return pc
+            except:
+                _print(f'Skipping line: {skiprows}, and trying to load the file again')
+
+    _print(f'Failed to load the file: {get_file_name(path)}')
+    return None
 
 def PCVisualization(path, enable=False):
     try:
@@ -49,8 +61,8 @@ def PCVisualization(path, enable=False):
 
 def get_file_name(path):
     file_name = Path(path).stem
+    file_name = file_name.split('__')[0]
     return file_name
-
 
 def create_project_folders(output_path, epoch1_path, epoch2_path):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
@@ -92,7 +104,14 @@ def copy_source(pc1_path, project_folder):
 def savePC(path, pointcloud):
     pc_name = get_file_name(path)
     _print(f"Saving {pc_name} data in '{Path(path).parts[-2]}' folder")
-    np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
+
+    if isinstance(pointcloud, pd.DataFrame):
+        pointcloud.to_csv(path, index=False, float_format='%.3f', sep=' ')
+    elif isinstance(pointcloud, np.ndarray):
+        np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
+    else:
+        raise ValueError("Unsupported data type. Pointcloud must be a pandas DataFrame or a NumPy ndarray.")
+
     _print(f"Saving {pc_name} completed")
     return path
 

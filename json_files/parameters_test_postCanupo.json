@@ -1,21 +1,21 @@
 {
     "pointCloud": {
         "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
-        "e1": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\canupo\\190711_Apostols_rock.xyz",
-        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\canupo\\240423_Apostols_rock.xyz"
+        "e1": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_rock_to_240423_Apostols_rock\\registration\\190711_Apostols_rock_outlier_reg_reg.xyz",
+        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_rock_to_240423_Apostols_rock\\registration\\240423_Apostols_rock_outlier_reg_reg.xyz"
     },
 
     "options": {
         "transform_and_subsample": false,
         "vegetation_filter": false,
-        "cleaning_filtering": true,
-        "fast_registration": true,
-        "icp_registration": true,
+        "cleaning_filtering": false,
+        "fast_registration": false,
+        "icp_registration": false,
         "roi_focus": false,
         "m3c2_dist": true,
-        "auto_parameters": true,
-        "rf_clustering": true,
-        "rf_volume": true,
+        "auto_parameters": false,
+        "rf_clustering": false,
+        "rf_volume": false,
         "rockfalls_1by1": false
     },
 

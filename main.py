@@ -16,6 +16,7 @@
 #TODO Compute the volume of the clusters
 #TODO include verbososity option + Silent in cloudcompare
 #TODO Create some log file
+#TODO Move to Pandas to save/load files with headings
 
 ''' Import libraries '''
 import bin.utils as utils
@@ -25,6 +26,7 @@ import bin.m3c2 as m3c2
 import bin.canupo as cp
 import bin.cleaning as cl
 import bin.rockfalls as rf
+# import bin.volume as vl
 
 '''Main code'''
 
@@ -35,7 +37,7 @@ project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'],
 utils.start_code(options, parameters, pointCloud['e1'], pointCloud['e2'])
 
 if options['transform_and_subsample']:
-    XYZ_sub_folder = utils.create_folder(project_folder, 'XYZ_sub')
+    XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
     e1_sub_path = utils.transform_subsample(paths['CloudComapare'], pointCloud['e1'], XYZ_sub_folder, parameters['spatial_distance'])
     e2_sub_path = utils.transform_subsample(paths['CloudComapare'], pointCloud['e2'], XYZ_sub_folder, parameters['spatial_distance'])
 else:
@@ -44,7 +46,7 @@ else:
 
 if options['vegetation_filter']:
     print("\nData vegetation filtering")
-    canupo_folder = utils.create_folder(project_folder, 'canupo')
+    canupo_folder = utils.create_folder(project_folder, '1.2_canupo')
     e1_canupo_path = cp.canupo_core(paths['CloudComapare'], e1_sub_path, paths['canupo_file'], canupo_folder)
     e2_canupo_path = cp.canupo_core(paths['CloudComapare'], e2_sub_path, paths['canupo_file'], canupo_folder)
 else:
@@ -52,7 +54,7 @@ else:
     e2_canupo_path = e2_sub_path
 
 if options['cleaning_filtering']:
-    clean_folder = utils.create_folder(project_folder, 'clean')
+    clean_folder = utils.create_folder(project_folder, '1.3_clean')
     print("\nStatistical outlier removal")
     e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
     e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
@@ -62,13 +64,13 @@ else:
 
 if options['fast_registration']:
     print("\nFast registration")
-    registration_folder = utils.create_folder(project_folder, 'registration')
+    registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder)
     e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_reg_path, e2_reg_path, registration_folder)
 
 if options['icp_registration']:
     print("\nICP registration")
-    registration_folder = utils.create_folder(project_folder, 'registration')
+    registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, paths['CloudComapare'], parameters['ite_icp'])
 else:
     e1_reg_path = e1_filtered_path
@@ -83,21 +85,23 @@ else:
 
 if options['m3c2_dist']:
     print("\nM3C2 Computation")
-    m3c2_folder = utils.create_folder(project_folder, 'm2c2')
-    e1vse2_path = m3c2.m3c2_core(paths['CloudComapare'], e1_cut_path, e2_cut_path, paths['m3c2_param'], m3c2_folder, pointCloud['e1'], pointCloud['e2'])
+    m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
+    e1e2_change_path = m3c2.m3c2_core(paths['CloudComapare'], e1_cut_path, e2_cut_path, paths['m3c2_param'], m3c2_folder, pointCloud['e1'], pointCloud['e2'])
 else:
-    e1vse2_path = e1_reg_path
+    e1e2_change_path = e1_reg_path
 
 if options['auto_parameters']:
     print("\nAuto DBSCAN parameters computation")
-    dbscan_folder = utils.create_folder(project_folder, 'dbscan')
-    density_points, spatial_distance = utils.density(e1vse2_path, paths['CloudComapare'], dbscan_folder)
+    dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
+    density_points, spatial_distance = utils.density(e1e2_change_path, paths['CloudComapare'], dbscan_folder)
     parameters['min_samples_rockfalls'] = utils.auto_param(density_points, parameters['eps_rockfalls'], safety_factor=0.9)
 
 if options["rf_clustering"]:
-    dbscan_folder = utils.create_folder(project_folder, 'dbscan')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1vse2_path, parameters, options)
+    dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters, options)
 
-if options["rf_volume"]:
-    dbscan_folder = utils.create_folder(project_folder, 'volume')
+# if options["rf_volume"]:
+#     dbscan_folder = utils.create_folder(project_folder, 'volume')
+#     vl.volume(e1ve2_DBSCAN_path)
+
     

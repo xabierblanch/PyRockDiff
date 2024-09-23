@@ -34,7 +34,7 @@ pointCloud, options, parameters, paths = utils.select_json_file()
 
 project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'], pointCloud['e2'])
 
-utils.start_code(options, parameters, pointCloud['e1'], pointCloud['e2'])
+utils.start_code(options, parameters, pointCloud['e1'], pointCloud['e2'], project_folder)
 
 if options['transform_and_subsample']:
     XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')

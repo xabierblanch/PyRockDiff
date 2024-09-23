@@ -21,11 +21,11 @@ def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     _print(f'CANUPO Algorithm: {get_file_name(epoch_path)} done')
     _print(f'CANUPO Algorithm: {get_file_name(output_path)} saved')
 
-    epoch_filtered = loadPC(output_path)
+    epoch_filtered = loadPC(output_path, array=True)
     epoch_rock = epoch_filtered[epoch_filtered[:, 3] == 1]
-    epoch_vegetation = epoch_filtered[epoch_filtered[:, 3] == 2]
-
     savePC(os.path.join(canupo_folder, name + '__rock.xyz'), epoch_rock)
+
+    # epoch_vegetation = epoch_filtered[epoch_filtered[:, 3] == 2]
     #savePC(os.path.join(canupo_folder, name + '__veg.xyz'), epoch_vegetation)
 
     return os.path.join(canupo_folder, name + '__rock.xyz')

@@ -10,8 +10,9 @@ import math
 import time
 import json
 import pandas as pd
+import logging
 
-def start_code(options, parameters, e1_path, e2_path):
+def start_code(options, parameters, e1_path, e2_path, project_folder):
     e1 = get_file_name(e1_path)
     e2 = get_file_name(e2_path)
     print('\n*****************************************************\n')
@@ -26,26 +27,36 @@ def start_code(options, parameters, e1_path, e2_path):
     for parameter in parameters:
         print(f'{parameter}: {parameters[parameter]}')
     print('\n*****************************************************\n')
+    current_time = datetime.datetime.now()
+    formatted_time = current_time.strftime("[%d/%m/%Y_%H:%M]")
+    output_log = os.path.join(project_folder, formatted_time + '.log')
+    logging.basicConfig(filename=output_log, level=logging.INFO, format='%(message)s')
 
-def loadPC(path):
+def loadPC(path, array=False):
     _print(f'File {get_file_name(path)}: Loading')
     get_file_name(path)
-    try:
-        pc = pd.read_csv(path, sep=' ')
-        _print(f'File {get_file_name(path)}: Loaded as DataFrame. Number of points: {pc.shape[0]} with {pc.shape[1]} columns')
+
+    if array==True:
+        pc = np.loadtxt(path)
+        _print(f'File {get_file_name(path)}: Loaded as NumPy array')
         return pc
-    except pd.errors.EmptyDataError:
-        _print(f'File {get_file_name(path)} appears to be empty or cannot be read as CSV')
-        return None
-    except pd.errors.ParserError:
-        _print(f'File {get_file_name(path)}: Not a typical CSV format, trying with NumPy')
-        for skiprows in range (25):
-            try:
-                pc = np.loadtxt(path, skiprows=skiprows)
-                _print(f'File {get_file_name(path)}: Loaded as NumPy array')
-                return pc
-            except:
-                _print(f'Skipping line: {skiprows}, and trying to load the file again')
+    else:
+        try:
+            pc = pd.read_csv(path, sep=' ')
+            _print(f'File {get_file_name(path)}: Loaded as DataFrame. Number of points: {pc.shape[0]} with {pc.shape[1]} columns')
+            return pc
+        except pd.errors.EmptyDataError:
+            _print(f'File {get_file_name(path)} appears to be empty or cannot be read as CSV')
+            return None
+        except pd.errors.ParserError:
+            _print(f'File {get_file_name(path)}: Not a typical CSV format, trying with NumPy')
+            for skiprows in range (25):
+                try:
+                    pc = np.loadtxt(path, skiprows=skiprows)
+                    _print(f'File {get_file_name(path)}: Loaded as NumPy array')
+                    return pc
+                except:
+                    _print(f'Skipping line: {skiprows}, and trying to load the file again')
 
     _print(f'Failed to load the file: {get_file_name(path)}')
     return None
@@ -166,7 +177,9 @@ def _print(message):
     """Prints a message with a timestamp in the format [DD/MM/YYYY - HH:MM] :: """
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("[%d/%m/%Y - %H:%M]")
-    print(f"{formatted_time} :: {message}")
+    full_message = f"{formatted_time} :: {message}"
+    print(full_message)
+    logging.info(full_message)
 
 def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance):
 

@@ -1,27 +1,28 @@
 {
     "pointCloud": {
         "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
-        "e1": "C:\\Users\\XBG\\OneDrive - tu-dresden.de\\XBG\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Apostols\\190711_Apostols.xyz",
-        "e2": "C:\\Users\\XBG\\OneDrive - tu-dresden.de\\XBG\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Apostols\\240423_Apostols.xyz"
+        "e1": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\190711_Apostols__outlier.xyz",
+        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\240423_Apostols__outlier.xyz"
     },
 
     "options": {
-        "transform_and_subsample": true,
-        "vegetation_filter": true,
-        "cleaning_filtering": true,
+        "transform_and_subsample": false,
+        "vegetation_filter": false,
+        "cleaning_filtering": false,
         "fast_registration": true,
         "icp_registration": true,
         "roi_focus": false,
-        "m3c2_dist": true,
-        "auto_parameters": true,
-        "rf_clustering": true,
+        "m3c2_dist": false,
+        "auto_parameters": false,
+        "rf_clustering": false,
         "rockfalls_1by1": false
     },
 
     "parameters": {
         "spatial_distance": 0.05,
         "voxel_size": 0.25,
-        "ite_icp": 3,
+        "ite_FGR": 2,
+        "ite_ICP": 3,
         "diff_threshold": -0.05,
         "eps_rockfalls": 0.3,
         "min_samples_rockfalls": 15,

@@ -26,13 +26,16 @@ import bin.m3c2 as m3c2
 import bin.canupo as cp
 import bin.cleaning as cl
 import bin.rockfalls as rf
+
 # import bin.volume as vl
 
 '''Main code'''
 
-pointCloud, options, parameters, paths = utils.select_json_file()
+pointCloud, options, parameters, paths, file = utils.select_json_file()
 
-project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'], pointCloud['e2'])
+project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'], pointCloud['e2'], file)
+
+utils.create_log(project_folder)
 
 utils.start_code(options, parameters, pointCloud['e1'], pointCloud['e2'], project_folder)
 
@@ -63,15 +66,14 @@ else:
     e2_filtered_path = e2_canupo_path
 
 if options['fast_registration']:
-    print("\nFast registration")
+    print("\nFast Global Registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder)
-    e1_reg_path, e2_reg_path = reg.fast_reg(parameters['voxel_size'], e1_reg_path, e2_reg_path, registration_folder)
+    e1_reg_path, e2_reg_path = reg.FGR_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder, parameters['ite_FGR'])
 
 if options['icp_registration']:
     print("\nICP registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.ICP_CC(e1_reg_path, e2_reg_path, paths['CloudComapare'], parameters['ite_icp'])
+    e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudComapare'], parameters['ite_ICP'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path

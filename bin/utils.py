@@ -12,9 +12,26 @@ import json
 import pandas as pd
 import logging
 
+def create_log(project_folder):
+    current_time = datetime.datetime.now()
+    formatted_time = current_time.strftime("%d%m%Y_%H%M")
+    output_log = os.path.join(project_folder, f"{formatted_time}.log")
+
+    logging.basicConfig(
+        filename=output_log,
+        encoding="utf-8",
+        filemode="w",
+        level=logging.INFO,
+        format='%(message)s',
+    )
+
+    start_message = f"Log file created on: {current_time.strftime('%d/%m/%Y at %H:%M:%S')}"
+    logging.info(start_message)
+
 def start_code(options, parameters, e1_path, e2_path, project_folder):
     e1 = get_file_name(e1_path)
     e2 = get_file_name(e2_path)
+
     print('\n*****************************************************\n')
     print(f'PyRockDiff will automatically perform a 3D comparison'
           f' between the point cloud {e1} and the point cloud {e2}.\n'
@@ -27,10 +44,6 @@ def start_code(options, parameters, e1_path, e2_path, project_folder):
     for parameter in parameters:
         print(f'{parameter}: {parameters[parameter]}')
     print('\n*****************************************************\n')
-    current_time = datetime.datetime.now()
-    formatted_time = current_time.strftime("[%d/%m/%Y_%H:%M]")
-    output_log = os.path.join(project_folder, formatted_time + '.log')
-    logging.basicConfig(filename=output_log, level=logging.INFO, format='%(message)s')
 
 def loadPC(path, array=False):
     _print(f'File {get_file_name(path)}: Loading')
@@ -75,7 +88,7 @@ def get_file_name(path):
     file_name = file_name.split('__')[0]
     return file_name
 
-def create_project_folders(output_path, epoch1_path, epoch2_path):
+def create_project_folders(output_path, epoch1_path, epoch2_path, file):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
@@ -97,6 +110,7 @@ def create_project_folders(output_path, epoch1_path, epoch2_path):
             project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}_to_{epoch2_name}")
 
     os.makedirs(project_path, exist_ok=True)
+    shutil.copy(file, os.path.join(project_path, Path(file).name))
     print(f"Folder created at: {project_path}")
 
     return project_path
@@ -174,7 +188,6 @@ def auto_param(density_points, radius, safety_factor):
     return min_points
 
 def _print(message):
-    """Prints a message with a timestamp in the format [DD/MM/YYYY - HH:MM] :: """
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("[%d/%m/%Y - %H:%M]")
     full_message = f"{formatted_time} :: {message}"
@@ -232,11 +245,11 @@ def select_json_file():
     main_directory = os.getcwd()
     json_directory = os.path.join(main_directory, 'json_files')
 
-    _print(f"Looking for .json files in: {json_directory}")
+    print(f"Looking for .json files in: {json_directory}")
 
     json_files = [file for file in os.listdir(json_directory) if file.endswith('.json')]
 
-    _print("Available JSON files:\n")
+    print("Available JSON files:\n")
     for idx, file in enumerate(json_files):
         print(f"-> {idx + 1}. {file}")
 
@@ -253,7 +266,7 @@ def select_json_file():
                     parameters = config['parameters']
                     paths = config['paths']
 
-                return pointCloud, options, parameters, paths
+                return pointCloud, options, parameters, paths, file
 
             else:
                 print("Invalid selection. Please try again.")

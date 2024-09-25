@@ -2,20 +2,21 @@
     "pointCloud": {
         "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
         "e1": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\190711_Apostols__outlier.xyz",
-        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\240423_Apostols__outlier.xyz"
+        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\240423_Apostols__outlier.xyz",
+        "e1_e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\4_dbscan\\190711_Apostols_vs_240423_Apostols__dbscan.xyz"
     },
 
     "options": {
         "transform_and_subsample": false,
         "vegetation_filter": false,
         "cleaning_filtering": false,
-        "fast_registration": true,
-        "icp_registration": true,
+        "fast_registration": false,
+        "icp_registration": false,
         "roi_focus": false,
         "m3c2_dist": false,
         "auto_parameters": false,
         "rf_clustering": false,
-        "rockfalls_1by1": false
+        "rf_volume": true
     },
 
     "parameters": {
@@ -31,7 +32,7 @@
     },
 
     "paths": {
-        "CloudComapare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe",
+        "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe",
         "output": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData",
         "m3c2_param": ".\\bin\\m3c2_params.txt",
         "canupo_file": ".\\bin\\canupo.prm"

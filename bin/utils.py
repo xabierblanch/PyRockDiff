@@ -157,11 +157,11 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
 
     return os.path.join(subsample_folder, get_file_name(path) + "_sub.xyz")
 
-def density(path, CloudComapare_path, dbscan_folder):
-    output_path = os.path.join(dbscan_folder, get_file_name(path) + "_density.xyz")
+def density(path, CloudCompare_path, dbscan_folder):
+    output_path = os.path.join(dbscan_folder, get_file_name(path) + "__density.xyz")
     radius = 0.25
     _print(f'Computing point density {get_file_name(path)}. Sphere radius: {radius} m')
-    CC_DEN_Command = [CloudComapare_path,
+    CC_DEN_Command = [CloudCompare_path,
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,
@@ -171,7 +171,7 @@ def density(path, CloudComapare_path, dbscan_folder):
     subprocess.run(CC_DEN_Command)
     _print(f"Computing the median density points for ¨{get_file_name(path)}: Done")
     time.sleep(5)
-    densPC = loadPC(output_path)
+    densPC = loadPC(output_path, array=True)
     num_points = densPC[:,6].mean()
     density_points = num_points/(math.pi*(radius**2))
     spatial_distance = math.sqrt(1/density_points)

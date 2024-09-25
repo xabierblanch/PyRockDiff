@@ -8,7 +8,7 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
 
     _print("Running M3C2 algorithm to compute the differences")
 
-    output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "_m3c2.xyz")
+    output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
     CC_m3c2_Command = [CloudComapare_path,
                       "-AUTO_SAVE", "OFF",

@@ -26,10 +26,7 @@ import bin.m3c2 as m3c2
 import bin.canupo as cp
 import bin.cleaning as cl
 import bin.rockfalls as rf
-
 # import bin.volume as vl
-
-'''Main code'''
 
 pointCloud, options, parameters, paths, file = utils.select_json_file()
 

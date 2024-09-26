@@ -1,4 +1,11 @@
-# PyRockDiff: Automatic change-detection workflow for rockfall identification
+# PyRockDiff - Automatic change-detection workflow for rockfall identification
+
+## 🚀 Quick Overview
+This Python-based pipeline offers a streamlined solution for processing point cloud data, featuring:
+- **Data Cleaning:** Enhance data quality by removing noise.
+- **Filtering Techniques:** Focus on relevant features.
+- **Registration & Clustering:** Align and group point clouds for effective analysis.
+- **Change Detection:** Automate comparisons between epochs using advanced algorithms.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -157,6 +164,7 @@ The following functionalities are part of the current version but require furthe
 - [ ] Add the option to activate/deactivate additional features
 - [ ] Review verbosity and debugging options
 - [ ] Add a robust way to select parameters
+- [ ] Create a graphical abstract
 
 </details>
 

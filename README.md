@@ -11,15 +11,29 @@
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
 
----
+
 
 ## Overview
-This project is a Python-based pipeline for processing point cloud data. It uses various open-source libraries and implements techniques such as data cleaning, filtering, registration, and clustering. Additionally, the software provides automatic parameter calculation and volume estimation of clusters in the point clouds.
-This Python code automates point cloud change detection between two epochs, using techniques like ICP registration, DBSCAN clustering, and the M3C2 algorithm. It leverages libraries like CloudCompare, py4dgeo, and Open3D.
 
 ---
 
+<details>
+<summary>Click to expand</summary>
+
+This project is a Python-based pipeline for processing point cloud data. It uses various open-source libraries and implements techniques such as data cleaning, filtering, registration, and clustering. Additionally, the software provides automatic parameter calculation and volume estimation of clusters in the point clouds. This Python code automates point cloud change detection between two epochs, using techniques like ICP registration, DBSCAN clustering, and the M3C2 algorithm. It leverages libraries like CloudCompare, py4dgeo, and Open3D.
+
+</details>
+
+
+
+
 ## Installation and requirements
+
+---
+
+<details>
+<summary>Click to expand</summary>
+
 The following external open-source software is used:
 
 | Software/Library | License | Link |
@@ -38,9 +52,15 @@ pip install -r requirements.txt
 ```
 Ensure CloudCompare is downloaded and accessible from the command line.
 
+</details>
 ---
 
 ## How It Works
+
+---
+
+<details>
+<summary>Click to expand</summary>
 
 This section provides a basic overview of how the code operates, what inputs are expected, and how the execution flow is controlled.
 
@@ -58,9 +78,15 @@ All options, paths, and parameters for the execution are controlled through a co
 ### Sequential Code Structure
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
----
+</details>
 
 ## Usage Guide
+
+---
+
+<details>
+<summary>Click to expand</summary>
+
 This workflow follows the execution order of the main functions, depending on the selected options. Each function is numbered and organized in expandable sections for more details.
 
 ### Main Functions
@@ -127,8 +153,14 @@ Depending on the options selected in the JSON file, some functions will be calle
 <p>Estimates the volume of the detected clusters, if the <code>rf_volume</code> option is enabled.</p>
 </details>
 
+</details>
+
+## Development stages & Future Updates
+
 ---
-## Future Updates & Development stages
+
+<details>
+<summary>Current Version TODOs</summary>
 
 The following features and enhancements are planned for future versions of this software:
 
@@ -142,6 +174,11 @@ The following functionalities are part of the current version but require furthe
 - [ ] Review verbosity and debugging options
 - [ ] Add a robust way to select parameters
 
+</details>
+
+<details>
+<summary>Planned Features</summary>
+
 ### Planned Features
 
 The following features and enhancements are planned for future versions of this software:
@@ -152,9 +189,15 @@ The following features and enhancements are planned for future versions of this 
 - [ ] Add AI tools for vegetation filtering
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 
+</details>
 ---
 
 ## Contact
+
+---
+
+<details>
+<summary>Click to expand</summary>
 
 For questions, issues, or further information regarding this software, feel free to reach out to the authors:
 
@@ -162,7 +205,14 @@ For questions, issues, or further information regarding this software, feel free
 
 Please include a clear subject line and detailed information if reporting a bug or requesting support.
 
+</details>
+
 ## Acknowledgments
+
+---
+
+<details>
+<summary>Click to expand</summary>
 
 We would like to thank the following individuals and institutions for their invaluable contributions and support:
 
@@ -176,9 +226,17 @@ Additionally, the methodologies used in this software are based on the work deve
 
 - Antonio Abellán (2010), Manuel Royán (2015), and Xabier Blanch (2023).
 
+</details>
+
 ## License
+
+---
+
+<details>
+<summary>Click to expand</summary>
 
 This project is licensed under the **GNU General Public License (GPL)**. You are free to use, modify, and distribute this software under the terms of this license.
 
 For more information, please refer to the [GPL License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
+</details>

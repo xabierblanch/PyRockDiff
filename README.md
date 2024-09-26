@@ -162,8 +162,6 @@ Depending on the options selected in the JSON file, some functions will be calle
 <details>
 <summary>Current Version TODOs</summary>
 
-The following features and enhancements are planned for future versions of this software:
-
 ### Current Version TODOs
 
 The following functionalities are part of the current version but require further refinement:
@@ -190,11 +188,9 @@ The following features and enhancements are planned for future versions of this 
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 
 </details>
----
+
 
 ## Contact
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -208,8 +204,6 @@ Please include a clear subject line and detailed information if reporting a bug 
 </details>
 
 ## Acknowledgments
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -229,8 +223,6 @@ Additionally, the methodologies used in this software are based on the work deve
 </details>
 
 ## License
-
----
 
 <details>
 <summary>Click to expand</summary>

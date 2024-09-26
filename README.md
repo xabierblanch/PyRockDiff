@@ -11,11 +11,7 @@
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
 
-
-
 ## Overview
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -24,12 +20,7 @@ This project is a Python-based pipeline for processing point cloud data. It uses
 
 </details>
 
-
-
-
 ## Installation and requirements
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -53,11 +44,8 @@ pip install -r requirements.txt
 Ensure CloudCompare is downloaded and accessible from the command line.
 
 </details>
----
 
 ## How It Works
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -81,8 +69,6 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 </details>
 
 ## Usage Guide
-
----
 
 <details>
 <summary>Click to expand</summary>
@@ -157,8 +143,6 @@ Depending on the options selected in the JSON file, some functions will be calle
 
 ## Development stages & Future Updates
 
----
-
 <details>
 <summary>Current Version TODOs</summary>
 
@@ -188,7 +172,6 @@ The following features and enhancements are planned for future versions of this 
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 
 </details>
-
 
 ## Contact
 

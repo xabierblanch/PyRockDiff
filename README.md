@@ -1,4 +1,4 @@
-# Project Title: Point Cloud Processing Pipeline
+# PyRockDiff: Automatic change-detection workflow for rockfall identification
 
 ## Table of Contents
 - [Overview](#overview)
@@ -15,6 +15,8 @@
 
 <details>
 <summary>Click to expand</summary>
+
+<br>
 
 This project is a Python-based pipeline for processing point cloud data. It uses various open-source libraries and implements techniques such as data cleaning, filtering, registration, and clustering. Additionally, the software provides automatic parameter calculation and volume estimation of clusters in the point clouds. This Python code automates point cloud change detection between two epochs, using techniques like ICP registration, DBSCAN clustering, and the M3C2 algorithm. It leverages libraries like CloudCompare, py4dgeo, and Open3D.
 

@@ -84,6 +84,15 @@ The code expects specific input data formats:
 
 ### Configuration JSON File
 All options, paths, and parameters for the execution are controlled through a configuration file located in the `json_files` folder. This file allows the user to toggle various processing steps and fine-tune parameters without modifying the code.
+
+| Parameter Name              | Type       | Example Value                                         |
+|-----------------------------|------------|-------------------------------------------------------|
+| `CloudCompare`              | String     | `"C:\\Program Files\\CloudCompare\\cloudcompare.exe"` |
+| `output`                    | String     | `"C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData"`      |
+
+- **`CloudCompare`**: Path to the CloudCompare executable.
+- **`output`**: Path where the output subsampled point clouds will be saved.
+
 </details>
 
 <details>
@@ -98,36 +107,94 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <details>
 <summary>1. Transform and Subsample</summary>
 
-#### Transform and Subsample
-<p>Transforms and subsamples the point clouds using CloudCompare, if the <code>transform_and_subsample</code> option is enabled.</p>
+
+Transform and subsample the point clouds using CloudCompare. This step of the pipeline handles two main objectives: to convert the original point cloud from any format accepted by CloudCompare to an .xyz format and to perform spatial subsampling to reduce and equalise the number of points in the two clouds to be compared.
+#### How it works:
+1. **Transformation to `.xyz` format**: Converts the input point cloud to the `.xyz` format for streamlined processing in subsequent steps. During this transformation, additional attributes such as color (RGB), normals, and scalar fields are removed to reduce file size and complexity.
+
+   
+2. **Subsampling**: The point cloud is spatially subsampled to reduce point density while maintaining overall structure. The `spatial_distance` parameter (in meters), defined in the configuration `.JSON` file, controls the minimum spacing between points in the output cloud.
+#### JSON file parameters:
+| Parameter Name              | Type        | Example Value                                         | JSON Section     |
+|-----------------------------|-------------|-------------------------------------------------------|-------------------|
+| `transform_and_subsample`    | Boolean    | `true`                                                | options           |
+| `spatial_distance`           | Float (cm) | `0.05`                                                | parameters        |
+
+- **`transform_and_subsample`**: Enables or disables the transformation and subsampling step.
+- **`spatial_distance`**: Specifies the minimum distance (in meters) between points for subsampling.
 </details>
 
 <details>
 <summary>2. Vegetation Filter</summary>
 
-#### Vegetation Filter (CANUPO)
-<p>Applies the vegetation filter using CANUPO, if the <code>vegetation_filter</code> option is enabled.</p>
+Applies a vegetation filter using [CANUPO workflow](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). This consist in a simple yet efficient way to automatically classify a point cloud
+
+#### How it works:
+1. **Vegetation Filtering**: The CANUPO algorithm identifies and filters vegetation points from the input point cloud. The algorithm is integrated in the CloudCompare software and requires a `.prm` file corresponding to the classifier. A classifier for vegetation is included with the software but the user can create his own ‘.prm’ files using CloudCompare's CANUPO suite. The resulting filtered point cloud is saved in `.xyz` format for further analysis.
+
+#### JSON file parameters:
+| Parameter Name          | Type        | Example Value                                         | JSON Section |
+|-------------------------|-------------|-------------------------------------------------------|--------------|
+| `vegetation_filter`     | Boolean     | `true`                                                | options      |
+| `canupo_file`           | Boolean     | `".\\bin\\canupo.prm"`                                | paths        |
+
+- **`vegetation_filter`**: Enables or disables the vegetation filtering step.
+- **`canupo_file`**: Path to the `.prm` file with the classifier
+
 </details>
 
 <details>
 <summary>3. Cleaning Filter</summary>
 
-#### Cleaning Filter
-<p>Applies a statistical outlier removal filter, if the <code>cleaning_filtering</code> option is enabled.</p>
+
+Applies a statistical outlier filter to remove noise from the point cloud. This step helps enhance the quality of the data by eliminating points that are statistically different from their neighbors, ensuring more accurate analysis in subsequent steps.
+
+#### How it works:
+1. **Statistical Outlier Removal**: The outlier filter evaluates each point in the point cloud based on the distance to its neighbors. Points that have a significantly different distance compared to their local neighborhood are removed. The `nb_neighbors` parameter defines the number of neighboring points to consider, while the `std_ratio` parameter specifies the threshold for determining outliers.
+
+#### JSON file parameters:
+| Parameter Name              | Type      | Example Value                                         | JSON Section     |
+|-----------------------------|-----------|-------------------------------------------------------|-------------------|
+| `cleaning_filter`           | Boolean   | `true`                                                | options           |
+| `nb_neighbors_f`            | Integer   | `10`                                                 | parameters        |
+| `std_ratio_f`               | Float (m) | `1.5`                                                | parameters        |
+
+- **`cleaning_filter`**: Enables or disables the application of the statistical outlier filter.
+- **`nb_neighbors_f`**: Specifies the number of neighbors to consider for the statistical analysis.
+- **`std_ratio_f`**: Defines the standard deviation multiplier used to identify outliers.
 </details>
 
 <details>
 <summary>4. Fast Global Registration</summary>
 
-#### Fast Registration
-<p>Performs Fast Global Registration (FGR), if the <code>fast_registration</code> option is enabled.</p>
-</details>
+Performs Fast Global Registration (FGR), if the <code>fast_registration</code> option is enabled. This method quickly aligns two point clouds based on their features, with the `voxel_size` parameter used to downsample the point clouds, and the registration refined through multiple iterations defined by the `ite_FGR` parameter.
+
+#### JSON file parameters:
+| Parameter Name              | Type        | Example Value                                         | JSON Section     |
+|-----------------------------|-------------|-------------------------------------------------------|-------------------|
+| `fast_registration`         | Boolean     | `true`                                                | options           |
+| `voxel_size`               | Float       | `0.25`                                               | parameters        |
+| `ite_FGR`                   | Integer     | `3`                                                  | parameters        |
+
+- **`fast_registration`**: Enables or disables the application of the Fast Global Registration algorithm.
+- **`voxel_size`**: Specifies the size of the voxel for downsampling the point clouds before registration.
+- **`ite_FGR`**: Defines the number of iterations for the Fast Global Registration algorithm.
+
+</details></details>
 
 <details>
 <summary>5. ICP Registration</summary>
 
-#### ICP Registration
-<p>Executes ICP (Iterative Closest Point) registration, if the <code>icp_registration</code> option is enabled.</p>
+Executes ICP (Iterative Closest Point) registration, if the <code>icp_registration</code> option is enabled. After initial alignment with FGR, ICP enhances the precision of the registration by iteratively minimizing the distance between corresponding points, using the `ite_ICP` parameter to specify the number of refinement iterations.
+
+#### JSON file parameters:
+| Parameter Name              | Type        | Example Value                                         | JSON Section     |
+|-----------------------------|-------------|-------------------------------------------------------|-------------------|
+| `icp_registration`          | Boolean     | `true`                                                | options           |
+| `ite_ICP`                   | Integer     | `3`                                                  | parameters        |
+
+- **`icp_registration`**: Enables or disables the application of the Iterative Closest Point algorithm.
+- **`ite_ICP`**: Defines the number of iterations for the Iterative Closest Point algorithm.
 </details>
 
 <details>
@@ -140,9 +207,16 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <details>
 <summary>7. M3C2 Change Detection</summary>
 
-#### M3C2 Computation
-<p>Computes change detection using the M3C2 algorithm, if the <code>m3c2_dist</code> option is enabled.</p>
-</details>
+Calculates the differences between two point clouds using the M3C2 (Multi-Scale Model to Model Cloud Comparison) method, if the <code>m3c2_computation</code> option is enabled. This algorithm quantifies changes by analyzing the point clouds from different epochs, leveraging the specified parameters for optimal results.
+
+#### JSON file parameters:
+| Parameter Name              | Type        | Example Value                                         | JSON Section     |
+|-----------------------------|-------------|-------------------------------------------------------|-------------------|
+| `m3c2_dist`                 | Boolean     | `true`                                                | options           |
+| `m3c2_param`                | Path        | `.\\bin\\m3c2_params.txt`                            | paths             |
+
+- **`m3c2_dist`**: Enables or disables the application of the M3C2 algorithm to compute differences.
+- **`m3c2_param`**: Path to the file containing parameters for the M3C2 calculation.</details>
 
 <details>
 <summary>8. Autoparameters</summary>

@@ -16,7 +16,7 @@
         "m3c2_dist": false,
         "auto_parameters": true,
         "rf_clustering": true,
-        "rf_volume": false
+        "rf_volume": true
     },
 
     "parameters": {

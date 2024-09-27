@@ -58,8 +58,6 @@ def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, po
                 x, y = poly.exterior.xy
                 ax.plot(x, y, 'r--', linewidth=2)
 
-        ax.set_title(f'Alpha Shape - Delaunay Triangulation (alpha={auto_alpha:.2f})\n'
-                     f'Estimated Total Volume: {total_volume:.2f} m³')
         tri_diff = np.mean(diff[valid_simplices], axis=1)
         triangles = points_xz[valid_simplices]
         triangle_patchs = PolyCollection(triangles, array=tri_diff,
@@ -72,6 +70,7 @@ def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, po
         cbar.set_label('Differences [m]')
         os.makedirs(os.path.join(volume_folder, 'vol_plots'), exist_ok=True)
         output_path = os.path.join(volume_folder, 'vol_plots', f'{file_name}_{i}_Vol.png')
+        plt.title(f'{file_name} - Cluster: {i} | Volume: {total_volume:.2f} m³')
         plt.savefig(output_path, bbox_inches='tight', dpi=300)
         plt.close()
     except:
@@ -86,6 +85,7 @@ def rockfall_plot(points_xyz, y_diff, valid_simplices, volume_folder, i, file_na
     ax.legend()
     os.makedirs(os.path.join(volume_folder, '3D_plots'), exist_ok=True)
     output_path = os.path.join(volume_folder, '3D_plots', f'{file_name}_{i}_3D.png')
+    plt.title(f'{file_name} - Cluster: {i}')
     plt.savefig(output_path, bbox_inches='tight', dpi=300)
     plt.close()
 

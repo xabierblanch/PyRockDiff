@@ -83,6 +83,7 @@ def FGR_reg(voxel_size, e1_path, e2_path, registration_folder, ite):
     e2_path_out = os.path.join(registration_folder, e2_name + '__FGR.xyz')
 
     for i in range(ite):
+        _print(f"Running FGR algorithm for fast registration (Iteration {i + 1} of {ite})")
         source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, target_pc=e1_path, source_pc=e2_path)
         result_fast = execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size)
         source_reg = source.transform(result_fast.transformation)
@@ -103,12 +104,13 @@ def FGR_reg(voxel_size, e1_path, e2_path, registration_folder, ite):
 
         e1_path = e1_path_out
         e2_path = e2_path_out
-        _print(f"ICP algorithm - Iteration {i + 1} of {ite} completed successfully\n")
+        _print(f"FGR algorithm - Iteration {i + 1} of {ite} completed successfully\n")
 
     return e1_path_out, e2_path_out
 
 def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
-    _print(f"Running ICP algorithm to refine the registration - {ite} iterations will be executed")
+    print("ICP Registration")
+    _print(f"Running ICP algorithm to refine registration - {ite} iterations will be executed")
 
     e1_file = get_file_name(e1_path)
     e2_file = get_file_name(e2_path)
@@ -116,6 +118,7 @@ def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
     e2_path_out = os.path.join(Path(e2_path).parent, e2_file + "__ICP.xyz")
 
     for i in range(ite):
+        _print(f"Running ICP algorithm to refine registration (Iteration {i + 1} of {ite})")
         CC_ICP_Command = [CloudComapare_path,
                           "-AUTO_SAVE", "OFF",
                           "-C_EXPORT_FMT", "ASC", "-PREC", "3",

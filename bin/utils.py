@@ -314,6 +314,7 @@ def _print(message):
 
 def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance):
 
+    print("\nConverting PointClouds to XYZ and subsampling")
     output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
     _print(f'Converting to XYZ and subsampling {get_file_name(path)}. Spatial distance: {spatial_distance} cm')
 

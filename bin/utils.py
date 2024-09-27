@@ -11,6 +11,8 @@ import time
 import json
 import pandas as pd
 import logging
+import webbrowser
+import sys
 
 def create_log(project_folder):
     current_time = datetime.datetime.now()
@@ -27,23 +29,112 @@ def create_log(project_folder):
 
     start_message = f"Log file created on: {current_time.strftime('%d/%m/%Y at %H:%M:%S')}"
     logging.info(start_message)
+    return output_log
 
-def start_code(options, parameters, e1_path, e2_path, project_folder):
-    e1 = get_file_name(e1_path)
-    e2 = get_file_name(e2_path)
+def check_path(path, path_name, warning, is_required=True):
+    warning_new = warning
+    if os.path.exists(path):
+        status = "\033[92mOk\033[0m"
+        warning = False
+    elif is_required:
+        status = "\033[91mWarning: File not found\033[0m"
+        warning= True
+    else:
+        status = "\033[93mNot found, but not required\033[0m"
+        warning = False
+    if warning_new:
+        warning = True
+    print(f"{path_name}: {status}")
+    return warning
 
-    print('\n*****************************************************\n')
-    print(f'PyRockDiff will automatically perform a 3D comparison'
-          f' between the point cloud {e1} and the point cloud {e2}.\n'
-          f'\nThe following functions are enabled:\n')
+def start_code(options, parameters, pointCloud, paths):
+
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
+    BLUE = "\033[94m"
+    YELLOW = "\033[93m"
+
+    print("\n" + "="*50 + "\n")
+    print("\033[1mReading JSON file:\033[0m\n")
+
+    requires_two_clouds = any([options["transform_and_subsample"], options["vegetation_filter"],
+                               options["cleaning_filtering"], options["fast_registration"],
+                               options["icp_registration"], options["roi_focus"], options["m3c2_dist"]])
+
+    if requires_two_clouds:
+        try:
+            e1 = get_file_name(pointCloud['e1'])
+        except:
+            print('ERROR: Not e1 pointcloud')
+        try:
+            e2 = get_file_name(pointCloud['e2'])
+        except:
+            print('ERROR: Not e2 pointcloud')
+
+        print(f'PyRockDiff will automatically perform a 3D comparison '
+              f'between the point cloud: {BLUE}{e1}{RESET} and the point cloud: {BLUE}{e2}{RESET}')
+
+    elif options["auto_parameters"] or options["rf_clustering"] or options["rf_volume"]:
+        try:
+            e1_e2 = get_file_name(pointCloud['e1_e2'])
+        except:
+            print('ERROR: Not e1_e2 pointcloud')
+        print(f'PyRockDiff will process the precomputed comparison of two different epochs using the point cloud: {BLUE}{e1_e2}{RESET}')
+
+    else:
+        print("Invalid configuration in JSON. Please check the options.")
+
+    print('\033[1m\nThe following functions are enabled:\033[0m\n')
 
     for option in options:
-        print(f'{option}: {options[option]}')
+        if options[option]:
+            print(f'{option}: {GREEN}{options[option]}{RESET}')
+        else:
+            print(f'{option}: {RED}{options[option]}{RESET}')
 
-    print(f'\nAnd the following parameters will be used:\n')
+    print('\033[1m\nAnd the following parameters will be used:\033[0m\n')
     for parameter in parameters:
-        print(f'{parameter}: {parameters[parameter]}')
-    print('\n*****************************************************\n')
+        print(f'{parameter}: {YELLOW}{parameters[parameter]}{RESET}')
+
+    print('\033[1m\nFile Paths and PointClouds Verification:\033[0m\n')
+    warning = False
+    warning = check_path(paths["CloudCompare"], "CloudCompare", warning)
+    warning = check_path(paths["output"], "output", warning)
+
+    if requires_two_clouds:
+        warning = check_path(pointCloud["e1"], "e1", warning)
+        warning = check_path(pointCloud["e2"], "e2", warning)
+        warning = check_path(pointCloud["e1_e2"], "e1_e2", warning, is_required=False)
+    else:
+        warning = check_path(pointCloud["e1"], "e1", warning, is_required=False)
+        warning = check_path(pointCloud["e2"], "e2", warning, is_required=False)
+        warning = check_path(pointCloud["e1_e2"], "e1_e2", warning)
+
+    if options["m3c2_dist"]:
+        warning = check_path(paths["m3c2_param"], "m3c2_param", warning)
+    else:
+        warning = check_path(paths["m3c2_param"], "m3c2_param", warning, is_required=False)
+
+    if options["vegetation_filter"]:
+        warning = check_path(paths["canupo_file"], "canupo_file", warning)
+    else:
+        warning = check_path(paths["canupo_file"], "canupo_file", warning, is_required=False)
+
+    if warning:
+        print("\n\033[91mWarning: One or more required paths were not found. Code will not run properly\033[0m")
+
+    while True:
+        user_response = input("\nDo you want to start the code with these parameters? (y/n): ").strip().lower()
+        if user_response == "y":
+            print("\n" + "=" * 50 + "\n")
+            _print("Executing the code")
+            break
+        elif user_response == "n":
+            print("\nOperation canceled. Exiting the program")
+            sys.exit()
+        else:
+            print("\nInvalid input. Please enter 'y' or 'n'.")
 
 def loadPC(path, array=False):
     _print(f'File {get_file_name(path)}: Loading')
@@ -92,27 +183,44 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
-    filename = input(f"Default folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
-    if filename == 'y':
-        include_timestamp = input(f"Do you want to include timestamp in the folder name? (y/n): ").strip().lower()
-        if include_timestamp == 'y':
-            project_path = os.path.join(output_path, timestamp + "_to_" + epoch1_name + '__' + epoch2_name)
+    while True:
+        filename = input(f"\nDefault folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
+        if filename == 'y':
+            while True:
+                include_timestamp = input(f"\nDo you want to include timestamp in the folder name? (y/n): ").strip().lower()
+                if include_timestamp == 'y':
+                    project_path = os.path.join(output_path, timestamp + "_to_" + epoch1_name + '__' + epoch2_name)
+                    break
+                if include_timestamp == 'n':
+                    new_name = input("\nWrite the new folder name:").strip()
+                    project_path = os.path.join(output_path, new_name)
+                    break
+                else:
+                    print("\nInvalid input. Please enter 'y' or 'n'")
+            break
+        if filename == "n":
+            project_path = os.path.join(output_path, epoch1_name + '_to_' + epoch2_name)
+            break
         else:
-            new_name = input("Write the new folder name:").strip()
-            project_path = os.path.join(output_path, new_name)
-    else:
-        project_path = os.path.join(output_path, epoch1_name + '_to_' + epoch2_name)
+            print("\nInvalid input. Please enter 'y' or 'n'")
 
     if os.path.exists(project_path):
-        overwrite = input(f"The folder '{project_path}' already exists. Do you want to overwrite the contents? (y/n): ").strip().lower()
-        if overwrite != 'y':
-            print("The folder will be created with a new timestamp to avoid overwriting.")
-            project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}_to_{epoch2_name}")
+        while True:
+            overwrite = input(f"\n\033[91mWarning:\033[0m The folder '\033[94m{project_path}\033[0m' already exists. Do you want to overwrite the contents? (y/n) (If not, an automatic timestamp will be added): ").strip().lower()
+            if overwrite == 'n':
+                print("\nThe folder will be created with a new timestamp to avoid overwriting.")
+                project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}_to_{epoch2_name}")
+                break
+            if overwrite == 'y':
+                print("\nThe files in the folder will be overwritten.")
+                break
+            else:
+                print("\nInvalid input. Please enter 'y' or 'n'")
 
     os.makedirs(project_path, exist_ok=True)
     shutil.copy(file, os.path.join(project_path, Path(file).name))
-    print(f"Folder created at: {project_path}")
-
+    print(f"\nFolder created at: \033[94m{project_path}\033[0m\nThis folder will now be opened.")
+    webbrowser.open(project_path)
     return project_path
 
 def create_folder(project_path, folder):
@@ -240,16 +348,16 @@ def dbscan_core(pc_path, eps, min_samples):
     return pc_cluster
 
 def select_json_file():
-    print('\n*****************************************************\n')
-
+    print("\n" + "="*50 + "\n")
+    print("\033[1mJSON file (Parameters) selection\033[0m")  # Texto en negrita
     main_directory = os.getcwd()
     json_directory = os.path.join(main_directory, 'json_files')
 
-    print(f"Looking for .json files in: {json_directory}")
+    print("\nLooking for .json files in: \033[94m{}\033[0m".format(json_directory))
 
     json_files = [file for file in os.listdir(json_directory) if file.endswith('.json')]
 
-    print("Available JSON files:\n")
+    print("\nAvailable JSON files:\n")
     for idx, file in enumerate(json_files):
         print(f"-> {idx + 1}. {file}")
 
@@ -269,9 +377,9 @@ def select_json_file():
                 return pointCloud, options, parameters, paths, file
 
             else:
-                print("Invalid selection. Please try again.")
+                print("ERROR: Invalid selection. Please try again (check that JSON file is properly created")
 
         except ValueError:
-            print("Invalid input. Please enter a number.")
+            print("ERROR: Invalid input. Please enter a number.")
 
 

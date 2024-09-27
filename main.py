@@ -33,9 +33,9 @@ pointCloud, options, parameters, paths, file = utils.select_json_file()
 
 project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'], pointCloud['e2'], file)
 
-utils.create_log(project_folder)
+log_path = utils.create_log(project_folder)
 
-utils.start_code(options, parameters, pointCloud['e1'], pointCloud['e2'], project_folder)
+utils.start_code(options, parameters, pointCloud, paths)
 
 if options['transform_and_subsample']:
     XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
@@ -98,10 +98,16 @@ if options['auto_parameters']:
 
 if options["rf_clustering"]:
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    e1ve2_DBSCAN_path, rockfall_db = rf.dbscan(dbscan_folder, e1e2_change_path, parameters, options)
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters)
 else:
     e1ve2_DBSCAN_path = pointCloud['e1_e2']
 
 if options["rf_volume"]:
     volume_folder = utils.create_folder(project_folder, '5_volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
+
+print("\n" + "="*50)
+print("The code has finished running successfully!")
+print("\nResults are available at: \033[94m{}\033[0m".format(project_folder))
+print("Log can be found at: \033[92m{}\033[0m".format(log_path))
+print("="*50 + "\n")

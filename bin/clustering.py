@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
+from pathlib import Path
 from bin.utils import loadPC, savePC, get_file_name, create_folder, _print
 from sklearn.cluster import DBSCAN
 import pandas as pd
 import numpy as np
+import open3d as o3d
 import os
 
 def threshold_filter(threshold, e1e2_change_path):
@@ -27,19 +29,30 @@ def dbscan_core(diff_filter, eps, min_samples):
     _print(f'DBSCAN algorithm applied correctly: {diff_cluster.shape[0]} points in {diff_cluster["rockfall_label"].max()} clusters identified')
     return diff_cluster
 
-def onebyone(dbscan_folder, diff_cluster, file_name):
-    rockfalls_path = create_folder(dbscan_folder, 'rockfalls')
-    rockfalls = max(diff_cluster[:, -1])
-    for i in range(int(rockfalls)):
-        rockfall = diff_cluster[diff_cluster[:, -1] == i]
-        savePC(os.path.join(rockfalls_path, file_name + '_r' + str(i) + '.xyz'), rockfall)
+def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder):
+    project_path=Path(dbscan_folder).parent
+    name = get_file_name(e1e2_change_path).split('_vs_')[0]
+    point_cloud = os.path.join(project_path, '1.2_canupo', name+'__canupo.xyz')
+    if os.path.exists(point_cloud):
+        canupo = loadPC(point_cloud, array=True)
+        data_sorted = canupo[canupo[:, 0].argsort()]
+        subsampled_data = data_sorted[::50]
+        labels = subsampled_data[:, 3]
+        colors = np.where(labels == 1, 'lightgrey', 'green')
+        plt.scatter(subsampled_data[:, 0], subsampled_data[:, 2], color=colors, s=0.1)
 
-def dbscan(dbscan_folder, e1e2_change_path, parameters, options):
+    plt.scatter(diff_cluster['x'], diff_cluster['z'], s=1)
+    grouped = diff_cluster.groupby('rockfall_label').agg({'x': 'mean', 'z': 'mean'}).reset_index()
+    for index, row in grouped.iterrows():
+        plt.text(int(row['x']+0.5), int(row['z']+0.5), f"{int(row['rockfall_label'])}", fontsize=12, ha='center', va='center')
+    plt.show()
+
+
+def dbscan(dbscan_folder, e1e2_change_path, parameters):
     pc_filtered = threshold_filter(parameters['diff_threshold'], e1e2_change_path)
     diff_cluster = dbscan_core(pc_filtered, parameters['eps_rockfalls'], parameters['min_samples_rockfalls'])
     file_name = get_file_name(e1e2_change_path)
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
-    # if options['cluster_db']:
-    #     onebyone(dbscan_folder, diff_cluster, file_name)
+    plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder)
 
-    return dbscan_path, rockfall_db
+    return dbscan_path

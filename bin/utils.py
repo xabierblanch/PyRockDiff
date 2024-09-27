@@ -37,7 +37,7 @@ def check_path(path, path_name, warning, is_required=True):
         status = "\033[92mOk\033[0m"
         warning = False
     elif is_required:
-        status = "\033[91mWarning: File not found\033[0m"
+        status = "\033[91mPath not found\033[0m"
         warning= True
     else:
         status = "\033[93mNot found, but not required\033[0m"
@@ -85,7 +85,7 @@ def start_code(options, parameters, pointCloud, paths):
     else:
         print("Invalid configuration in JSON. Please check the options.")
 
-    print('\033[1m\nThe following functions are enabled:\033[0m\n')
+    print('\033[1m\nThe following functions are enabled:\033[0m')
 
     for option in options:
         if options[option]:
@@ -93,11 +93,11 @@ def start_code(options, parameters, pointCloud, paths):
         else:
             print(f'{option}: {RED}{options[option]}{RESET}')
 
-    print('\033[1m\nAnd the following parameters will be used:\033[0m\n')
+    print('\033[1m\nAnd the following parameters will be used:\033[0m')
     for parameter in parameters:
         print(f'{parameter}: {YELLOW}{parameters[parameter]}{RESET}')
 
-    print('\033[1m\nFile Paths and PointClouds Verification:\033[0m\n')
+    print('\033[1m\nFile Paths and PointClouds Verification:\033[0m')
     warning = False
     warning = check_path(paths["CloudCompare"], "CloudCompare", warning)
     warning = check_path(paths["output"], "output", warning)
@@ -183,6 +183,14 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
     timestamp = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
+
+    print('\033[1m\nOutput path verification:\033[0m\n')
+    warning = False
+    warning = check_path(output_path, "output path", warning)
+    if warning:
+        print("\n\033[91mWarning: The output path is incorrect or does not exist. Change the output path in the JSON file and run PyRockDiff again.\033[0m")
+        sys.exit()
+
     while True:
         filename = input(f"\nDefault folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
         if filename == 'y':
@@ -216,8 +224,10 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
                 break
             else:
                 print("\nInvalid input. Please enter 'y' or 'n'")
-
-    os.makedirs(project_path, exist_ok=True)
+    try:
+        os.makedirs(project_path, exist_ok=True)
+    except:
+        print("\nERROR: Folder can't be created. Check the output path in the JSON file")
     shutil.copy(file, os.path.join(project_path, Path(file).name))
     print(f"\nFolder created at: \033[94m{project_path}\033[0m\nThis folder will now be opened.")
     webbrowser.open(project_path)

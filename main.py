@@ -38,6 +38,7 @@ log_path = utils.create_log(project_folder)
 utils.start_code(options, parameters, pointCloud, paths)
 
 if options['transform_and_subsample']:
+    print("\nConverting PointClouds to XYZ and subsampling")
     XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
     e1_sub_path = utils.transform_subsample(paths['CloudCompare'], pointCloud['e1'], XYZ_sub_folder, parameters['spatial_distance'])
     e2_sub_path = utils.transform_subsample(paths['CloudCompare'], pointCloud['e2'], XYZ_sub_folder, parameters['spatial_distance'])
@@ -55,8 +56,8 @@ else:
     e2_canupo_path = e2_sub_path
 
 if options['cleaning_filtering']:
-    clean_folder = utils.create_folder(project_folder, '1.3_clean')
     print("\nStatistical outlier removal")
+    clean_folder = utils.create_folder(project_folder, '1.3_clean')
     e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
     e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
 else:
@@ -97,12 +98,14 @@ if options['auto_parameters']:
     parameters['min_samples_rockfalls'] = utils.auto_param(density_points, parameters['eps_rockfalls'], safety_factor=0.9)
 
 if options["rf_clustering"]:
+    print("\nClustering (DBSCAN)")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
     e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters)
 else:
     e1ve2_DBSCAN_path = pointCloud['e1_e2']
 
 if options["rf_volume"]:
+    print("\nComputing volumes")
     volume_folder = utils.create_folder(project_folder, '5_volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
 

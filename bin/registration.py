@@ -109,7 +109,6 @@ def FGR_reg(voxel_size, e1_path, e2_path, registration_folder, ite):
     return e1_path_out, e2_path_out
 
 def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
-    print("ICP Registration")
     _print(f"Running ICP algorithm to refine registration - {ite} iterations will be executed")
 
     e1_file = get_file_name(e1_path)

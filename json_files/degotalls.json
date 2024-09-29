@@ -3,7 +3,7 @@
     "pointCloud": {
         "e1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\190711_DegotallsN__ICP.xyz",
         "e2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\240423_DegotallsN__ICP.xyz",
-        "e1_e2": ""
+        "e1_e2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz"
     },
 
     "options": {
@@ -13,10 +13,10 @@
         "fast_registration": false,
         "icp_registration": false,
         "roi_focus": false,
-        "m3c2_dist": true,
+        "m3c2_dist": false,
         "auto_parameters": true,
         "rf_clustering": true,
-        "rf_volume": true
+        "rf_volume": false
     },
 
     "parameters": {

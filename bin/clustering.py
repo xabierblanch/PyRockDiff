@@ -63,7 +63,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, veg
     plt.savefig(os.path.join(dbscan_folder,get_file_name(e1e2_change_path)+f'{file_name}.jpg'), bbox_inches='tight', pad_inches=0.1)
     plt.close()
 
-
 def dbscan(dbscan_folder, e1e2_change_path, parameters):
     pc_filtered = threshold_filter(parameters['diff_threshold'], e1e2_change_path)
     diff_cluster = dbscan_core(pc_filtered, parameters['eps_rockfalls'], parameters['min_samples_rockfalls'])

@@ -68,14 +68,14 @@ if options['fast_registration']:
     print("\nFast Global Registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.FGR_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder, parameters['ite_FGR'])
+else:
+    e1_reg_path = e1_filtered_path
+    e2_reg_path = e2_filtered_path
 
 if options['icp_registration']:
     print("\nICP registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['ite_ICP'])
-else:
-    e1_reg_path = e1_filtered_path
-    e2_reg_path = e2_filtered_path
 
 if options['roi_focus']:
     print("\nROI clipping")

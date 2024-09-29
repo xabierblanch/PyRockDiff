@@ -1,16 +1,16 @@
 {
     "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
     "pointCloud": {
-        "e1": "C:\\Users\\Xabier\\OneDrive - tu-dresden.de\\XBG\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Degotalls_N\\190711_DegotallsN.xyz",
-        "e2": "C:\\Users\\Xabier\\OneDrive - tu-dresden.de\\XBG\\XBG_Projects\\2024_ICGC\\ICGC_Data\\Degotalls_N\\240423_DegotallsN.xyz",
+        "e1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\190711_DegotallsN__ICP.xyz",
+        "e2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\240423_DegotallsN__ICP.xyz",
         "e1_e2": ""
     },
 
     "options": {
-        "transform_and_subsample": true,
-        "vegetation_filter": true,
-        "cleaning_filtering": true,
-        "fast_registration": true,
+        "transform_and_subsample": false,
+        "vegetation_filter": false,
+        "cleaning_filtering": false,
+        "fast_registration": false,
         "icp_registration": true,
         "roi_focus": true,
         "m3c2_dist": true,

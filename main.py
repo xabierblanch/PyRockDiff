@@ -13,11 +13,7 @@
 
 # You are free to use this software for any purpose. This freedom is being defined by the GNU General Public License (GPL).
 #TODO Migrate from CloudCompare to other solutions
-#TODO Compute the volume of the clusters
 #TODO include verbososity option + Silent in cloudcompare
-#TODO Create some log file
-#TODO Move to Pandas to save/load files with headings
-#TODO Function to check all paths before CC
 
 ''' Import libraries '''
 import bin.utils as utils

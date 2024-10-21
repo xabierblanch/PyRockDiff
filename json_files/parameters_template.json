@@ -1,9 +1,9 @@
 {
     "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
     "pointCloud": {
-        "e1": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\190711_Apostols__outlier3.xyz",
-        "e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\1.3_clean\\240423_Apostols__outlier.xyz",
-        "e1_e2": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData\\190711_Apostols_to_240423_Apostols\\3_change_detection\\190711_Apostols_vs_240423_Apostols__m3c2.xyz"
+        "e1": "  ",
+        "e2": "  ",
+        "e1_e2": "  "
     },
 
     "options": {
@@ -14,9 +14,9 @@
         "icp_registration": false,
         "roi_focus": false,
         "m3c2_dist": false,
-        "auto_parameters": true,
-        "rf_clustering": true,
-        "rf_volume": true
+        "auto_parameters": false,
+        "rf_clustering": false,
+        "rf_volume": false
     },
 
     "parameters": {
@@ -33,7 +33,7 @@
 
     "paths": {
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe",
-        "output": "C:\\Users\\XBG\\Desktop\\PyRockDiff_ICGCData",
+        "output": "  ",
         "m3c2_param": ".\\bin\\m3c2_params.txt",
         "canupo_file": ".\\bin\\canupo2.prm"
     }

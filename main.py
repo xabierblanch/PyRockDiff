@@ -15,6 +15,10 @@
 #TODO Migrate from CloudCompare to other solutions
 #TODO include verbososity option + Silent in cloudcompare
 
+#V2
+#TODO PointCloud rotation
+#TODO DensityComput -> DBSCAN
+
 ''' Import libraries '''
 import bin.utils as utils
 import bin.registration as reg

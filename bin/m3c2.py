@@ -11,13 +11,14 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
     CC_m3c2_Command = [CloudComapare_path,
-                      "-AUTO_SAVE", "OFF",
-                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
-                      "-O", e1_path, "-OCTREE_NORMALS", "0.12", "-ORIENT", "MINUS_ORIGIN",
-                      "-O", e2_path,
-                      "-M3C2", m3c2_param,
-                      "-CLEAR_NORMALS",
-                      "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
+                       "-VERBOSITY", "0", "-SILENT",
+                       "-AUTO_SAVE", "OFF",
+                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                       "-O", e1_path, "-OCTREE_NORMALS", "0.12", "-ORIENT", "MINUS_ORIGIN",
+                       "-O", e2_path,
+                       "-M3C2", m3c2_param,
+                       "-CLEAR_NORMALS",
+                       "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
 
     subprocess.run(CC_m3c2_Command)
 

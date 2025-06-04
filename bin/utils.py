@@ -13,6 +13,7 @@ import pandas as pd
 import logging
 import webbrowser
 import sys
+import re
 
 def create_log(project_folder):
     current_time = datetime.datetime.now()
@@ -265,6 +266,7 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
 
     CC_SUB_Command = [CloudComapare_path,
                       "-AUTO_SAVE", "OFF",
+                      "-VERBOSITY", "0", "-SILENT",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,
                       "-SS", "SPATIAL", str(spatial_distance),
@@ -280,6 +282,7 @@ def density(path, CloudCompare_path, dbscan_folder):
     radius = 0.25
     _print(f'Computing point density {get_file_name(path)}. Sphere radius: {radius} m')
     CC_DEN_Command = [CloudCompare_path,
+                      "-VERBOSITY", "0", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,
@@ -312,12 +315,24 @@ def _print(message):
     print(full_message)
     logging.info(full_message)
 
+def run_command(command):
+    _print(f'Initiating CloudCompare process')
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for line in process.stdout:
+        new_line = remove_timestampt(line.strip())
+        _print(new_line)
+    process.wait()
+
+def remove_timestampt(linea):
+    return re.sub(r'^\[\d{2}:\d{2}:\d{2}\] ?', '', linea)
+
 def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance):
 
     output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
     _print(f'Converting to XYZ and subsampling {get_file_name(path)}. Spatial distance: {spatial_distance} cm')
 
     CC_TRA_Command = [CloudComapare_path,
+                      "-VERBOSITY", "2", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-O", path,
                       "-SS", "SPATIAL", str(spatial_distance),
@@ -325,7 +340,8 @@ def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance)
                       "-REMOVE_ALL_SFS", "-REMOVE_RGB", "-REMOVE_NORMALS",
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    subprocess.run(CC_TRA_Command)
+    run_command(CC_TRA_Command)
+
     _print(f'Conversiond and subsampling {get_file_name(path)} completed')
 
     return output_path
@@ -334,6 +350,7 @@ def transform_file(CloudComapare_path, path, data_folder):
     output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
 
     CC_TRA_Command = [CloudComapare_path,
+                      "-VERBOSITY", "0", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,

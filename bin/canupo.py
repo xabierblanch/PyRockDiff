@@ -10,11 +10,12 @@ def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     _print(f'CANUPO Algorithm: {get_file_name(epoch_path)}')
 
     CC_canupo_Command = [CloudComapare_path,
-                      "-AUTO_SAVE", "OFF",
-                      "-C_EXPORT_FMT", "ASC", "-PREC", "3",
-                      "-O", epoch_path,
-                      "-CANUPO_CLASSIFY", canupo_file,
-                      "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
+                         "-VERBOSITY", "0", "-SILENT",
+                         "-AUTO_SAVE", "OFF",
+                         "-C_EXPORT_FMT", "ASC", "-PREC", "3",
+                         "-O", epoch_path,
+                         "-CANUPO_CLASSIFY", canupo_file,
+                         "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
     subprocess.run(CC_canupo_Command)
 

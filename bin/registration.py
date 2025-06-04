@@ -119,6 +119,7 @@ def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
     for i in range(ite):
         _print(f"Running ICP algorithm to refine registration (Iteration {i + 1} of {ite})")
         CC_ICP_Command = [CloudComapare_path,
+                          "-VERBOSITY", "0", "-SILENT",
                           "-AUTO_SAVE", "OFF",
                           "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                           "-O", e1_path,

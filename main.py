@@ -13,7 +13,6 @@
 
 # You are free to use this software for any purpose. This freedom is being defined by the GNU General Public License (GPL).
 #TODO Migrate from CloudCompare to other solutions
-#TODO include verbososity option + Silent in cloudcompare
 
 #V2
 #TODO PointCloud rotation

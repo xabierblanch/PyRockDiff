@@ -1,40 +1,63 @@
 {
-    "_comment": "Remember to use double backslashes (\\\\) for file paths on Windows systems.",
-    "pointCloud": {
-        "e1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\190711_DegotallsN__ICP.xyz",
-        "e2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\2_registration\\240423_DegotallsN__ICP.xyz",
-        "e1_e2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz"
+    "_comment": [
+        "Configuration file for the processing pipeline.",
+        "Use double backslashes (\\\\) for file paths on Windows systems.",
+        "Structure:",
+        "1. 'paths' - Contains input/output paths and software locations",
+        "2. 'options' - Processing steps toggles (true/false)",
+        "3. 'parameters' - Algorithm-specific settings",
+        "Only enabled steps (true) will be executed in the workflow"],
+
+    "paths": {
+        "input_files": {
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
+            "m3c2_result": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz",
+            "m3c2_param": ".\\bin\\m3c2_params.txt",
+            "canupo_file": ".\\bin\\canupo.prm"
+        },
+        "output_paths": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
+        "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
     "options": {
-        "transform_and_subsample": false,
-        "vegetation_filter": false,
-        "cleaning_filtering": false,
-        "fast_registration": false,
-        "icp_registration": false,
-        "roi_focus": false,
-        "m3c2_dist": false,
-        "auto_parameters": true,
-        "rf_clustering": true,
-        "rf_volume": false
+        "preprocessing": {
+            "transform_and_subsample": true,
+            "vegetation_removal": true,
+            "statistical_outlier_removal": true
+        },
+        "registration": {
+            "fast_global": true,
+            "icp_refinement": true,
+            "roi_cropping": true
+        },
+        "analysis": {
+            "m3c2_distance": true,
+            "auto_dbscan_params": true,
+            "dbscan_clustering": true,
+            "volume_calculation": false
+        }
     },
 
     "parameters": {
-        "spatial_distance": 0.05,
-        "voxel_size": 0.25,
-        "ite_FGR": 2,
-        "ite_ICP": 3,
-        "diff_threshold": -0.05,
-        "eps_rockfalls": 0.3,
-        "min_samples_rockfalls": 15,
-        "nb_neighbors_f": 10,
-        "std_ratio_f": 1.5
-    },
-
-    "paths": {
-        "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe",
-        "output": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
-        "m3c2_param": ".\\bin\\m3c2_params.txt",
-        "canupo_file": ".\\bin\\canupo.prm"
+        "subsampling": {
+            "spatial_resolution": 0.05
+        },
+        "outlier_removal": {
+            "neighbors": 10,
+            "std_ratio": 1.5
+        },
+        "registration": {
+            "voxel_resolution": 0.25,
+            "fgr_iterations": 2,
+            "icp_iterations": 3
+        },
+        "change_detection": {
+            "threshold": -0.05
+        },
+        "dbscan": {
+            "eps": 0.3,
+            "min_samples": 15
+        }
     }
 }

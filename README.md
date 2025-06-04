@@ -282,7 +282,7 @@ Clusters detected changes using **[DBSCAN](https://scikit-learn.org/stable/modul
 **Technical Notes:**  
 - Uses `scikit-learn` implementation of DBSCAN (Ester et al., 1996)  
 
-</details></details>
+</details>
 
 <details>
 <summary>Volume Estimation</summary>
@@ -314,8 +314,8 @@ Estimates rockfall volumes using **[alpha-shape triangulation](https://en.wikipe
 - Erosion scars exhibit irregular geometries (e.g., elongated fractures).  
 
 </details>
-
 </details>
+
 <br>
 <details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>

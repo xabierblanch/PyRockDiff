@@ -13,27 +13,27 @@
             "epoch1": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
             "epoch2": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
             "m3c2_result": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz",
-            "m3c2_param": ".\\bin\\m3c2_params.txt",
+            "m3c2_file": ".\\bin\\m3c2_params.txt",
             "canupo_file": ".\\bin\\canupo.prm"
         },
-        "output_paths": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
-        "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
+        "output_path": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
+        "CloudCompare_path": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
     "options": {
         "preprocessing": {
             "transform_and_subsample": true,
-            "vegetation_removal": true,
-            "statistical_outlier_removal": true
+            "vegetation_filter": true,
+            "outlier_filter": true
         },
         "registration": {
-            "fast_global": true,
-            "icp_refinement": true,
-            "roi_cropping": true
+            "fgr": true,
+            "icp": true
         },
         "analysis": {
+            "roi_cropping": true,
             "m3c2_distance": true,
-            "auto_dbscan_params": true,
+            "auto_min_samples_dbscan": true,
             "dbscan_clustering": true,
             "volume_calculation": false
         }
@@ -43,7 +43,7 @@
         "subsampling": {
             "spatial_resolution": 0.05
         },
-        "outlier_removal": {
+        "outlier_filter": {
             "neighbors": 10,
             "std_ratio": 1.5
         },
@@ -52,10 +52,8 @@
             "fgr_iterations": 2,
             "icp_iterations": 3
         },
-        "change_detection": {
-            "threshold": -0.05
-        },
-        "dbscan": {
+        "clustering": {
+            "change_threshold": -0.05,
             "eps": 0.3,
             "min_samples": 15
         }

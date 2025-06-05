@@ -1,17 +1,18 @@
-# PyRockDiff - Automatic change-detection workflow for rockfall identification
+# PyRockDiff - Automatic Change Detection for Rockfall Identification
 
-### 🚀 Quick Overview
-This Python-based pipeline automates the comparison of two point clouds obtained from LiDAR or SfM, specifically targeting rock surfaces. It allows for efficient analysis of geological changes with minimal user input.
+## 🚀 Quick Overview
 
-Key features include:
+**PyRockDiff** is a Python-based pipeline that automates the comparison of two point clouds obtained from LiDAR or Structure-from-Motion (SfM), specifically targeting rock surfaces. It enables efficient geological change analysis with minimal user input.
 
-- **Automation:** The pipeline operates automatically, requiring only a single configuration file for setup.
-- **User-Friendly Configuration:** Simplifies the process, making advanced analysis accessible without programming knowledge.
-- **Preprocessing:** Cleans point clouds by removing noise and vegetation and aligns them accurately using registration algorithms.
-- **Change Detection:** Detects differences between the two analyzed epochs with the M3C2 algorithm.
-- **Clustering & Volume Calculation:** Isolates changes using DBSCAN and estimates volumes via alpha-shape triangulation.
+### 🔑 Key Features
 
-## Table of Contents
+- **Automation**: Fully automated workflow requiring only a single configuration file.
+- **User-Friendly Configuration**: Designed for ease of use, even without programming experience.
+- **Preprocessing**: Cleans point clouds by removing noise and vegetation, and aligns them using robust registration algorithms.
+- **Change Detection**: Identifies differences between two epochs using the M3C2 algorithm.
+- **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes using alpha-shape triangulation
+
+## 📚 Table of Contents
 - [Overview](#overview)
 - [Installation and Requirements](#installation-and-requirements)
   - [Installation](#installation)
@@ -29,26 +30,43 @@ Key features include:
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
 
-## Overview
+## 📖 Overview
 <details>
 <summary>Click to expand</summary>
-<br>
-This project is a Python-based pipeline designed to automate the comparison of two point clouds obtained from LiDAR or Structure from Motion (SfM), specifically focusing on rock surfaces. The pipeline begins with essential pre-processing steps, including data cleaning and vegetation removal, to prepare the data for analysis. It then employs algorithms for Fast Global Registration and Iterative Closest Point (ICP) alignment, enabling precise change detection results.
 
-The software identifies differences between the two epochs using the M3C2 algorithm, isolates clusters using the DBSCAN algorithm, and calculates the volumes of detected changes through alpha-shape triangulation. It is designed for automation and user-friendliness, making it accessible to non-experts in coding while efficiently processing large datasets. The libraries and software used are open-source, enhancing accessibility and collaboration.
+**PyRockDiff** is a Python-based pipeline for automatically detecting changes in rock surfaces by comparing two point clouds obtained from LiDAR or Structure-from-Motion (SfM) data.
+
+The process begins with essential pre-processing steps such as noise removal and vegetation filtering. It then aligns the point clouds using Fast Global Registration (FGR) and Iterative Closest Point (ICP) algorithms.
+
+Change detection is performed using the M3C2 algorithm, followed by clustering of significant changes with DBSCAN. Finally, the volume of detected rockfalls is estimated using alpha-shape triangulation.
+
+The pipeline is fully automated and user-friendly, requiring minimal input through a configuration file. It is designed to be accessible to users without programming experience and leverages open-source tools to promote transparency and collaboration.
 </details>
 
-## Installation and requirements
+## 🛠️ Installation & Requirements
+
 <details>
 <summary>Click to expand</summary>
 
-The following external open-source software is used:
+### External Software
+
+⚠️ **Note**: CloudCompare must be installed and accessible from the command line 
 
 | Software/Library | License | Link |
 |------------------|---------|------|
 | CloudCompare      | GPL     | [CloudCompare Website](https://www.danielgm.net/cc/) |
+#### ✅ Compatibility Checklist
+- [x] Tested with CloudCompare 2.14.alpha
+- [x] Tested with CloudCompare 2.13.2 (Kharkiv)
 
-Other dependencies are managed through Python, and can be installed via `requirements.txt`.
+### Python Dependencies
+
+All other dependencies are managed via Python and can be installed using the provided `requirements.txt` file.
+
+#### ✅ Compatibility Checklist
+
+- [x] Tested with Python 3.13
+- [x] Tested with Python 3.12
 
 ### Installation
 To set up the environment and install the required dependencies:
@@ -58,11 +76,9 @@ git clone https://github.com/xabierblanch/PyRockDiff.git
 cd PyRockDiff
 pip install -r requirements.txt
 ```
-Ensure CloudCompare is downloaded and accessible from the command line.
-
 </details>
 
-## How It Works
+## ⚙️ How It Works
 
 <details>
 <summary><strong style="font-size:1.2em;">Input Data</strong></summary>
@@ -75,7 +91,6 @@ The code requires specific input formats and parameters to execute successfully:
   - `.xyz` (ASCII Point Cloud)
   - `.txt` (Custom ASCII format)
   
-
 - A pre-defined parameters and paths file: `xxx.JSON` file.
  
 **Critical Note:** All point clouds must share the same coordinate reference system (CRS) and units (meters recommended).
@@ -88,27 +103,36 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 1. **Preprocessing**  
    - Transformation and subsampling (`transform_and_subsample`)  
-   - Vegetation filtering (`vegetation_filter`)  
-   - Statistical cleaning (`cleaning_filtering`)  
+   - Vegetation_filter (`vegetation_filter`)  
+   - Statistical cleaning (`outlier_filter`)  
 
 
 2. **Registration**  
-   - FGR (`fast_registration`)  
-   - ICP (`icp_registration`)  
+   - FGR (`fgr`)  
+   - ICP (`icp`)  
 
 
 3. **Change Detection**  
-   - M3C2 (`m3c2_dist`)  
-   - DBSCAN clustering (`autoparameters` & `rf_clustering`)
+   - M3C2 (`m3c2_distance`)  
+   - DBSCAN clustering (`auto_dbscan_params` & `dbscan_clustering`)
 
 
 4. **Volum Computation**
-   - Volume Estimation (`rf_volume`)
+   - Volume Estimation (`volume_calculation`)
 </details>
 <br>
+
+<details>
+<summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
+</details>
+<br>
+
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
 <br>
+
+<div style="margin-left: 20px;">
+
 <details>
 <summary>Transform and Subsample</summary>
 
@@ -122,10 +146,10 @@ Transform and subsample the point clouds using CloudCompare. This step of the pi
 | Parameter Name              | Type        | Example Value                                         | JSON Section     |
 |-----------------------------|-------------|-------------------------------------------------------|-------------------|
 | `transform_and_subsample`    | Boolean    | `true`                                                | options           |
-| `spatial_distance`           | Float (cm) | `0.05`                                                | parameters        |
+| `spatial_resolution`           | Float (cm) | `0.05`                                                | parameters        |
 
 - **`transform_and_subsample`**: Enables or disables the transformation and subsampling step.
-- **`spatial_distance`**: Specifies the minimum distance (in meters) between points for subsampling.
+- **`spatial_resolution`**: Specifies the minimum distance (in meters) between points for subsampling.
 </details>
 
 <details>
@@ -134,7 +158,7 @@ Transform and subsample the point clouds using CloudCompare. This step of the pi
 Applies a vegetation filter using [CANUPO workflow](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). This consist in a simple yet efficient way to automatically classify a point cloud
 
 #### How it works:
-1. **Vegetation Filtering**: The CANUPO algorithm identifies and filters vegetation points from the input point cloud. The algorithm is integrated in the CloudCompare software and requires a `.prm` file corresponding to the classifier. A classifier for vegetation is included with the software but the user can create his own ‘.prm’ files using CloudCompare's CANUPO suite. The resulting filtered point cloud is saved in `.xyz` format for further analysis.
+1. **Vegetation Filter**: The CANUPO algorithm identifies and filters vegetation points from the input point cloud. The algorithm is integrated in the CloudCompare software and requires a `.prm` file corresponding to the classifier. A classifier for vegetation is included with the software but the user can create his own ‘.prm’ files using CloudCompare's CANUPO suite. The resulting filtered point cloud is saved in `.xyz` format for further analysis.
 
 #### JSON file parameters:
 | Parameter Name          | Type    | Example Value                                         | JSON Section |
@@ -148,64 +172,63 @@ Applies a vegetation filter using [CANUPO workflow](https://nicolas.brodu.net/co
 </details>
 
 <details>
-<summary>Cleaning Filter</summary>
-
+<summary>Outlier Filter</summary>
 
 Applies a statistical outlier filter to remove noise from the point cloud. This step helps enhance the quality of the data by eliminating points that are statistically different from their neighbors, ensuring more accurate analysis in subsequent steps.
 
 #### How it works:
-1. **Statistical Outlier Removal**: The outlier filter evaluates each point in the point cloud based on the distance to its neighbors. Points that have a significantly different distance compared to their local neighborhood are removed. The `nb_neighbors` parameter defines the number of neighboring points to consider, while the `std_ratio` parameter specifies the threshold for determining outliers.
+1. **Outlier Filter**: The outlier filter evaluates each point in the point cloud based on the distance to its neighbors. Points that have a significantly different distance compared to their local neighborhood are removed. The `nb_neighbors` parameter defines the number of neighboring points to consider, while the `std_ratio` parameter specifies the threshold for determining outliers.
 
 #### JSON file parameters:
 | Parameter Name              | Type      | Example Value                                         | JSON Section     |
 |-----------------------------|-----------|-------------------------------------------------------|-------------------|
-| `cleaning_filtering`           | Boolean   | `true`                                                | options           |
-| `nb_neighbors_f`            | Integer   | `10`                                                 | parameters        |
-| `std_ratio_f`               | Float (m) | `1.5`                                                | parameters        |
+| `outlier_filter`           | Boolean   | `true`                                                | options           |
+| `neighbors`            | Integer   | `10`                                                 | parameters        |
+| `std_ratio`               | Float (m) | `1.5`                                                | parameters        |
 
-- **`cleaning_filtering`**: Enables or disables the application of the statistical outlier filter.
-- **`nb_neighbors_f`**: Specifies the number of neighbors to consider for the statistical analysis.
-- **`std_ratio_f`**: Defines the standard deviation multiplier used to identify outliers.
+- **`outlier_filter`**: Enables or disables the application of the statistical outlier filter.
+- **`neighbors`**: Specifies the number of neighbors to consider for the statistical analysis.
+- **`std_ratio`**: Defines the standard deviation multiplier used to identify outliers.
 </details>
 
 <details>
 <summary>Fast Global Registration</summary>
 
-Performs Fast Global Registration (FGR), if the <code>fast_registration</code> option is enabled. This method quickly aligns two point clouds based on their features, with the `voxel_size` parameter used to downsample the point clouds, and the registration refined through multiple iterations defined by the `ite_FGR` parameter.
+Performs Fast Global Registration (FGR), if the <code>fgr</code> option is enabled. This method quickly aligns two point clouds based on their features, with the `voxel_size` parameter used to downsample the point clouds, and the registration refined through multiple iterations defined by the `ite_FGR` parameter.
 
 #### JSON file parameters:
 | Parameter Name              | Type        | Example Value                                         | JSON Section     |
 |-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `fast_registration`         | Boolean     | `true`                                                | options           |
-| `voxel_size`               | Float       | `0.25`                                               | parameters        |
-| `ite_FGR`                   | Integer     | `3`                                                  | parameters        |
+| `fgr`         | Boolean     | `true`                                                | options           |
+| `voxel_resolution`               | Float       | `0.25`                                               | parameters        |
+| `fgr_iterations`                   | Integer     | `3`                                                  | parameters        |
 
-- **`fast_registration`**: Enables or disables the application of the Fast Global Registration algorithm.
-- **`voxel_size`**: Specifies the size of the voxel for downsampling the point clouds before registration.
-- **`ite_FGR`**: Defines the number of iterations for the Fast Global Registration algorithm.
+- **`fgr`**: Enables or disables the application of the Fast Global Registration (FGR) algorithm.
+- **`voxel_resolution`**: Specifies the size of the voxel for downsampling the point clouds before registration.
+- **`fgr_iterations`**: Defines the number of iterations for the Fast Global Registration algorithm.
 
 </details>
 
 <details>
 <summary>ICP Registration</summary>
 
-Executes ICP (Iterative Closest Point) registration, if the <code>icp_registration</code> option is enabled. After initial alignment with FGR, ICP enhances the precision of the registration by iteratively minimizing the distance between corresponding points, using the `ite_ICP` parameter to specify the number of refinement iterations.
+Executes ICP (Iterative Closest Point) registration, if the <code>icp</code> option is enabled. After initial alignment with FGR, ICP enhances the precision of the registration by iteratively minimizing the distance between corresponding points, using the `ite_ICP` parameter to specify the number of refinement iterations.
 
 #### JSON file parameters:
 | Parameter Name              | Type        | Example Value                                         | JSON Section     |
 |-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `icp_registration`          | Boolean     | `true`                                                | options           |
-| `ite_ICP`                   | Integer     | `3`                                                  | parameters        |
+| `icp`          | Boolean     | `true`                                                | options           |
+| `icp_iterations`                   | Integer     | `3`                                                  | parameters        |
 
-- **`icp_registration`**: Enables or disables the application of the Iterative Closest Point algorithm.
-- **`ite_ICP`**: Defines the number of iterations for the Iterative Closest Point algorithm.
+- **`icp`**: Enables or disables the application of the Iterative Closest Point algorithm.
+- **`icp_iterations`**: Defines the number of iterations for the Iterative Closest Point algorithm.
 </details>
 
 <details>
 <summary>ROI Focus</summary>
 
 #### ROI Focus
-<p>Performs Region of Interest (ROI) clipping on the point clouds, if the <code>roi_focus</code> option is enabled.</p>
+<p>Performs Region of Interest (ROI) clipping on the point clouds, if the <code>roi_cropping </code> option is enabled.</p>
 </details>
 
 <details>
@@ -217,19 +240,19 @@ Calculates differences using the
 #### JSON file parameters:
 | Parameter Name              | Type        | Example Value                                         | JSON Section     |
 |-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `m3c2_dist`                 | Boolean     | `true`                                                | options           |
-| `m3c2_param`                | Path        | `.\\bin\\m3c2_params.txt`                            | paths             |
+| `m3c2_distance`                 | Boolean     | `true`                                                | options           |
+| `m3c2_file`                | Path        | `.\\bin\\m3c2_params.txt`                            | paths             |
 
-- **`m3c2_dist`**: Enables or disables the application of the M3C2 algorithm to compute differences.
-- **`m3c2_param`**: Path to the file containing parameters for the M3C2 calculation.</details>
+- **`m3c2_distance`**: Enables or disables the application of the M3C2 algorithm to compute differences.
+- **`m3c2_file`**: Path to the file containing parameters for the M3C2 calculation.</details>
 
 <details>
 <summary>Autoparameters</summary>
 
 #### Auto MinPts estimation (for DBSCAN)
-Calculates point density to estimate the `min_samples_rockfalls` parameter for DBSCAN algorithm **when the <code>auto_parameters</code> option is enabled**. Automatically estimates this parameter based on local point density and user-defined `eps_rockfalls`.  
+Calculates point density to estimate the `min_samples` parameter for DBSCAN algorithm **when the <code>auto_min_samples_dbscan</code> option is enabled**. Automatically estimates this parameter based on local point density and user-defined `eps_rockfalls`.  
 
-**Important:** When enabled, the auto-calculated value **overrides** any manual entry of `min_samples_rockfalls` in the JSON file.
+**Important:** When enabled, the auto-calculated value **overrides** any manual entry of `min_samples` in the JSON file.
 #### How it works:
 1. **Density Calculation**  
    Computes local point density using CloudCompare's `-DENSITY` command with a spherical kernel (radius = 0.25 m):  
@@ -250,19 +273,19 @@ Calculates point density to estimate the `min_samples_rockfalls` parameter for D
 #### JSON file parameters:
 | Parameter Name          | Type    | Example Value | JSON Section | Description                              |
 |-------------------------|---------|---------------|--------------|------------------------------------------|
-| `auto_parameters`       | Boolean | `true`        | options      | Enables automatic parameter estimation    |
-| `eps_rockfalls`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)             |
+| `auto_min_samples_dbscan`       | Boolean | `true`        | options      | Enables automatic parameter estimation    |
+| `eps`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)             |
 
 ⚠️ **Key Limitations:** ⚠️
 
 **This method is sensitive to:**  
 - Significant density variations within the point cloud  
 - Complex geometries (e.g., fractures, overhangs)  
-- Discrepancies between `eps_rockfalls` and target sizes  
+- Discrepancies between `eps` and target sizes  
 
 **Disable auto-estimation** and use manual values if: 
-   - Clusters include obvious noise (increase `min_samples_rockfalls`)  
-   - Valid rockfalls are missed (decrease `min_samples_rockfalls`)  
+   - Clusters include obvious noise (increase `min_samples`)  
+   - Valid rockfalls are missed (decrease `min_samples`)  
 
 </details>
 
@@ -274,10 +297,10 @@ Clusters detected changes using **[DBSCAN](https://scikit-learn.org/stable/modul
 #### JSON file parameters:
 | Parameter Name          | Type    | Example Value | JSON Section | Description                              |
 |-------------------------|---------|---------------|--------------|------------------------------------------|
-| `rf_clustering`         | Boolean | `true`        | options      | Enables/disables DBSCAN clustering       |
-| `eps_rockfalls`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)            |
-| `min_samples_rockfalls` | Integer | `15`          | parameters   | Minimum points per cluster               |
-| `diff_threshold`        | Float   | `-0.05`       | parameters   | Pre-filtering threshold (meters)         |
+| `dbscan_clustering`         | Boolean | `true`        | options      | Enables/disables DBSCAN clustering       |
+| `eps`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)            |
+| `min_samples` | Integer | `15`          | parameters   | Minimum points per cluster               |
+| `change_threshold`        | Float   | `-0.05`       | parameters   | Pre-filtering threshold (meters)         |
 
 **Technical Notes:**  
 - Uses `scikit-learn` implementation of DBSCAN (Ester et al., 1996)  
@@ -302,7 +325,7 @@ Estimates rockfall volumes using **[alpha-shape triangulation](https://en.wikipe
 #### JSON file parameters:
 | Parameter Name       | Type    | Example Value | JSON Section | Description                          |
 |----------------------|---------|---------------|--------------|--------------------------------------|
-| `rf_volume`          | Boolean | `true`        | options      | Enables volume estimation     
+| `volume_calculation`          | Boolean | `true`        | options      | Enables volume estimation     
 
 **Technical Notes:**  
 - **Alpha Sensitivity**: Volume accuracy depends on α value. Small α → underfitting (holes), large α → over-convex shapes.  
@@ -316,11 +339,15 @@ Estimates rockfall volumes using **[alpha-shape triangulation](https://en.wikipe
 </details>
 </details>
 
+</div>
+
 <br>
 <details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
+
+<div style="margin-left: 20px;">
 
 <details>
 <summary>Configuration Values</summary>
@@ -329,17 +356,17 @@ All processing parameters are defined in the configuration file (`_config.json`)
 
 | Parameter Name              | Type    | Example Value | Processing Stage                                              |
 |-----------------------------|---------|---------------|---------------------------------------------------------------|
-| `spatial_distance`          | Float   | `0.05`        | Spatial distance for Point cloud subsampling                  |
-| `voxel_size`                | Float   | `0.25`        | Voxel-size automatic subsampling for Fast Global Registration |
-| `ite_FGR`                   | Integer | `2`           | Fast Global Registration (FGR) Iterations                     |
-| `ite_ICP`                   | Integer | `3`           | Iterative Closest Point (ICP) Iterations                      |
-| `diff_threshold`            | Float   | `-0.05`       | Change-detection threshold                                    |
-| `eps_rockfalls`             | Float   | `0.3`         | DBSCAN clustering (ε)                                         |
-| `min_samples_rockfalls`     | Integer | `15`          | Minimum cluster size                                          |
-| `nb_neighbors_f`            | Integer | `10`          | Outlier removal (neighbors)                                   |
-| `std_ratio_f`               | Float   | `1.5`         | Statistical outlier filtering                                 |
-1. **Units**: All spatial parameters (`spatial_distance`, `voxel_size`, etc.) are in **meters**
-2. **Change Detection**: Negative `diff_threshold` detects surface lowering (erosion/rockfalls)
+| `spatial_resolution`          | Float   | `0.05`        | Spatial distance for Point cloud subsampling                  |
+| `voxel_resolution`                | Float   | `0.25`        | Voxel-size automatic subsampling for Fast Global Registration |
+| `fgr_iterations`                   | Integer | `2`           | Fast Global Registration (FGR) Iterations                     |
+| `icp_iterations`                   | Integer | `3`           | Iterative Closest Point (ICP) Iterations                      |
+| `change_threshold`            | Float   | `-0.05`       | Change-detection threshold                                    |
+| `eps`             | Float   | `0.3`         | DBSCAN clustering (ε)                                         |
+| `min_samples`     | Integer | `15`          | Minimum cluster size                                          |
+| `neighbors`            | Integer | `10`          | Outlier removal (neighbors)                                   |
+| `std_ratio`               | Float   | `1.5`         | Statistical outlier filtering                                 |
+1. **Units**: All spatial parameters (`spatial_distance`, `voxel_resolution`, etc.) are in **meters**
+2. **Change Detection**: Negative `change_threshold` detects surface lowering (erosion/rockfalls)
 </details>
 
 <details>
@@ -347,18 +374,18 @@ All processing parameters are defined in the configuration file (`_config.json`)
 
 All main processing steps can be enabled or disabled via boolean flags in the configuration file. This allows the user to flexibly control the workflow without modifying the code.
 
-| Parameter Name             | Type    | Default Example | Description                                                       |
-|----------------------------|---------|-----------------|-------------------------------------------------------------------|
-| `transform_and_subsample`  | Boolean | `true`          | Enable transformation to XYZ and spatial subsampling              |
-| `vegetation_filter`        | Boolean | `true`          | Enable vegetation filtering using CANUPO                          |
-| `cleaning_filtering`          | Boolean | `true`          | Enable statistical outlier removal                                |
-| `fast_registration`        | Boolean | `true`          | Enable Fast Global Registration (FGR)                             |
-| `icp_registration`         | Boolean | `true`          | Enable Iterative Closest Point (ICP) registration                 |
-| `roi_focus`                | Boolean | `false`         | Enable Region of Interest (ROI) cropping                          |
-| `m3c2_dist`                | Boolean | `true`          | Enable M3C2 change detection                                      |
-| `auto_parameters`          | Boolean | `false`         | Automatically estimate DBSCAN parameters                          |
-| `rf_clustering`            | Boolean | `true`          | Enable rockfall clustering (DBSCAN)                               |
-| `rf_volume`                | Boolean | `true`          | Enable volume estimation for detected clusters                    |
+| Parameter Name            | Type    | Default Example | Description                                                       |
+|---------------------------|---------|-----------------|-------------------------------------------------------------------|
+| `transform_and_subsample` | Boolean | `true`          | Enable transformation to XYZ and spatial subsampling              |
+| `vegetation_filter`       | Boolean | `true`          | Enable vegetation filtering using CANUPO                          |
+| `outlier_filter`          | Boolean | `true`          | Enable statistical outlier removal                                |
+| `fgr`                 | Boolean | `true`          | Enable Fast Global Registration (FGR)                             |
+| `icp`        | Boolean | `true`          | Enable Iterative Closest Point (ICP) registration                 |
+| `roi_cropping`               | Boolean | `false`         | Enable Region of Interest (ROI) cropping                          |
+| `m3c2_distance`               | Boolean | `true`          | Enable M3C2 change detection                                      |
+| `auto_min_samples_dbscan`         | Boolean | `false`         | Automatically estimate DBSCAN parameters                          |
+| `dbscan_clustering`           | Boolean | `true`          | Enable rockfall clustering (DBSCAN)                               |
+| `volume_calculation`               | Boolean | `true`          | Enable volume estimation for detected clusters                    |
 
 **Note:** In JSON, boolean values must be written in lowercase and without quotes: `true` or `false`.  
 Each flag corresponds to a major processing step and can be toggled independently.
@@ -377,25 +404,27 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 
 | Path Name | Description                                | Example Value                                              |
 |-----------|--------------------------------------------|------------------------------------------------------------|
-| `e1`      | Path to first input point cloud (epoch 1)  | `C:\...\PointClouds\epoch_1.xyz`                           |
-| `e2`      | Path to second input point cloud (epoch 2) | `C:\...\PointClouds\epoch_2.xyz`                           |
-| `e1_e2`   | Path to M3C2 change detection results      | `C:\...\PointClouds\epoch1_vs_epoch2_m3c2.xyz` |
-| `m3c2_param`   | Path to M3C2 parameter file           | `.\\bin\\m3c2_params.txt`                     |
+| `epoch1`      | Path to first input point cloud (epoch 1)  | `C:\...\PointClouds\epoch_1.xyz`                           |
+| `epoch2`      | Path to second input point cloud (epoch 2) | `C:\...\PointClouds\epoch_2.xyz`                           |
+| `m3c2_result`   | Path to M3C2 change detection results      | `C:\...\PointClouds\epoch1_vs_epoch2_m3c2.xyz` |
+| `m3c2_file`   | Path to M3C2 parameter file           | `.\\bin\\m3c2_params.txt`                     |
 | `canupo_file`  | Path to CANUPO parameter file         | `.\\bin\\canupo.prm`                          |
 
 **Output Path**
 
-| Path Name   | Description                            | Example Value                                   |
-|-------------|----------------------------------------|------------------------------------------------|
-| `output`    | Output directory for processed results | `C:\Users\Xabier\Desktop\PyRockDiff_ICGCData`   |
+| Path Name   | Description                            | Example Value               |
+|-------------|----------------------------------------|-----------------------------|
+| `output_path`    | Output directory for processed results | `C:\...\PyRockDiff_Results` |
 
 **CloudCompare Path**
 
 | Path Name      | Description                           | Example Value                                 |
 |----------------|---------------------------------------|-----------------------------------------------|
-| `CloudCompare` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
+| `CloudCompare_path` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
 
 </details>
+</div>
+
 </details>
 <br>
 <details>
@@ -440,12 +469,10 @@ The pipeline generates the following folder and file structure in the output dir
 - The log file and a copy of the configuration used are stored at the root of the output directory.
 </details>
 
-## Development stages & Future Updates
+## 🚧 Development stages & Future Updates
 
 <details>
 <summary>Planned Features</summary>
-
-### Planned Features
 
 The following features and enhancements are planned for future versions of this software:
 
@@ -455,16 +482,15 @@ The following features and enhancements are planned for future versions of this 
 - [ ] Add AI tools for vegetation filtering
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 - [ ] Include and process RGB data (for LiDAR or SfM Point Clouds)
-
 </details>
 
-## Contact
+## 📬 Contact
 
 For questions, issues, or further information regarding this software, feel free to reach out to the authors:
 
 - **Xabier Blanch**: xabier.blanch@upc.edu
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 We would like to thank the following individuals and institutions for their invaluable contributions and support:
 
@@ -483,7 +509,7 @@ Additionally, the methodologies used in this software are based on the work deve
 | Manuel Royán     | [Rockfall characterization and prediction by means of Terrestrial LiDAR](https://www.tdx.cat/handle/10803/334400#page=1)                                                                                                                                                                                                  | 2015 |
 | Xabier Blanch    | [Developing Advanced Photogrammetric Methods for Automated Rockfall Monitoring](https://diposit.ub.edu/dspace/handle/2445/189157)                                                                                                                                                                                         | 2023 |
 
-## License
+## 📝 License
 
 This project is licensed under the **GNU General Public License (GPL)**. You are free to use, modify, and distribute this software under the terms of this license.
 

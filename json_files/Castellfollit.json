@@ -10,9 +10,9 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
-            "m3c2_result": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PC Test_PyRockDiff\\240424_UPC.xyz",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PC Test_PyRockDiff\\241024_UPC.xyz",
+            "m3c2_result": "",
             "m3c2_file": ".\\bin\\m3c2_params.txt",
             "canupo_file": ".\\bin\\canupo.prm"
         },
@@ -20,31 +20,31 @@
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
-    "steps": {
+    "options": {
         "preprocessing": {
             "transform_and_subsample": true,
             "vegetation_filter": true,
             "outlier_filter": true
         },
         "registration": {
-            "fgr": true,
-            "icp": true
+            "fgr": false,
+            "icp": false
         },
         "analysis": {
-            "roi_cropping": true,
+            "roi_cropping": false,
             "m3c2_distance": true,
-            "auto_min_samples_dbscan": true,
+            "auto_parameters_dbscan": true,
             "dbscan_clustering": true,
-            "volume_calculation": false
+            "volume_calculation": true
         }
     },
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.05
+            "spatial_resolution": 0.10
         },
         "outlier_filter": {
-            "neighbors": 10,
+            "neighbors": 25,
             "std_ratio": 1.5
         },
         "registration": {

@@ -7,15 +7,7 @@ import numpy as np
 import open3d as o3d
 import os
 
-def threshold_filter(threshold, e1e2_change_path):
-    pc = loadPC(e1e2_change_path)
-    _print(f'Filtering Point Cloud: Difference threshold: {threshold}')
-    if threshold < 0:
-        pc_filtered = pc[pc['m3c2_diff'] < threshold]
-    if threshold > 0:
-        pc_filtered = pc[pc['m3c2_diff'] > threshold]
-    _print(f'Point Cloud after threshold filter: {pc_filtered.shape[0]} points')
-    return pc_filtered
+
 
 def dbscan_core(diff_filter, eps, min_samples):
     _print(f'Running DBSCAN algorithm for clustering the {diff_filter.shape[0]} points')
@@ -64,9 +56,14 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, veg
     plt.close()
 
 def dbscan(dbscan_folder, e1e2_change_path, parameters):
-    pc_filtered = threshold_filter(parameters['diff_threshold'], e1e2_change_path)
-    diff_cluster = dbscan_core(pc_filtered, parameters['eps_rockfalls'], parameters['min_samples_rockfalls'])
     file_name = get_file_name(e1e2_change_path)
+
+    diff_cluster = dbscan_core(e1e2_change_path, parameters['eps'], parameters['min_samples'])
+    if diff_cluster.shape[0] == 0:
+        _print("DBSCAN found 0 clusters. No rockfall activity detected.")
+        _print("We recommend double-checking the M3C2 output.")
+        return None
+
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
     plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, vegetation=True)
     plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, vegetation=False)

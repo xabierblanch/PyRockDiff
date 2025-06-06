@@ -48,7 +48,7 @@ def check_path(path, path_name, warning, is_required=True):
     print(f"{path_name}: {status}")
     return warning
 
-def start_code(options, parameters, pointCloud, paths):
+def start_code(options, parameters, paths):
 
     GREEN = "\033[92m"
     RED = "\033[91m"
@@ -59,26 +59,30 @@ def start_code(options, parameters, pointCloud, paths):
     print("\n" + "="*50 + "\n")
     print("\033[1mReading JSON file:\033[0m\n")
 
-    requires_two_clouds = any([options["transform_and_subsample"], options["vegetation_filter"],
-                               options["cleaning_filtering"], options["fast_registration"],
-                               options["icp_registration"], options["roi_focus"], options["m3c2_dist"]])
+    requires_two_clouds = any([options['preprocessing']['transform_and_subsample'],
+                               options['preprocessing']['vegetation_filter'],
+                               options['preprocessing']['outlier_filter'],
+                               options['registration']['fgr'],
+                               options['registration']['icp'],
+                               options['analysis']['roi_cropping'],
+                               options['analysis']['m3c2_distance']])
 
     if requires_two_clouds:
         try:
-            e1 = get_file_name(pointCloud['e1'])
+            e1 = get_file_name(paths['inputs']['epoch1'])
         except:
             print('ERROR: Not e1 pointcloud')
         try:
-            e2 = get_file_name(pointCloud['e2'])
+            e2 = get_file_name(paths['inputs']['epoch2'])
         except:
             print('ERROR: Not e2 pointcloud')
 
         print(f'PyRockDiff will automatically perform a 3D comparison '
               f'between the point cloud: {BLUE}{e1}{RESET} and the point cloud: {BLUE}{e2}{RESET}')
 
-    elif options["auto_parameters"] or options["rf_clustering"] or options["rf_volume"]:
+    elif options['analysis']['auto_parameters_dbscan'] or options['analysis']['dbscan_clustering'] or options['analysis']['volume_calculation']:
         try:
-            e1_e2 = get_file_name(pointCloud['e1_e2'])
+            e1_e2 = get_file_name(paths['inputs']['m3c2_result'])
         except:
             print('ERROR: Not e1_e2 pointcloud')
         print(f'PyRockDiff will process the precomputed comparison of two different epochs using the point cloud: {BLUE}{e1_e2}{RESET}')
@@ -100,27 +104,27 @@ def start_code(options, parameters, pointCloud, paths):
 
     print('\033[1m\nFile Paths and PointClouds Verification:\033[0m')
     warning = False
-    warning = check_path(paths["CloudCompare"], "CloudCompare", warning)
-    warning = check_path(paths["output"], "output", warning)
+    warning = check_path(paths['CloudCompare'], "CloudCompare", warning)
+    warning = check_path(paths['output_folder'], "output", warning)
 
     if requires_two_clouds:
-        warning = check_path(pointCloud["e1"], "e1", warning)
-        warning = check_path(pointCloud["e2"], "e2", warning)
-        warning = check_path(pointCloud["e1_e2"], "e1_e2", warning, is_required=False)
+        warning = check_path(paths['inputs']['epoch1'], "e1", warning)
+        warning = check_path(paths['inputs']['epoch2'], "e2", warning)
+        warning = check_path(paths['inputs']['m3c2_result'], "e1_e2", warning, is_required=False)
     else:
-        warning = check_path(pointCloud["e1"], "e1", warning, is_required=False)
-        warning = check_path(pointCloud["e2"], "e2", warning, is_required=False)
-        warning = check_path(pointCloud["e1_e2"], "e1_e2", warning)
+        warning = check_path(paths['inputs']['epoch1'], "e1", warning, is_required=False)
+        warning = check_path(paths['inputs']['epoch2'], "e2", warning, is_required=False)
+        warning = check_path(paths['inputs']['m3c2_result'], "e1_e2", warning)
 
-    if options["m3c2_dist"]:
-        warning = check_path(paths["m3c2_param"], "m3c2_param", warning)
+    if options['analysis']['m3c2_distance']:
+        warning = check_path(paths['inputs']['m3c2_file'], "m3c2_param", warning)
     else:
-        warning = check_path(paths["m3c2_param"], "m3c2_param", warning, is_required=False)
+        warning = check_path(paths['inputs']['m3c2_file'], "m3c2_param", warning, is_required=False)
 
-    if options["vegetation_filter"]:
-        warning = check_path(paths["canupo_file"], "canupo_file", warning)
+    if options['preprocessing']['vegetation_filter']:
+        warning = check_path(paths['inputs']['canupo_file'], "canupo_file", warning)
     else:
-        warning = check_path(paths["canupo_file"], "canupo_file", warning, is_required=False)
+        warning = check_path(paths['inputs']['canupo_file'], "canupo_file", warning, is_required=False)
 
     if warning:
         print("\n\033[91mWarning: One or more required paths were not found. Code will not run properly\033[0m")
@@ -277,9 +281,9 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
 
     return os.path.join(subsample_folder, get_file_name(path) + "_sub.xyz")
 
-def density(path, CloudCompare_path, dbscan_folder):
+def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
     output_path = os.path.join(dbscan_folder, get_file_name(path) + "__density.xyz")
-    radius = 0.25
+    radius = spatial_resolution*2.5
     _print(f'Computing point density {get_file_name(path)}. Sphere radius: {radius} m')
     CC_DEN_Command = [CloudCompare_path,
                       "-VERBOSITY", "0", "-SILENT",
@@ -300,13 +304,16 @@ def density(path, CloudCompare_path, dbscan_folder):
     _print(f'Point cloud spatial distance: {spatial_distance:.3f} m')
     return density_points, spatial_distance
 
-def auto_param(density_points, radius, safety_factor):
-    area_circle = math.pi * (radius ** 2)
-    min_points = math.ceil(density_points * area_circle * safety_factor)
-    _print(f'DBSCAN parameters:')
-    _print(f'DBSCAN eps: {radius:.2f}')
-    _print(f'DBSCAN min_points: {min_points:.2f}')
-    return min_points
+
+def auto_param(spatial_resolution, correction_factor=0.7):
+    eps = spatial_resolution * 3
+    area_eps = math.pi * (eps ** 2)
+    area_per_point = spatial_resolution ** 2
+    minpts = (area_eps / area_per_point) * correction_factor
+    _print(f'DBSCAN Automatic Parameters:')
+    _print(f'DBSCAN eps: {eps:.2f}')
+    _print(f'DBSCAN min_points: {math.ceil(minpts):.0f}')
+    return math.ceil(minpts), eps
 
 def _print(message):
     current_time = datetime.datetime.now()
@@ -396,12 +403,12 @@ def select_json_file():
 
                 with open(file, 'r') as f:
                     config = json.load(f)
-                    pointCloud = config['pointCloud']
+
                     options = config['options']
                     parameters = config['parameters']
                     paths = config['paths']
 
-                return pointCloud, options, parameters, paths, file
+                return paths, options, parameters, file
 
             else:
                 print("ERROR: Invalid selection. Please try again (check that JSON file is properly created")

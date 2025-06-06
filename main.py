@@ -28,85 +28,87 @@ import bin.cleaning as cl
 import bin.clustering as rf
 import bin.volume as vl
 
-pointCloud, options, parameters, paths, file = utils.select_json_file()
+paths, options, parameters, file = utils.select_json_file()
 
-project_folder = utils.create_project_folders(paths['output'], pointCloud['e1'], pointCloud['e2'], file)
+project_folder = utils.create_project_folders(paths['output_folder'], paths['inputs']['epoch1'], paths['inputs']['epoch2'], file)
 
 log_path = utils.create_log(project_folder)
 
-utils.start_code(options, parameters, pointCloud, paths)
+utils.start_code(options, parameters, paths)
 
-if options['transform_and_subsample']:
-    print("\nConverting PointClouds to XYZ and subsampling")
+if options['preprocessing']['transform_and_subsample']:
+    print(f"\nConverting PointClouds to XYZ and subsampling using a spatial resolution of {parameters['subsampling']['spatial_resolution']}")
     XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
-    e1_sub_path = utils.transform_subsample(paths['CloudCompare'], pointCloud['e1'], XYZ_sub_folder, parameters['spatial_distance'])
-    e2_sub_path = utils.transform_subsample(paths['CloudCompare'], pointCloud['e2'], XYZ_sub_folder, parameters['spatial_distance'])
+    e1_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch1'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])
+    e2_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch2'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])
 else:
-    e1_sub_path = pointCloud['e1']
-    e2_sub_path = pointCloud['e2']
+    e1_sub_path = paths['inputs']['epoch1']
+    e2_sub_path = paths['inputs']['epoch2']
 
-if options['vegetation_filter']:
+if options['preprocessing']['vegetation_filter']:
     print("\nData vegetation filtering")
     canupo_folder = utils.create_folder(project_folder, '1.2_canupo')
-    e1_canupo_path = cp.canupo_core(paths['CloudCompare'], e1_sub_path, paths['canupo_file'], canupo_folder)
-    e2_canupo_path = cp.canupo_core(paths['CloudCompare'], e2_sub_path, paths['canupo_file'], canupo_folder)
+    e1_canupo_path = cp.canupo_core(paths['CloudCompare'], e1_sub_path, paths['inputs']['canupo_file'], canupo_folder)
+    e2_canupo_path = cp.canupo_core(paths['CloudCompare'], e2_sub_path, paths['inputs']['canupo_file'], canupo_folder)
 else:
     e1_canupo_path = e1_sub_path
     e2_canupo_path = e2_sub_path
 
-if options['cleaning_filtering']:
+if options['preprocessing']['outlier_filter']:
     print("\nStatistical outlier removal")
     clean_folder = utils.create_folder(project_folder, '1.3_clean')
-    e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
-    e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['nb_neighbors_f'], parameters['std_ratio_f'], clean_folder)
+    e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['outlier_filter']['neighbors'], parameters['outlier_filter']['std_ratio'], clean_folder)
+    e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['outlier_filter']['neighbors'], parameters['outlier_filter']['std_ratio'], clean_folder)
 else:
     e1_filtered_path = e1_canupo_path
     e2_filtered_path = e2_canupo_path
 
-if options['fast_registration']:
+if options['registration']['fgr']:
     print("\nFast Global Registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.FGR_reg(parameters['voxel_size'], e1_filtered_path, e2_filtered_path, registration_folder, parameters['ite_FGR'])
+    e1_reg_path, e2_reg_path = reg.FGR_reg(parameters['registration']['voxel_resolution'], e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path
 
-if options['icp_registration']:
+if options['registration']['icp']:
     print("\nICP registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['ite_ICP'])
+    e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['registration']['icp_iterations'])
 
-if options['roi_focus']:
+if options['analysis']['roi_cropping']:
     print("\nROI clipping")
     e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_reg_path, e2_reg_path, registration_folder)
 else:
     e1_cut_path = e1_reg_path
     e2_cut_path = e2_reg_path
 
-if options['m3c2_dist']:
+if options['analysis']['m3c2_distance']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
-    e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_cut_path, e2_cut_path, paths['m3c2_param'], m3c2_folder, pointCloud['e1'], pointCloud['e2'])
+    e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_cut_path, e2_cut_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['clustering']['change_threshold'])
 else:
-    e1e2_change_path = pointCloud['e1_e2']
+    e1e2_change_path = paths['inputs']['m3c2_result']
 
-if options['auto_parameters']:
+if options['analysis']['auto_parameters_dbscan']:
     print("\nAuto DBSCAN parameters computation")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    density_points, spatial_distance = utils.density(e1e2_change_path, paths['CloudCompare'], dbscan_folder)
-    parameters['min_samples_rockfalls'] = utils.auto_param(density_points, parameters['eps_rockfalls'], safety_factor=0.9)
+    parameters['clustering']['min_samples'], parameters['clustering']['eps'] = utils.auto_param(parameters['subsampling']['spatial_resolution'],0.65)
 
-if options["rf_clustering"]:
+if options['analysis']['dbscan_clustering']:
     print("\nClustering (DBSCAN)")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters)
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters['clustering'])
 else:
-    e1ve2_DBSCAN_path = pointCloud['e1_e2']
+    e1ve2_DBSCAN_path = paths['inputs']['m3c2_result']
 
-if options["rf_volume"]:
+if options['analysis']['volume_calculation'] and e1ve2_DBSCAN_path:
     print("\nComputing volumes")
     volume_folder = utils.create_folder(project_folder, '5_volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
+
+elif options['analysis']['volume_calculation']:
+    print("\nNo clusters detected — volume calculation skipped.")
 
 print("\n" + "="*50)
 print("The code has finished running successfully!")

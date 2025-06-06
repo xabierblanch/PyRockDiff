@@ -25,19 +25,15 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
 
     _print("M3C2 algorithm completed successfully")
     _print("M3C2 adding file headings")
-
     pc = loadPC(output)
-    # pc_df = pc.dropna()
     pc.columns = ['x', 'y', 'z', 'normal_distance', 'change_significance', 'dist_uncertainty', 'm3c2_diff', 'Nx', 'Ny', 'Nz']
     savePC(output, pc)
-
-    pc_filtered = threshold_filter(threshold, output)
+    pc_filtered = threshold_filter(threshold, pc)
     filtered_path = savePC(os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__threshold.xyz"), pc_filtered)
 
     return filtered_path
 
-def threshold_filter(threshold, e1e2_change_path):
-    pc = loadPC(e1e2_change_path)
+def threshold_filter(threshold, pc):
     _print(f'Filtering Point Cloud: Difference threshold: {threshold}')
     if threshold < 0:
         pc_filtered = pc[pc['m3c2_diff'] < threshold]
@@ -45,6 +41,7 @@ def threshold_filter(threshold, e1e2_change_path):
         pc_filtered = pc[pc['m3c2_diff'] > threshold]
     _print(f'Point Cloud after threshold filter: {pc_filtered.shape[0]} points')
     return pc_filtered
+
 def update_m3c2_config(m3c2_param, spatial_resolution, output_path=None):
     normal_scale = spatial_resolution * 3
     normal_min_scale = spatial_resolution * 1

@@ -22,11 +22,12 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
                        "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
 
     subprocess.run(CC_m3c2_Command)
-
     _print("M3C2 algorithm completed successfully")
     _print("M3C2 adding file headings")
+
     pc = loadPC(output)
-    pc.columns = ['x', 'y', 'z', 'normal_distance', 'change_significance', 'dist_uncertainty', 'm3c2_diff', 'Nx', 'Ny', 'Nz']
+    pc.columns = ['x', 'y', 'z', 'normal_distance', 'change_significance', 'dist_uncertainty', 'm3c2_diff', 'nx', 'ny', 'nz']
+    output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2_v2.xyz")
     savePC(output, pc)
     pc_filtered = threshold_filter(threshold, pc)
     filtered_path = savePC(os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__threshold.xyz"), pc_filtered)

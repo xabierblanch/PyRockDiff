@@ -2,11 +2,11 @@
 M3C2VER=1
 NormalScale=0.30000000000000004
 NormalMode=2
-NormalMinScale=0.2
-NormalStep=0.1
-NormalMaxScale=0.4
+NormalMinScale=0.1
+NormalStep=0.05
+NormalMaxScale=0.5
 NormalUseCorePoints=false
-NormalPreferedOri=2
+NormalPreferedOri=9
 SearchScale=0.30000000000000004
 SearchDepth=3
 SubsampleRadius=0.40007

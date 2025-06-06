@@ -7,9 +7,8 @@ import numpy as np
 import open3d as o3d
 import os
 
-
-
-def dbscan_core(diff_filter, eps, min_samples):
+def dbscan_core(e1e2_change_path, eps, min_samples):
+    diff_filter = loadPC(e1e2_change_path)
     _print(f'Running DBSCAN algorithm for clustering the {diff_filter.shape[0]} points')
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(diff_filter[['x','y','z']])
     labels = clustering.labels_.reshape((-1, 1))

@@ -27,9 +27,9 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     _print("M3C2 adding file headings")
 
     pc = loadPC(output)
-    pc_df = pc.dropna()
-    pc_df.columns = ['x', 'y', 'z', 'change_significance', 'dist_uncertainty', 'm3c2_diff', 'nx', 'ny', 'nz']
-    savePC(output, pc_df)
+    # pc_df = pc.dropna()
+    pc.columns = ['x', 'y', 'z', 'normal_distance', 'change_significance', 'dist_uncertainty', 'm3c2_diff', 'Nx', 'Ny', 'Nz']
+    savePC(output, pc)
 
     pc_filtered = threshold_filter(threshold, output)
     filtered_path = savePC(os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__threshold.xyz"), pc_filtered)
@@ -47,8 +47,8 @@ def threshold_filter(threshold, e1e2_change_path):
     return pc_filtered
 def update_m3c2_config(m3c2_param, spatial_resolution, output_path=None):
     normal_scale = spatial_resolution * 3
-    normal_min_scale = spatial_resolution * 2
-    normal_max_scale = spatial_resolution * 4
+    normal_min_scale = spatial_resolution * 1
+    normal_max_scale = spatial_resolution * 5
     normal_step = normal_min_scale/2
     search_scale = spatial_resolution * 3
 

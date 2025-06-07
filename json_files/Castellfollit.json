@@ -41,14 +41,13 @@
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.10
+            "spatial_resolution": 0.03
         },
         "outlier_filter": {
-            "neighbors": 25,
+            "neighbors": 20,
             "std_ratio": 1.5
         },
         "registration": {
-            "voxel_resolution": 0.25,
             "fgr_iterations": 2,
             "icp_iterations": 3
         },

@@ -66,7 +66,7 @@ else:
 if options['registration']['fgr']:
     print("\nFast Global Registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.FGR_reg(parameters['registration']['voxel_resolution'], e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'])
+    e1_reg_path, e2_reg_path = reg.FGR_reg(e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'], parameters['subsampling']['spatial_resolution'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path

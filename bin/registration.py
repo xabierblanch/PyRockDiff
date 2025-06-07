@@ -75,7 +75,7 @@ def execute_fast_global_registration(source_down, target_down, source_fpfh, targ
     return result
 
 
-def FGR_reg(voxel_size, e1_path, e2_path, registration_folder, ite):
+def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution):
     _print(f"Running FGR algorithm to do a fast registration - {ite} iterations will be executed")
     e1_name = get_file_name(e1_path)
     e2_name = get_file_name(e2_path)
@@ -83,7 +83,14 @@ def FGR_reg(voxel_size, e1_path, e2_path, registration_folder, ite):
     e2_path_out = os.path.join(registration_folder, e2_name + '__FGR.xyz')
 
     for i in range(ite):
-        _print(f"Running FGR algorithm for fast registration (Iteration {i + 1} of {ite})")
+        if i == 0:
+            voxel_size = spatial_resolution * 5
+        elif i == 1:
+            voxel_size = spatial_resolution * 2.5
+        else:
+            voxel_size = spatial_resolution * 1.5
+
+        _print(f"Running FGR algorithm for fast registration (Iteration {i + 1} of {ite}). Using a voxel grid downsampling of: {voxel_size}")
         source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, target_pc=e1_path, source_pc=e2_path)
         result_fast = execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size)
         source_reg = source.transform(result_fast.transformation)

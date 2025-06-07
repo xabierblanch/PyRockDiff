@@ -143,8 +143,6 @@ def start_code(options, parameters, paths):
 
 def loadPC(path, array=False):
     _print(f'File {get_file_name(path)}: Loading')
-    get_file_name(path)
-
     if array==True:
         pc = np.loadtxt(path)
         _print(f'File {get_file_name(path)}: Loaded as NumPy array')
@@ -254,7 +252,7 @@ def savePC(path, pointcloud):
     _print(f"Saving {pc_name} data in '{Path(path).parts[-2]}' folder")
 
     if isinstance(pointcloud, pd.DataFrame):
-        pointcloud.to_csv(path, index=False, float_format='%.3f', sep=' ')
+        pointcloud.to_csv(path, index=False, na_rep='nan', float_format='%.3f', sep=' ')
     elif isinstance(pointcloud, np.ndarray):
         np.savetxt(path, pointcloud, fmt='%1.3f', delimiter=' ')
     else:

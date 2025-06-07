@@ -303,10 +303,12 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
     return density_points, spatial_distance
 
 
-def auto_param(spatial_resolution, correction_factor=0.7):
+def auto_param(spatial_resolution, correction_factor=0.8):
     eps = spatial_resolution * 3
     area_eps = math.pi * (eps ** 2)
     area_per_point = spatial_resolution ** 2
+    expected_points = area_eps / area_per_point
+
     minpts = (area_eps / area_per_point) * correction_factor
     _print(f'DBSCAN Automatic Parameters:')
     _print(f'DBSCAN eps: {eps:.2f}')

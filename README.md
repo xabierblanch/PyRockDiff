@@ -306,7 +306,6 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 ---
 </details>
 
-
 <details>
 <summary>M3C2 Change Detection</summary>
 
@@ -314,21 +313,20 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 #### How it works:
 
-1. **Surface Normal Computation**: M3C2 estimates surface normals at multiple scales to capture local surface orientation accurately. Normals are calculated using multi-scale approach: Multi-scale: for each core points, normals are computed at several scale and the most 'flat' is used
- method. 
+1. **Surface Normal Computation**: M3C2 estimates surface normals using a multi-scale approach. For each core point, normals are computed at multiple scales, and the scale that produces the flattest surface (most planar neighborhood) is selected for optimal orientation estimation.
 
 
-2. **Automatic Parameter Configuration**: 
+2. **Automatic Parameter Configuration (Optional)**: 
    - When `auto_parameters_m3c2` is enabled, M3C2 parameters are automatically scaled based on `spatial_resolution`:
      - **SearchScale**: `4× spatial_resolution` (neighborhood for distance computation)  
      - **NormalMinScale**: `2× spatial_resolution` (minimum scale for multi-scale normals)
      - **NormalMaxScale**: `5× spatial_resolution` (maximum scale for multi-scale normals)
      - **NormalStep**: `1× spatial_resolution` (step between scales)
      
-   - When `auto_parameters_m3c2` is disabled, uses parameters from the `m3c2_file` specified in the .JSON file.
+   - When `auto_parameters_m3c2` is disabled, uses parameters from the `m3c2_file` specified in the JSON file.
 
-3. **Threshold Filtering**: Removes points below the `change_threshold`, focusing analysis on significant changes (negative values typically indicate erosion/rockfall).
 
+3. **Threshold Filtering (Mandatory)**: After M3C2 computation, all points are filtered using the `change_threshold` parameter. This step removes noise and stable areas and focuses analysis on significant changes. Points below the threshold are discarded, retaining only meaningful surface changes (negative values typically indicate erosion/rockfall).
 
 #### JSON file parameters:
 
@@ -345,78 +343,54 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface lowering (erosion/rockfall).
 
 **Technical Notes:**
-- Auto-parameter scaling ensures optimal neighborhood sizes for different point cloud resolutions
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
-
 ---
 </details>
 
 <details>
-<summary>Autoparameters</summary>
+<summary>DBSCAN Clustering</summary>
 
-#### Auto MinPts estimation (for DBSCAN)
-Calculates point density to estimate the `min_samples` parameter for DBSCAN algorithm **when the <code>auto_min_samples_dbscan</code> option is enabled**. Automatically estimates this parameter based on local point density and user-defined `eps_rockfalls`.  
+**Identifies Clusters** of significant surface changes (rockfalls) using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
 
-**Important:** When enabled, the auto-calculated value **overrides** any manual entry of `min_samples` in the JSON file.
 #### How it works:
-1. **Density Calculation**  
-   Computes local point density using CloudCompare's `-DENSITY` command with a spherical kernel (radius = 0.25 m):  
-   `density = (points in sphere) / (π × r²)`  
-   where r = 0.25 m
+
+1. **Automatic Parameter Estimation (Optional)**: 
+   When `auto_parameters_dbscan` is enabled, the algorithm automatically calculates optimal `eps` and `min_samples` parameters based on the point cloud's `spatial_resolution`. This overrides any manual parameter values specified in the JSON file.
 
 
-2. **Spatial Distance Estimation**  
-   Derives average point spacing from density:  
-   `spacing = √(1 / density)`
-
-
-3. **MinPts Calculation**  
-   Estimates minimum cluster size using safety factor (0.9):  
-   `min_samples = ⎡density × π × eps² × 0.9⎤`  
-
+2. **Density-Based Clustering**: 
+   DBSCAN groups nearby points that exceed the density threshold (`min_samples` within `eps` radius) into clusters representing individual rockfall events. Points that don't meet the density criteria are classified as noise and removed.
 
 #### JSON file parameters:
-| Parameter Name          | Type    | Example Value | JSON Section | Description                              |
-|-------------------------|---------|---------------|--------------|------------------------------------------|
-| `auto_min_samples_dbscan`       | Boolean | `true`        | options      | Enables automatic parameter estimation    |
-| `eps`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)             |
 
-⚠️ **Key Limitations:** ⚠️
+| Parameter Name          | Type    | Example Value | JSON Section | Description                                    |
+|-------------------------|---------|---------------|--------------|------------------------------------------------|
+| `dbscan_clustering`     | Boolean | `true`        | options      | Enables/disables DBSCAN clustering            |
+| `auto_parameters_dbscan`| Boolean | `true`        | parameters   | Enables automatic parameter estimation         |
+| `eps`                   | Float   | `0.3`         | parameters   | Neighborhood radius (meters)                   |
+| `min_samples`           | Integer | `15`          | parameters   | Minimum points per cluster                     |
 
-**This method is sensitive to:**  
-- Significant density variations within the point cloud  
-- Complex geometries (e.g., fractures, overhangs)  
-- Discrepancies between `eps` and target sizes  
+- **`dbscan_clustering`**: Enables or disables the DBSCAN clustering step.
+- **`auto_parameters_dbscan`**: When enabled, automatically calculates `eps` and `min_samples` from spatial resolution, overriding manual values.
+- **`eps`**: DBSCAN neighborhood radius in meters (used only when auto-parameters disabled).
+- **`min_samples`**: Minimum points required to form a cluster (used only when auto-parameters disabled).
 
-**Disable auto-estimation** and use manual values if: 
-   - Clusters include obvious noise (increase `min_samples`)  
-   - Valid rockfalls are missed (decrease `min_samples`)  
+**Technical Notes:**
+- Uses scikit-learn's DBSCAN implementation for robust clustering
+- Automatic parameter estimation is based on point density analysis
+- Two visualizations of the clusters are also saved in the output path
+- Cluster labels are assigned sequentially starting from 0
+- Noise points (label = -1) are automatically filtered from results
 
+---
 </details>
 
-<details>
-<summary>Rockfall clustering (DBSCAN)</summary>
-
-Clusters detected changes using **[DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan)** density-based spatial clustering. This step isolates significant rockfall events while filtering sparse noise points.
-
-#### JSON file parameters:
-| Parameter Name          | Type    | Example Value | JSON Section | Description                              |
-|-------------------------|---------|---------------|--------------|------------------------------------------|
-| `dbscan_clustering`         | Boolean | `true`        | options      | Enables/disables DBSCAN clustering       |
-| `eps`         | Float   | `0.3`         | parameters   | Neighborhood radius (meters)            |
-| `min_samples` | Integer | `15`          | parameters   | Minimum points per cluster               |
-| `change_threshold`        | Float   | `-0.05`       | parameters   | Pre-filtering threshold (meters)         |
-
-**Technical Notes:**  
-- Uses `scikit-learn` implementation of DBSCAN (Ester et al., 1996)  
-
-</details>
 
 <details>
 <summary>Volume Estimation</summary>
 
+Estimates **Rockfall Volumes** using **[alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape)**  if the <code>rf_volume</code> option is enabled. This computational geometry method that generalizes convex hulls to capture concave geometries.
 
-Estimates rockfall volumes using **[alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape)**  if the <code>rf_volume</code> option is enabled. This computational geometry method that generalizes convex hulls to capture concave geometries.
 #### How it works:
 1. **Alpha-shape Calculation**:  
    - Automatically estimates optimal `alpha` parameter using point density.  
@@ -442,7 +416,7 @@ Estimates rockfall volumes using **[alpha-shape triangulation](https://en.wikipe
 - Erosion scars exhibit irregular geometries (e.g., elongated fractures).  
 
 </details>
-</details>
+
 
 </div>
 
@@ -595,6 +569,7 @@ The following features and enhancements are planned for future versions of this 
 - [ ] Add AI tools for vegetation filtering
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 - [ ] Include and process RGB data (for LiDAR or SfM Point Clouds)
+
 </details>
 
 ## 📬 Contact

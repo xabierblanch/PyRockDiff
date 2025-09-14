@@ -10,49 +10,52 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PC Test_PyRockDiff\\240424_UPC.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PC Test_PyRockDiff\\241024_UPC.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\241024_UPC__ICP.xyz",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\250404_UPC__ICP.xyz",
             "m3c2_result": "",
-            "m3c2_file": ".\\bin\\m3c2_params.txt",
-            "canupo_file": ".\\bin\\canupo.prm"
+            "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
+            "canupo_file": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\castellfollit.prm"
         },
-        "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
+        "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": true,
-            "vegetation_filter": true,
-            "outlier_filter": true
+            "transform_and_subsample": false,
+            "vegetation_filter": false,
+            "outlier_filter": false
         },
         "registration": {
             "fgr": false,
+            "fgr_visualization": false,
             "icp": false
         },
         "analysis": {
-            "roi_cropping": false,
             "m3c2_distance": true,
-            "auto_parameters_dbscan": true,
             "dbscan_clustering": true,
-            "volume_calculation": true
+            "volume_calculation": false
         }
     },
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.03
-        },
-        "outlier_filter": {
-            "neighbors": 20,
-            "std_ratio": 1.5
+            "spatial_resolution": 0.05
         },
         "registration": {
             "fgr_iterations": 2,
-            "icp_iterations": 3
+            "icp_iterations": 2
+        },
+        "outlier_filter": {
+            "neighbors": 25,
+            "std_ratio": 1.5
+        },
+        "diff": {
+            "auto_parameters_m3c2": false,
+            "change_threshold": -0.05
         },
         "clustering": {
-            "change_threshold": -0.05,
+            "auto_parameters_dbscan": false,
             "eps": 0.3,
             "min_samples": 15
         }

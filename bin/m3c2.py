@@ -2,8 +2,15 @@ import subprocess
 import os
 from bin.utils import get_file_name, _print, loadPC, savePC
 import pandas as pd
-def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch1_path, epoch2_path, spatial_resolution, threshold):
-    update_m3c2_config(m3c2_param, spatial_resolution, output_path=None)
+
+def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch1_path, epoch2_path, spatial_resolution, threshold, auto_m3c2):
+
+    if auto_m3c2:
+        _print("Using auto M3C2 parameters")
+        m3c2_file = update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path)
+    else:
+        _print("Using default M3C2 parameters")
+        m3c2_file = m3c2_param
 
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
@@ -18,7 +25,7 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
                        "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                        "-O", e1_path,
                        "-O", e2_path,
-                       "-M3C2", m3c2_param,
+                       "-M3C2", m3c2_file,
                        "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
 
     subprocess.run(CC_m3c2_Command)
@@ -43,36 +50,45 @@ def threshold_filter(threshold, pc):
     _print(f'Point Cloud after threshold filter: {pc_filtered.shape[0]} points')
     return pc_filtered
 
-def update_m3c2_config(m3c2_param, spatial_resolution, output_path=None):
+def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path):
     normal_scale = spatial_resolution * 3
-    normal_min_scale = spatial_resolution * 1
-    normal_max_scale = spatial_resolution * 5
-    normal_step = normal_min_scale/2
-    search_scale = spatial_resolution * 3
+    NormalMinScale = spatial_resolution * 2
+    NormalStep = spatial_resolution
+    NormalMaxScale = spatial_resolution * 5
+
+    search_scale = spatial_resolution * 4
+
+    _print(f"New NormalScale: {normal_scale}")
+    _print(f"New SearchScale: {search_scale}")
 
     with open(m3c2_param, 'r') as f:
         lines = f.readlines()
 
     param_map = {
         "NormalScale": normal_scale,
-        "NormalMinScale": normal_min_scale,
-        "NormalMaxScale": normal_max_scale,
-        "NormalStep": normal_step,
         "SearchScale": search_scale,
+        "NormalMinScale": NormalMinScale,
+        "NormalStep": NormalStep,
+        "NormalMaxScale": NormalMaxScale
     }
 
     new_lines = []
+    changes_made = 0
+
     for line in lines:
         key = line.split('=')[0].strip()
         if key in param_map:
+            old_value = line.split('=')[1].strip()
             new_lines.append(f"{key}={param_map[key]}\n")
+            _print(f"UPDATED: {key} = {old_value} → {param_map[key]}")
+            changes_made += 1
         else:
             new_lines.append(line)
 
-    if not output_path:
-        output_path = m3c2_param  # overwrite original
-
-    with open(output_path, 'w') as f:
+    output = os.path.join(m3c2_path, "m3c2_auto_params.txt")
+    with open(output, 'w') as f:
         f.writelines(new_lines)
 
-    print(f"Updated M3C2 config saved to: {output_path}")
+    _print(f"Updated M3C2 config saved to: {output}")
+    return output
+

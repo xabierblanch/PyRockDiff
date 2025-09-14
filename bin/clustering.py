@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
-from bin.utils import loadPC, savePC, get_file_name, create_folder, _print
+from bin.utils import loadPC, savePC, get_file_name, create_folder, _print, auto_param
 from sklearn.cluster import DBSCAN
 import pandas as pd
 import numpy as np
@@ -20,7 +20,7 @@ def dbscan_core(e1e2_change_path, eps, min_samples):
     _print(f'DBSCAN algorithm applied correctly: {diff_cluster.shape[0]} points in {diff_cluster["rockfall_label"].max()} clusters identified')
     return diff_cluster
 
-def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, vegetation=True):
+def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, change_threshold, vegetation=True):
     plt.figure(figsize=(20, 15), dpi=450)
     if vegetation:
         project_path = Path(dbscan_folder).parent
@@ -50,21 +50,28 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, veg
         plt.text(int(row['x']+2), int(row['z']+2), f"{int(row['rockfall_label'])}", fontsize=12, ha='center', va='center')
     plt.axis('off')
     plt.tight_layout(pad=0.1)
-    plt.title(f"{get_file_name(e1e2_change_path)} with DBSCAN (eps = {parameters['eps_rockfalls']}, minPts = {parameters['min_samples_rockfalls']}) and DiffThreshold = {parameters['diff_threshold']} m", fontsize=20)
+    plt.title(f"{get_file_name(e1e2_change_path)} with DBSCAN (eps = {parameters['eps']}, minPts = {parameters['min_samples']}) and DiffThreshold = {change_threshold} m", fontsize=20)
     plt.savefig(os.path.join(dbscan_folder,get_file_name(e1e2_change_path)+f'{file_name}.jpg'), bbox_inches='tight', pad_inches=0.1)
     plt.close()
 
-def dbscan(dbscan_folder, e1e2_change_path, parameters):
+def dbscan(dbscan_folder, e1e2_change_path, parameters, spatial_resolution, change_threshold):
     file_name = get_file_name(e1e2_change_path)
 
+    if parameters['auto_parameters_dbscan']:
+        print("\nAuto DBSCAN parameters computation")
+        parameters['min_samples'], parameters['eps'] = auto_param(spatial_resolution)
+
     diff_cluster = dbscan_core(e1e2_change_path, parameters['eps'], parameters['min_samples'])
+    _print(f"DBSCAN -> eps:{parameters['eps']} and min_samples: {parameters['min_samples']}")
+
     if diff_cluster.shape[0] == 0:
         _print("DBSCAN found 0 clusters. No rockfall activity detected.")
         _print("We recommend double-checking the M3C2 output.")
         return None
 
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
-    plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, vegetation=True)
-    plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, vegetation=False)
+
+    plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, change_threshold, vegetation=True)
+    plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, change_threshold, vegetation=False)
 
     return dbscan_path

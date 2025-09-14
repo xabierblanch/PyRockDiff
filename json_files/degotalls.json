@@ -20,7 +20,7 @@
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
-    "steps": {
+    "options": {
         "preprocessing": {
             "transform_and_subsample": true,
             "vegetation_filter": true,

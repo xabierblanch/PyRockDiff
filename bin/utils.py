@@ -64,7 +64,6 @@ def start_code(options, parameters, paths):
                                options['preprocessing']['outlier_filter'],
                                options['registration']['fgr'],
                                options['registration']['icp'],
-                               options['analysis']['roi_cropping'],
                                options['analysis']['m3c2_distance']])
 
     if requires_two_clouds:
@@ -292,7 +291,7 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
     subprocess.run(CC_DEN_Command)
-    _print(f"Computing the median density points for ¨{get_file_name(path)}: Done")
+    _print(f"Computing the median density points for {get_file_name(path)}: Done")
     time.sleep(5)
     densPC = loadPC(output_path, array=True)
     num_points = densPC[:,6].mean()
@@ -301,7 +300,6 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
     _print(f'Point cloud density: {density_points:.2f} points/m2')
     _print(f'Point cloud spatial distance: {spatial_distance:.3f} m')
     return density_points, spatial_distance
-
 
 def auto_param(spatial_resolution, correction_factor=0.8):
     eps = spatial_resolution * 3
@@ -326,11 +324,11 @@ def run_command(command):
     _print(f'Initiating CloudCompare process')
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     for line in process.stdout:
-        new_line = remove_timestampt(line.strip())
+        new_line = remove_timestamp(line.strip())
         _print(new_line)
     process.wait()
 
-def remove_timestampt(linea):
+def remove_timestamp(linea):
     return re.sub(r'^\[\d{2}:\d{2}:\d{2}\] ?', '', linea)
 
 def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance):
@@ -349,7 +347,7 @@ def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance)
 
     run_command(CC_TRA_Command)
 
-    _print(f'Conversiond and subsampling {get_file_name(path)} completed')
+    _print(f'Conversion and subsampling {get_file_name(path)} completed')
 
     return output_path
 
@@ -378,7 +376,7 @@ def dbscan_core(pc_path, eps, min_samples):
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(pc[:,[0,1,2]])
     labels = clustering.labels_.reshape((-1, 1))
     pc_cluster = np.append(pc, labels, axis=1)
-    _print("DBSCAN clustering complete successfully")
+    _print("DBSCAN clustering completed successfully")
     return pc_cluster
 
 def select_json_file():

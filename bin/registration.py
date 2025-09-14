@@ -35,7 +35,7 @@ def draw_registration_result(source, target, transformation, initial=False, enab
             _print("Showing Point Cloud registration result")
         o3d.visualization.draw_geometries([source_temp, target_temp])
 
-def prepare_dataset(voxel_size, target_pc, source_pc):
+def prepare_dataset(voxel_size, visualization, target_pc, source_pc):
     _print("Load two point clouds and disturb initial pose.")
     target = o3d.io.read_point_cloud(target_pc, format='xyz')
     source = o3d.io.read_point_cloud(source_pc, format='xyz')
@@ -43,7 +43,8 @@ def prepare_dataset(voxel_size, target_pc, source_pc):
     source_down, source_fpfh = preprocess_point_cloud(source, voxel_size)
     target_down, target_fpfh = preprocess_point_cloud(target, voxel_size)
 
-    draw_registration_result(source_down, target_down, np.identity(4), initial=True, enable=True)
+    if visualization:
+        draw_registration_result(source_down, target_down, np.identity(4), initial=True, enable=True)
 
     return source, target, source_down, target_down, source_fpfh, target_fpfh
 
@@ -75,7 +76,7 @@ def execute_fast_global_registration(source_down, target_down, source_fpfh, targ
     return result
 
 
-def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution):
+def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution, visualization):
     _print(f"Running FGR algorithm to do a fast registration - {ite} iterations will be executed")
     e1_name = get_file_name(e1_path)
     e2_name = get_file_name(e2_path)
@@ -91,10 +92,13 @@ def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution):
             voxel_size = spatial_resolution * 1.5
 
         _print(f"Running FGR algorithm for fast registration (Iteration {i + 1} of {ite}). Using a voxel grid downsampling of: {voxel_size}")
-        source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, target_pc=e1_path, source_pc=e2_path)
+        source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, visualization, target_pc=e1_path, source_pc=e2_path)
         result_fast = execute_fast_global_registration(source_down, target_down, source_fpfh, target_fpfh, voxel_size)
         source_reg = source.transform(result_fast.transformation)
-        draw_registration_result(source_down.transform(result_fast.transformation), target_down, np.identity(4), enable=True)
+
+        if visualization:
+            draw_registration_result(source_down.transform(result_fast.transformation), target_down, np.identity(4), enable=True)
+
         # draw_registration_result(target, source_reg, np.identity(4))
 
         o3d.io.write_point_cloud(e1_path_out, target, format='xyz',

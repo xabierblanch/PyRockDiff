@@ -21,7 +21,6 @@
 ''' Import libraries '''
 import bin.utils as utils
 import bin.registration as reg
-from bin.Boundary3D import main_2Dcut
 import bin.m3c2 as m3c2
 import bin.canupo as cp
 import bin.cleaning as cl
@@ -66,7 +65,7 @@ else:
 if options['registration']['fgr']:
     print("\nFast Global Registration")
     registration_folder = utils.create_folder(project_folder, '2_registration')
-    e1_reg_path, e2_reg_path = reg.FGR_reg(e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'], parameters['subsampling']['spatial_resolution'])
+    e1_reg_path, e2_reg_path = reg.FGR_reg(e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'], parameters['subsampling']['spatial_resolution'], options['registration']['fgr_visualization'])
 else:
     e1_reg_path = e1_filtered_path
     e2_reg_path = e2_filtered_path
@@ -76,29 +75,17 @@ if options['registration']['icp']:
     registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['registration']['icp_iterations'])
 
-if options['analysis']['roi_cropping']:
-    print("\nROI clipping")
-    e1_RegCut_path, e2_RegCut_path = main_2Dcut(e1_reg_path, e2_reg_path, registration_folder)
-else:
-    e1_cut_path = e1_reg_path
-    e2_cut_path = e2_reg_path
-
 if options['analysis']['m3c2_distance']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
-    e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_cut_path, e2_cut_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['clustering']['change_threshold'])
+    e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_reg_path, e2_reg_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'], parameters['diff']['auto_parameters_m3c2'])
 else:
     e1e2_change_path = paths['inputs']['m3c2_result']
-
-if options['analysis']['auto_parameters_dbscan']:
-    print("\nAuto DBSCAN parameters computation")
-    dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    parameters['clustering']['min_samples'], parameters['clustering']['eps'] = utils.auto_param(parameters['subsampling']['spatial_resolution'],0.65)
 
 if options['analysis']['dbscan_clustering']:
     print("\nClustering (DBSCAN)")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters['clustering'])
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters['clustering'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'])
 else:
     e1ve2_DBSCAN_path = paths['inputs']['m3c2_result']
 

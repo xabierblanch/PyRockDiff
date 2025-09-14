@@ -10,13 +10,13 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PointClouds\\CWD2-1_1.txt",
-            "m3c2_result": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData\\190711_DegotallsN_to_240423_DegotallsN\\3_change_detection\\190711_DegotallsN_vs_240423_DegotallsN__m3c2.xyz",
-            "m3c2_file": ".\\bin\\m3c2_params.txt",
-            "canupo_file": ".\\bin\\canupo.prm"
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N.xyz",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N.xyz",
+            "m3c2_result": "",
+            "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
+            "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },
-        "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_ICGCData",
+        "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
@@ -28,14 +28,13 @@
         },
         "registration": {
             "fgr": true,
+            "fgr_visualization": true,
             "icp": true
         },
         "analysis": {
-            "roi_cropping": true,
             "m3c2_distance": true,
-            "auto_min_samples_dbscan": true,
             "dbscan_clustering": true,
-            "volume_calculation": false
+            "volume_calculation": true
         }
     },
 
@@ -43,17 +42,20 @@
         "subsampling": {
             "spatial_resolution": 0.05
         },
+        "registration": {
+            "fgr_iterations": 2,
+            "icp_iterations": 2
+        },
         "outlier_filter": {
-            "neighbors": 10,
+            "neighbors": 25,
             "std_ratio": 1.5
         },
-        "registration": {
-            "voxel_resolution": 0.25,
-            "fgr_iterations": 2,
-            "icp_iterations": 3
+        "diff": {
+            "auto_parameters_m3c2": true,
+            "change_threshold": -0.05
         },
         "clustering": {
-            "change_threshold": -0.05,
+            "auto_parameters_dbscan": true,
             "eps": 0.3,
             "min_samples": 15
         }

@@ -114,7 +114,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 3. **Change Detection**  
    - M3C2 (`m3c2_distance`)  
-   - DBSCAN clustering (`auto_dbscan_params` & `dbscan_clustering`)
+   - DBSCAN clustering (`dbscan_clustering`)
 
 
 4. **Volum Computation**
@@ -136,115 +136,220 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <details>
 <summary>Transform and Subsample</summary>
 
-Transform and subsample the point clouds using CloudCompare. This step of the pipeline handles two main objectives: to convert the original point cloud from any format accepted by CloudCompare to an .xyz format and to perform spatial subsampling to reduce and equalise the number of points in the two clouds to be compared.
+**Transforms** and **Spatially Subsamples** the point clouds using CloudCompare. This step accomplishes two primary goals: converting input files to `.xyz` ASCII format and reducing point density through spatial subsampling.
+
 #### How it works:
-1. **Transformation to `.xyz` format**: Converts the input point cloud to the `.xyz` format for streamlined processing in subsequent steps. During this transformation, additional attributes such as color (RGB), normals, and scalar fields are removed to reduce file size and complexity.
 
-   
-2. **Subsampling**: The point cloud is spatially subsampled to reduce point density while maintaining overall structure. The `spatial_distance` parameter (in meters), defined in the configuration `.JSON` file, controls the minimum spacing between points in the output cloud.
+1. **Transformation to `.xyz` format**: Converts any input point cloud format supported by CloudCompare into `.xyz` ASCII files. During transformation, additional attributes such as RGB color, normals, and scalar fields are automatically removed to reduce file size and simplify downstream processing.
+
+
+2. **Spatial Subsampling**: The point cloud is downsampled based on minimum spatial distance to reduce noise and balance point density between epochs. The `spatial_resolution` parameter (in meters) from the JSON configuration controls this minimum spacing between points in the output.
+
 #### JSON file parameters:
-| Parameter Name              | Type        | Example Value                                         | JSON Section     |
-|-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `transform_and_subsample`    | Boolean    | `true`                                                | options           |
-| `spatial_resolution`           | Float (cm) | `0.05`                                                | parameters        |
 
-- **`transform_and_subsample`**: Enables or disables the transformation and subsampling step.
-- **`spatial_resolution`**: Specifies the minimum distance (in meters) between points for subsampling.
+| Parameter Name           | Type    | Example Value | JSON Section |
+|--------------------------|---------|---------------|--------------|
+| `transform_and_subsample` | Boolean | `true`        | options      |
+| `spatial_resolution`      | Float   | `0.05`        | parameters   |
+
+- **`transform_and_subsample`**: Toggle to enable or disable the transformation and subsampling step.
+- **`spatial_resolution`**: Defines minimum spacing (in meters) between points for spatial subsampling.
+---
 </details>
 
 <details>
 <summary>Vegetation Filter</summary>
 
-Applies a vegetation filter using [CANUPO workflow](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). This consist in a simple yet efficient way to automatically classify a point cloud
+Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). CANUPO classifies point clouds by analyzing 3D geometric features at multiple scales to automatically separate vegetation from rock surfaces.
 
 #### How it works:
-1. **Vegetation Filter**: The CANUPO algorithm identifies and filters vegetation points from the input point cloud. The algorithm is integrated in the CloudCompare software and requires a `.prm` file corresponding to the classifier. A classifier for vegetation is included with the software but the user can create his own ‘.prm’ files using CloudCompare's CANUPO suite. The resulting filtered point cloud is saved in `.xyz` format for further analysis.
+
+1. **Classification**: The CANUPO algorithm integrates with CloudCompare to classify each point in the cloud based on its local 3D geometry at multiple scales. The classification uses a pre-trained `.prm` classifier file that defines the geometric signatures of different surface types.
+
+
+2. **Filtering**: After classification, the algorithm extracts only points classified as **rock (class 1)** and saves them as a filtered point cloud. Vegetation and other classes are automatically removed from the dataset.
 
 #### JSON file parameters:
-| Parameter Name          | Type    | Example Value                                         | JSON Section |
-|-------------------------|---------|-------------------------------------------------------|--------------|
-| `vegetation_filter`     | Boolean | `true`                                                | options      |
-| `canupo_file`           | String  | `".\\bin\\canupo.prm"`                                | paths        |
 
-- **`vegetation_filter`**: Enables or disables the vegetation filtering step.
-- **`canupo_file`**: Path to the `.prm` file with the classifier
+| Parameter Name      | Type    | Example Value             | JSON Section |
+|---------------------|---------|---------------------------|--------------|
+| `vegetation_filter` | Boolean | `true`                    | options      |
+| `canupo_file`       | Path    | `C:\\...\\classifier.prm` | paths        |
 
+- **`vegetation_filter`**: Enables or disables the CANUPO vegetation filtering step.
+- **`canupo_file`**: Path to the `.prm` classifier file containing the trained CANUPO model.
+
+**⚠️ Critical Classification Requirements:**
+
+When training your CANUPO classifier, ensure that:
+- **Class 1 MUST be assigned to ROCK/BEDROCK surfaces**
+- **Class 2 MUST be assigned to VEGETATION**
+
+The pipeline automatically extracts Class 1 points as rock surfaces for geomorphological analysis. Incorrect class assignment will result in analysis of vegetation instead of rock surfaces.
+
+**⚠️ The `.prm` file must be trained specifically for your study area to ensure optimal vegetation filtering and classification performance.**
+
+---
 </details>
 
-<details>
-<summary>Outlier Filter</summary>
 
-Applies a statistical outlier filter to remove noise from the point cloud. This step helps enhance the quality of the data by eliminating points that are statistically different from their neighbors, ensuring more accurate analysis in subsequent steps.
+<details>
+<summary>Statistical Outlier Filter</summary>
+
+Applies a **Statistical Outlier Filter** to remove noise and spurious points from the point cloud using Open3D's statistical outlier removal algorithm, enhancing data quality for downstream analysis.
 
 #### How it works:
-1. **Outlier Filter**: The outlier filter evaluates each point in the point cloud based on the distance to its neighbors. Points that have a significantly different distance compared to their local neighborhood are removed. The `nb_neighbors` parameter defines the number of neighboring points to consider, while the `std_ratio` parameter specifies the threshold for determining outliers.
+
+1. **Neighborhood Analysis**: For each point, the algorithm calculates distances to its `neighbors` nearest neighbors and computes the mean distance and standard deviation for the local neighborhood.
+
+
+2. **Outlier Detection**: Points whose mean distance to neighbors exceeds `mean + (std_ratio × standard_deviation)` are classified as statistical outliers and removed from the dataset.
+
+
+3. **Filtering**: The cleaned point cloud retains only the statistically consistent points, removing noise, measurement errors, and isolated spurious points.
 
 #### JSON file parameters:
-| Parameter Name              | Type      | Example Value                                         | JSON Section     |
-|-----------------------------|-----------|-------------------------------------------------------|-------------------|
-| `outlier_filter`           | Boolean   | `true`                                                | options           |
-| `neighbors`            | Integer   | `10`                                                 | parameters        |
-| `std_ratio`               | Float (m) | `1.5`                                                | parameters        |
 
-- **`outlier_filter`**: Enables or disables the application of the statistical outlier filter.
-- **`neighbors`**: Specifies the number of neighbors to consider for the statistical analysis.
-- **`std_ratio`**: Defines the standard deviation multiplier used to identify outliers.
+| Parameter Name     | Type    | Example Value | JSON Section |
+|--------------------|---------|---------------|--------------|
+| `outlier_filter`   | Boolean | `true`        | options      |
+| `neighbors`        | Integer | `25`          | parameters   |
+| `std_ratio`        | Float   | `1.5`         | parameters   |
+
+- **`outlier_filter`**: Enables or disables the statistical outlier removal step.
+- **`neighbors`**: Number of nearest neighbors used for statistical analysis (higher values = more robust but slower).
+- **`std_ratio`**: Standard deviation multiplier threshold; lower values = more aggressive filtering.
+
+**Technical Notes:**
+- Uses Open3D's `remove_statistical_outlier()` implementation
+- Typical `std_ratio` values: 1.0 (aggressive) to 2.0 (conservative)
+---
 </details>
 
 <details>
-<summary>Fast Global Registration</summary>
+<summary>Fast Global Registration (FGR)</summary>
 
-Performs Fast Global Registration (FGR), if the <code>fgr</code> option is enabled. This method quickly aligns two point clouds based on their features, with the `voxel_size` parameter used to downsample the point clouds, and the registration refined through multiple iterations defined by the `ite_FGR` parameter.
+Performs **Fast Global Registration (FGR)** to quickly align two point clouds based on geometric feature descriptors. This method provides robust initial alignment that serves as a starting point for more precise registration methods.
+
+#### How it works:
+
+1. **Multi-Scale Preprocessing**: Point clouds are voxel-downsampled at progressively finer scales and Fast Point Feature Histograms (FPFH) are computed for feature-based correspondence matching.
+
+
+2. **Iterative Refinement**: The registration runs for the specified `fgr_iterations`, with automatically calculated voxel sizes:
+   - **Iteration 1**: `8× spatial_resolution` (coarse alignment)
+   - **Iteration 2**: `4× spatial_resolution` (medium refinement) 
+   - **Iteration 3+**: `2× spatial_resolution` (fine alignment — only necessary if ICP registration fails to converge or requires additional refinement)
+
+
+3. **Feature-Based Matching**: Uses FPFH descriptors and RANSAC-based correspondence estimation for robust registration even with partial overlap.
+
+
+4. **Optional Visualization**: Real-time visualization of registration progress can be enabled for monitoring and validation.
+
+   **⚠️ Caution:** Activating visualization will pause the automated workflow until each visualization window is manually closed, preventing fully automated batch processing.
 
 #### JSON file parameters:
-| Parameter Name              | Type        | Example Value                                         | JSON Section     |
-|-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `fgr`         | Boolean     | `true`                                                | options           |
-| `voxel_resolution`               | Float       | `0.25`                                               | parameters        |
-| `fgr_iterations`                   | Integer     | `3`                                                  | parameters        |
 
-- **`fgr`**: Enables or disables the application of the Fast Global Registration (FGR) algorithm.
-- **`voxel_resolution`**: Specifies the size of the voxel for downsampling the point clouds before registration.
-- **`fgr_iterations`**: Defines the number of iterations for the Fast Global Registration algorithm.
+| Parameter Name       | Type    | Example Value | JSON Section |
+|----------------------|---------|---------------|--------------|
+| `fgr`                | Boolean | `false`       | options      |
+| `fgr_visualization`  | Boolean | `false`       | options      |
+| `fgr_iterations`     | Integer | `2`           | parameters   |
 
+- **`fgr`**: Enables or disables the Fast Global Registration step.
+- **`fgr_visualization`**: Shows intermediate registration results (disable for batch processing).
+- **`fgr_iterations`**: Number of iterative refinements with progressively finer voxel scales.
+
+**Technical Notes:**
+- Uses Open3D's Fast Global Registration implementation
+- Automatically saves transformation matrices with timestamp
+- Voxel sizes are calculated from `spatial_resolution` - no manual voxel parameter needed
+- Set `fgr_visualization: false` for headless/batch processing environments
+---
 </details>
 
-<details>
-<summary>ICP Registration</summary>
 
-Executes ICP (Iterative Closest Point) registration, if the <code>icp</code> option is enabled. After initial alignment with FGR, ICP enhances the precision of the registration by iteratively minimizing the distance between corresponding points, using the `ite_ICP` parameter to specify the number of refinement iterations.
+
+<details>
+<summary>Iterative Closest Point (ICP) Registration</summary>
+
+Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment precision of two point clouds after initial registration (typically FGR). ICP provides high-precision refinement by iteratively minimizing point-to-point distances.
+
+#### How it works:
+
+1. **Precision Refinement**: ICP iteratively adjusts the transformation between two point clouds to minimize the distance between corresponding nearest points, achieving sub-millimeter accuracy.
+
+
+2. **Iterative Process**: The algorithm runs for the specified number of iterations (`icp_iterations`), with each iteration progressively improving the alignment quality.
+
+
+3. **CloudCompare Integration**: ICP is executed via CloudCompare's command-line interface with optimized parameters:
+   - **Full overlap assumption** (100%)
+   - **Large random sampling limit** for robust correspondence
+   - **Farthest point removal** to eliminate outliers
+
 
 #### JSON file parameters:
-| Parameter Name              | Type        | Example Value                                         | JSON Section     |
-|-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `icp`          | Boolean     | `true`                                                | options           |
-| `icp_iterations`                   | Integer     | `3`                                                  | parameters        |
 
-- **`icp`**: Enables or disables the application of the Iterative Closest Point algorithm.
-- **`icp_iterations`**: Defines the number of iterations for the Iterative Closest Point algorithm.
+| Parameter Name    | Type    | Example Value | JSON Section |
+|-------------------|---------|---------------|--------------|
+| `icp`             | Boolean | `false`       | options      |
+| `icp_iterations`  | Integer | `2`           | parameters   |
+
+- **`icp`**: Enables or disables the ICP registration refinement step.
+- **`icp_iterations`**: Number of iterative refinements to perform (typically 2-3 iterations provide optimal results).
+
+**Performance Considerations:**
+- ICP is computationally intensive; limit iterations to 2-3 for efficiency
+- Works best after good initial alignment from FGR
+---
 </details>
 
-<details>
-<summary>ROI Focus</summary>
-
-#### ROI Focus
-<p>Performs Region of Interest (ROI) clipping on the point clouds, if the <code>roi_cropping </code> option is enabled.</p>
-</details>
 
 <details>
 <summary>M3C2 Change Detection</summary>
 
-Calculates the differences between two point clouds using the **[M3C2 algorithm](https://www.sciencedirect.com/science/article/abs/pii/S0924271613001184)** (Lague et al., 2013) if the <code>m3c2_computation</code> option is enabled. This algorithm quantifies changes by analyzing the point clouds from different epochs, leveraging the specified parameters for optimal results.
+Computes precise **distances** between two point clouds using the [M3C2 algorithm](https://www.sciencedirect.com/science/article/abs/pii/S0924271613001184) (Lague et al., 2013). M3C2 measures distance changes along surface normals, providing robust change detection for geomorphological analysis.
 
-Calculates differences using the 
+#### How it works:
+
+1. **Surface Normal Computation**: M3C2 estimates surface normals at multiple scales to capture local surface orientation accurately. Normals are calculated using multi-scale approach: Multi-scale: for each core points, normals are computed at several scale and the most 'flat' is used
+ method. 
+
+
+2. **Automatic Parameter Configuration**: 
+   - When `auto_parameters_m3c2` is enabled, M3C2 parameters are automatically scaled based on `spatial_resolution`:
+     - **SearchScale**: `4× spatial_resolution` (neighborhood for distance computation)  
+     - **NormalMinScale**: `2× spatial_resolution` (minimum scale for multi-scale normals)
+     - **NormalMaxScale**: `5× spatial_resolution` (maximum scale for multi-scale normals)
+     - **NormalStep**: `1× spatial_resolution` (step between scales)
+     
+   - When `auto_parameters_m3c2` is disabled, uses parameters from the `m3c2_file` specified in the .JSON file.
+
+3. **Threshold Filtering**: Removes points below the `change_threshold`, focusing analysis on significant changes (negative values typically indicate erosion/rockfall).
+
+
 #### JSON file parameters:
-| Parameter Name              | Type        | Example Value                                         | JSON Section     |
-|-----------------------------|-------------|-------------------------------------------------------|-------------------|
-| `m3c2_distance`                 | Boolean     | `true`                                                | options           |
-| `m3c2_file`                | Path        | `.\\bin\\m3c2_params.txt`                            | paths             |
 
-- **`m3c2_distance`**: Enables or disables the application of the M3C2 algorithm to compute differences.
-- **`m3c2_file`**: Path to the file containing parameters for the M3C2 calculation.</details>
+| Parameter Name        | Type    | Example Value              | JSON Section     |
+|-----------------------|---------|----------------------------|------------------|
+| `m3c2_distance`       | Boolean | `true`                     | options          |
+| `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths            |
+| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/diff  |
+| `change_threshold`    | Float   | `-0.05`                    | parameters/diff  |
+
+- **`m3c2_distance`**: Enables or disables M3C2 change detection computation.
+- **`m3c2_file`**: Path to the M3C2 parameter configuration file.
+- **`auto_parameters_m3c2`**: Automatically optimizes M3C2 parameters based on data resolution. When enabled, overrides manual parameter settings.
+- **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface lowering (erosion/rockfall).
+
+**Technical Notes:**
+- Auto-parameter scaling ensures optimal neighborhood sizes for different point cloud resolutions
+- Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
+
+---
+</details>
 
 <details>
 <summary>Autoparameters</summary>
@@ -350,45 +455,53 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <div style="margin-left: 20px;">
 
 <details>
-<summary>Configuration Values</summary>
+<summary>Parameters Values</summary>
 
-All processing parameters are defined in the configuration file (`_config.json`)
+All processing parameters are defined in the configuration file (`config.json`), organized by processing stage:
 
-| Parameter Name              | Type    | Example Value | Processing Stage                                              |
-|-----------------------------|---------|---------------|---------------------------------------------------------------|
-| `spatial_resolution`          | Float   | `0.05`        | Spatial distance for Point cloud subsampling                  |
-| `voxel_resolution`                | Float   | `0.25`        | Voxel-size automatic subsampling for Fast Global Registration |
-| `fgr_iterations`                   | Integer | `2`           | Fast Global Registration (FGR) Iterations                     |
-| `icp_iterations`                   | Integer | `3`           | Iterative Closest Point (ICP) Iterations                      |
-| `change_threshold`            | Float   | `-0.05`       | Change-detection threshold                                    |
-| `eps`             | Float   | `0.3`         | DBSCAN clustering (ε)                                         |
-| `min_samples`     | Integer | `15`          | Minimum cluster size                                          |
-| `neighbors`            | Integer | `10`          | Outlier removal (neighbors)                                   |
-| `std_ratio`               | Float   | `1.5`         | Statistical outlier filtering                                 |
-1. **Units**: All spatial parameters (`spatial_distance`, `voxel_resolution`, etc.) are in **meters**
-2. **Change Detection**: Negative `change_threshold` detects surface lowering (erosion/rockfalls)
+| Parameter Name              | Type    | Example Value | Description                                                                                               |
+|-----------------------------|---------|---------------|-----------------------------------------------------------------------------------------------------------|
+| `spatial_resolution`        | Float   | `0.05`        | Spatial distance (meters) for point cloud subsampling; controls minimum spacing between points.         |
+| `fgr_iterations`           | Integer | `2`           | **FGR:** Number of iterations to refine alignment progressively.                                         |
+| `icp_iterations`           | Integer | `2`           | **ICP:** Number of iterations to refine registration precision.                                          |
+| `neighbors`                | Integer | `25`          | **Outlier Filter:** Number of nearest neighbors used to calculate median distance.                      |
+| `std_ratio`                | Float   | `1.5`         | **Outlier Filter:** Standard deviation multiplier; points beyond this threshold are removed.            |
+| `auto_parameters_m3c2`     | Boolean | `true`        | **M3C2:** Auto-adjust parameters based on spatial resolution. If false, uses m3c2_params.txt in bin folder. |
+| `change_threshold`         | Float   | `-0.05`       | Threshold (meters) to filter significant changes; negative values detect surface lowering (erosion/rockfalls). |
+| `auto_parameters_dbscan`   | Boolean | `true`        | **DBSCAN:** Auto-calculate parameters, overriding eps and min_samples below.                            |
+| `eps`                      | Float   | `0.3`         | **DBSCAN:** Neighborhood radius (meters); used only when auto_parameters_dbscan is false.              |
+| `min_samples`              | Integer | `15`          | **DBSCAN:** Minimum points per cluster; used only when auto_parameters_dbscan is false.                |
+
+**Important Notes:**
+1. **Critical Parameter**: Many of the software's parameter values are derived using `spatial_resolution` as a starting point for calculations. If results are unsatisfactory or unexpected, we strongly recommend reviewing this parameter's value and ensuring its appropriateness for your specific dataset and analysis requirements.
+2. **Units**: All spatial parameters are specified in **meters**.
+3. **Change Detection**: Negative values of `change_threshold` indicate detection of surface lowering events such as erosion or rockfalls.
+4. **Auto Parameters**: When enabled, auto-calculated parameters will override manual settings for M3C2 and DBSCAN.
+
 </details>
 
 <details>
-<summary>Configuration Booleans</summary>
+<summary>Option Booleans</summary>
 
-All main processing steps can be enabled or disabled via boolean flags in the configuration file. This allows the user to flexibly control the workflow without modifying the code.
+All main processing steps can be enabled or disabled via boolean flags. This allows flexible workflow control without code modification.
 
 | Parameter Name            | Type    | Default Example | Description                                                       |
 |---------------------------|---------|-----------------|-------------------------------------------------------------------|
-| `transform_and_subsample` | Boolean | `true`          | Enable transformation to XYZ and spatial subsampling              |
-| `vegetation_filter`       | Boolean | `true`          | Enable vegetation filtering using CANUPO                          |
-| `outlier_filter`          | Boolean | `true`          | Enable statistical outlier removal                                |
-| `fgr`                 | Boolean | `true`          | Enable Fast Global Registration (FGR)                             |
-| `icp`        | Boolean | `true`          | Enable Iterative Closest Point (ICP) registration                 |
-| `roi_cropping`               | Boolean | `false`         | Enable Region of Interest (ROI) cropping                          |
-| `m3c2_distance`               | Boolean | `true`          | Enable M3C2 change detection                                      |
-| `auto_min_samples_dbscan`         | Boolean | `false`         | Automatically estimate DBSCAN parameters                          |
-| `dbscan_clustering`           | Boolean | `true`          | Enable rockfall clustering (DBSCAN)                               |
-| `volume_calculation`               | Boolean | `true`          | Enable volume estimation for detected clusters                    |
+| `transform_and_subsample` | Boolean | `false`         | Enable transformation to XYZ and spatial subsampling             |
+| `vegetation_filter`       | Boolean | `false`         | Enable vegetation filtering using CANUPO                         |
+| `outlier_filter`          | Boolean | `false`         | Enable statistical outlier removal                               |
+| `fgr`                     | Boolean | `false`         | Enable Fast Global Registration (FGR)                            |
+| `fgr_visualization`       | Boolean | `false`         | Enable visualization during FGR (disable for batch mode)        |
+| `icp`                     | Boolean | `false`         | Enable Iterative Closest Point (ICP) registration               |
+| `m3c2_distance`           | Boolean | `true`          | Enable M3C2 change detection                                     |
+| `dbscan_clustering`       | Boolean | `true`          | Enable rockfall clustering (DBSCAN)                              |
+| `volume_calculation`      | Boolean | `true`          | Enable volume estimation for detected clusters                   |
 
-**Note:** In JSON, boolean values must be written in lowercase and without quotes: `true` or `false`.  
-Each flag corresponds to a major processing step and can be toggled independently.
+**Important Notes:**
+- **JSON Format**: Boolean values must be written in lowercase and without quotes: `true` or `false`.  
+- **Modular Design**: Each flag corresponds to a major processing step and can be toggled independently.
+- **Batch Processing**: Set `fgr_visualization: false` for uninterrupted execution
+
 
 **Warning:** The input files must be properly prepared for each enabled processing stage. Enabling a step without the required input data or pre-processing may result in errors or incomplete results.
 </details>

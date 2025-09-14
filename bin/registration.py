@@ -85,11 +85,11 @@ def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution, visu
 
     for i in range(ite):
         if i == 0:
-            voxel_size = spatial_resolution * 5
+            voxel_size = spatial_resolution * 8
         elif i == 1:
-            voxel_size = spatial_resolution * 2.5
+            voxel_size = spatial_resolution * 4
         else:
-            voxel_size = spatial_resolution * 1.5
+            voxel_size = spatial_resolution * 2
 
         _print(f"Running FGR algorithm for fast registration (Iteration {i + 1} of {ite}). Using a voxel grid downsampling of: {voxel_size}")
         source, target, source_down, target_down, source_fpfh, target_fpfh = prepare_dataset(voxel_size, visualization, target_pc=e1_path, source_pc=e2_path)

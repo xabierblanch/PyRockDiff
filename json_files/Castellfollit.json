@@ -34,7 +34,7 @@
         "analysis": {
             "m3c2_distance": true,
             "dbscan_clustering": true,
-            "volume_calculation": false
+            "volume_calculation": true
         }
     },
 
@@ -51,11 +51,11 @@
             "std_ratio": 1.5
         },
         "diff": {
-            "auto_parameters_m3c2": false,
+            "auto_parameters_m3c2": true,
             "change_threshold": -0.05
         },
         "clustering": {
-            "auto_parameters_dbscan": false,
+            "auto_parameters_dbscan": true,
             "eps": 0.3,
             "min_samples": 15
         }

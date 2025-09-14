@@ -423,11 +423,11 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
----
 
 </details>
 </div>
 </details>
+<br>
 
 <details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>

@@ -14,15 +14,15 @@
 
 ## 📚 Table of Contents
 - [Overview](#overview)
-- [Installation and Requirements](#installation-and-requirements)
+- [Installation & Requirements](#installation--requirements)
   - [Installation](#installation)
 - [How It Works](#how-it-works)
   - [Input Data](#input-data)
   - [Workflow](#workflow)
   - [Function Reference](#function-reference)
   - [JSON File (Configuration file)](#json-file-configuration-file)
-    - [Configuration Values](#configuration-values)
-    - [Configuration Booleans](#configuration-booleans)
+    - [Parameters Values](#parameters-values)
+    - [Option Booleans](#option-booleans)
     - [Configuration Paths](#configuration-paths)
   - [Output Folder Structure](#output-folder-structure)
 - [Development Stages & Future Updates](#development-stages--future-updates)
@@ -121,18 +121,14 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
    - Volume Estimation (`volume_calculation`)
 </details>
 <br>
-
 <details>
 <summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
 </details>
 <br>
-
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
 <br>
-
 <div style="margin-left: 20px;">
-
 <details>
 <summary>Transform and Subsample</summary>
 
@@ -155,6 +151,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 - **`transform_and_subsample`**: Toggle to enable or disable the transformation and subsampling step.
 - **`spatial_resolution`**: Defines minimum spacing (in meters) between points for spatial subsampling.
 ---
+
 </details>
 
 <details>
@@ -188,11 +185,9 @@ When training your CANUPO classifier, ensure that:
 The pipeline automatically extracts Class 1 points as rock surfaces for geomorphological analysis. Incorrect class assignment will result in analysis of vegetation instead of rock surfaces.
 
 **⚠️ The `.prm` file must be trained specifically for your study area to ensure optimal vegetation filtering and classification performance.**
-
 ---
+
 </details>
-
-
 <details>
 <summary>Statistical Outlier Filter</summary>
 
@@ -224,8 +219,8 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 - Uses Open3D's `remove_statistical_outlier()` implementation
 - Typical `std_ratio` values: 1.0 (aggressive) to 2.0 (conservative)
 ---
-</details>
 
+</details>
 <details>
 <summary>Fast Global Registration (FGR)</summary>
 
@@ -267,10 +262,8 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 - Voxel sizes are calculated from `spatial_resolution` - no manual voxel parameter needed
 - Set `fgr_visualization: false` for headless/batch processing environments
 ---
+
 </details>
-
-
-
 <details>
 <summary>Iterative Closest Point (ICP) Registration</summary>
 
@@ -304,8 +297,8 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 - ICP is computationally intensive; limit iterations to 2-3 for efficiency
 - Works best after good initial alignment from FGR
 ---
-</details>
 
+</details>
 <details>
 <summary>M3C2 Change Detection</summary>
 
@@ -345,8 +338,8 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
 ---
-</details>
 
+</details>
 <details>
 <summary>DBSCAN Clustering</summary>
 
@@ -383,44 +376,59 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - Noise points (label = -1) are automatically filtered from results
 
 ---
+
 </details>
-
-
 <details>
 <summary>Volume Estimation</summary>
 
-Estimates **Rockfall Volumes** using **[alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape)**  if the <code>rf_volume</code> option is enabled. This computational geometry method that generalizes convex hulls to capture concave geometries.
+Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape), a computational geometry method that generalizes convex hulls to capture concave geometries for volume calculations.
 
 #### How it works:
-1. **Alpha-shape Calculation**:  
-   - Automatically estimates optimal `alpha` parameter using point density.  
-   - Constructs alpha-shape to model rockfall geometry.
 
+1. **Automatic Alpha Parameter Estimation**: 
+   For each cluster, the algorithm automatically calculates the optimal alpha parameter using k-nearest neighbor analysis: `α = 1/(typical_distance × 2)`, where typical distance is the 50th percentile of nearest neighbor distances.
 
-2. **Volume Computation**:  
-   - Calculates volume via Delaunay triangulation of alpha-shape.  
-   - Accounts for 3D surface differences from M3C2 results
+2. **Alpha Shape Construction**: 
+   Creates a 2D alpha shape from the cluster's X-Z projection to define the rockfall footprint.
+
+3. **Constrained Delaunay Triangulation**: 
+   Performs Delaunay triangulation of the cluster points, filtering triangles to keep only those whose centroids lie within the alpha shape boundary.
+
+4. **Volume Calculation**: 
+   Computes volume by integrating M3C2 surface differences over valid triangles: 
+   `Volume = Σ(triangle_area × average_m3c2_difference)` for all valid triangles.
+
+5. **Visualizations**:
+   - **2D Alpha-Shape Plots**: Show triangulation with color-coded M3C2 differences
+   - **3D Surface Comparison**: Display pre- and post-event topography
 
 #### JSON file parameters:
-| Parameter Name       | Type    | Example Value | JSON Section | Description                          |
-|----------------------|---------|---------------|--------------|--------------------------------------|
-| `volume_calculation`          | Boolean | `true`        | options      | Enables volume estimation     
 
-**Technical Notes:**  
-- **Alpha Sensitivity**: Volume accuracy depends on α value. Small α → underfitting (holes), large α → over-convex shapes.  
-- **Validation Critical**: Always inspect generated alpha-shapes visually (plots in `5_volume/` folder).  
+| Parameter Name      | Type    | Example Value | JSON Section |
+|---------------------|---------|---------------|--------------|
+| `volume_calculation`| Boolean | `false`       | options      |
 
-**Alpha-shapes may produce inaccurate volumes if:**  
-- Point density varies significantly within a cluster.  
-- Rockfalls have complex concavities not captured by automatic α estimation.  
-- Erosion scars exhibit irregular geometries (e.g., elongated fractures).  
+- **`volume_calculation`**: Enables volume estimation for detected rockfall clusters. Only executes if clusters are present from DBSCAN step.
+
+**Technical Implementation:**
+- Uses `alphashape` library for robust alpha-shape computation
+- Applies `scipy.spatial.Delaunay` for triangulation
+
+**Critical Validation Steps:**
+- **Visual inspection mandatory**: Always review generated alpha-shape plots in `5_volume/vol_plots/`
+- **Geometric validation**: Check 3D surface plots in `5_volume/3D_plots/` for reasonable surface reconstruction
+- **Statistical review**: Examine CSV output for outlier volumes that may indicate calculation errors
+
+**Potential Limitations:**
+- **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
+- **Complex concavities**: Deep indentations or fractures may not be captured accurately
+- **Edge effects**: Boundary points may introduce artifacts in volume calculations
+---
 
 </details>
-
-
 </div>
+</details>
 
-<br>
 <details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
 
@@ -511,8 +519,8 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 
 </details>
 </div>
-
 </details>
+
 <br>
 <details>
 <summary><strong style="font-size:1.2em;">Output Folder Structure</strong></summary>

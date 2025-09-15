@@ -110,7 +110,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
 <br>
-<div style="margin-left: 20px;">
+<div style="margin-left: 40px;">
 <details>
 <summary>Transform and Subsample</summary>
 
@@ -135,7 +135,6 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 ---
 
 </details>
-
 <details>
 <summary>Vegetation Filter</summary>
 

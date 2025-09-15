@@ -33,7 +33,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, cha
             labels = subsampled_data[:, 3]
             colors = np.where(labels == 1, 'lightgrey', 'green')
             plt.scatter(-subsampled_data[:, 0], subsampled_data[:, 2], color=colors, s=1, marker='.')
-            file_name = '_vegetation'
+            file_name = '_veg'
         else:
             _print("No vegetation files. This plot will be skipped")
             return

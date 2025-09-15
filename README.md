@@ -115,6 +115,10 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 4. **Volume Computation**
    - Volume Estimation (`volume_calculation`)
 
+**Note**  
+PyRockDiff always starts from two point-cloud epochs (`epoch1`, `epoch2`).  
+If you skip any preprocessing or registration step, you must supply the corresponding intermediate files yourself.
+
 ***
 
 </details>
@@ -136,32 +140,44 @@ The pipeline generates the following folder and file structure in the output dir
 📂 output_directory/
 
 ├── 1_XYZ_sub/
-│ ├── epoch1_sub.xyz
-│ └── epoch2_sub.xyz
+│   ├── epoch1_sub.xyz                  # Transformed & subsampled epoch1
+│   └── epoch2_sub.xyz                  # Transformed & subsampled epoch2
 │
 ├── 1.2_canupo/
-│ ├── epoch1_canupo.xyz
-│ └── epoch2_canupo.xyz
+│   ├── epoch1_canupo.xyz               # Vegetation-filtered epoch1 (rock points only)
+│   └── epoch2_canupo.xyz               # Vegetation-filtered epoch2 (rock points only)
 │
 ├── 1.3_clean/
-│ ├── epoch1_clean.xyz
-│ └── epoch2_clean.xyz
+│   ├── epoch1_clean.xyz                # Statistical outlier-filtered epoch1
+│   └── epoch2_clean.xyz                # Statistical outlier-filtered epoch2
 │
 ├── 2_registration/
-│ ├── epoch1_reg.xyz
-│ └── epoch2_reg.xyz
+│   ├── epoch1_reg.xyz                  # Registered epoch1
+│   ├── epoch2_reg.xyz                  # Registered epoch2
+│   └── *_REGISTRATION_MATRIX_*.txt     # Transformation matrices (timestamped)
 │
 ├── 3_change_detection/
-│ └── epoch1_vs_epoch2_m3c2.xyz
+│   ├── epoch1_vs_epoch2_m3c2.xyz       # Full M3C2 results
+│   ├── epoch1_vs_epoch2_threshold.xyz  # Filtered significant changes only
+│   └── m3c2_auto_params.txt            # Auto-generated M3C2 parameters (if enabled)
 │
 ├── 4_dbscan/
-│ └── epoch1_vs_epoch2_dbscan.xyz
+│   ├── epoch1_vs_epoch2_dbscan.xyz     # DBSCAN clustered rockfall points
+│   ├── epoch1_vs_epoch2.jpg            # Cluster visualization (no vegetation)
+│   └── epoch1_vs_epoch2_veg.jpg        # Cluster visualization (with vegetation context)
 │
 ├── 5_volume/
-│ └── volumes.csv
+│   ├── epoch1_vs_epoch2__db.csv        # Volume database with cluster statistics
+│   ├── vol_plots/                      # 2D alpha-shape visualizations
+│   │   ├── epoch1_vs_epoch2_0_Vol.png      # Cluster 0 alpha-shape plot
+│   │   └── epoch1_vs_epoch2_N_Vol.png      # Additional clusters...
+│   └── 3D_plots/                       # 3D surface comparison plots
+│       ├── epoch1_vs_epoch2_0_3D.png       # Cluster 0 3D surface comparison
+│       └── epoch1_vs_epoch2_N_3D.png       # Additional clusters...
 │
-├── log.txt
-└── config_used.json
+├── log.txt                             # Complete processing log
+└── config_used.json                    # Copy of configuration file used
+
 ```````
 
 - Each folder corresponds to a processing stage.
@@ -564,7 +580,6 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 |-----------|--------------------------------------------|------------------------------------------------------------|
 | `epoch1`      | Path to first input point cloud (epoch 1)  | `C:\...\PointClouds\epoch_1.xyz`                           |
 | `epoch2`      | Path to second input point cloud (epoch 2) | `C:\...\PointClouds\epoch_2.xyz`                           |
-| `m3c2_result`   | Path to M3C2 change detection results      | `C:\...\PointClouds\epoch1_vs_epoch2_m3c2.xyz` |
 | `m3c2_file`   | Path to M3C2 parameter file           | `.\\bin\\m3c2_params.txt`                     |
 | `canupo_file`  | Path to CANUPO parameter file         | `.\\bin\\canupo.prm`                          |
 

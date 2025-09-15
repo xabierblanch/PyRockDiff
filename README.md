@@ -116,6 +116,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
 ---
 </details>
+
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
 
@@ -415,6 +416,7 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 ----
 </details>
 
+<details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.

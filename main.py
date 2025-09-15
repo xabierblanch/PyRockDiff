@@ -12,11 +12,8 @@
 # Open3D: https://www.open3d.org/ - used under MIT License
 
 # You are free to use this software for any purpose. This freedom is being defined by the GNU General Public License (GPL).
-#TODO Migrate from CloudCompare to other solutions
-
-#V2
-#TODO PointCloud rotation
-#TODO DensityComput -> DBSCAN
+#TODO v3.0 -> Migrate from CloudCompare to other solutions
+#TODO v3.0 -> Use ML for better vegetation removal
 
 ''' Import libraries '''
 import bin.utils as utils

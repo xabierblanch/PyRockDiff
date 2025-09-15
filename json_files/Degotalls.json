@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N_clean.las",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N_clean.las",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },

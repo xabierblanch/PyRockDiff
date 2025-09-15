@@ -500,6 +500,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 <details>
 <summary>Parameters Values</summary>
 
+
 All processing parameters are defined in the configuration file (`config.json`), organized by processing stage:
 
 | Parameter Name              | Type    | Example Value | Description                                                                                               |

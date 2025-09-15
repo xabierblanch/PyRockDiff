@@ -77,7 +77,7 @@ The code requires specific input formats and parameters to execute successfully:
  
 **Critical Note:** All point clouds must share the same coordinate reference system (CRS) and units (meters recommended).
 </details>
-<br>
+
 <details>
 <summary><strong style="font-size:1.2em;">Workflow</strong></summary>
 
@@ -102,15 +102,15 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 4. **Volum Computation**
    - Volume Estimation (`volume_calculation`)
 </details>
-<br>
+
 <details>
 <summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
 </details>
-<br>
+
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
 <br>
-<div style="margin-left: 40px;">
+
 <details>
 <summary>Transform and Subsample</summary>
 
@@ -407,9 +407,8 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 ---
 
 </details>
-</div>
+
 </details>
-<br>
 
 <details>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
@@ -502,8 +501,6 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 </details>
 </div>
 </details>
-
-<br>
 <details>
 <summary><strong style="font-size:1.2em;">Output Folder Structure</strong></summary>
 

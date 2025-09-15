@@ -498,8 +498,7 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 <details>
-<summary>Parameters Values</summary>
-
+<summary>Parameters Values</summary>  
 
 All processing parameters are defined in the configuration file (`config.json`), organized by processing stage:
 

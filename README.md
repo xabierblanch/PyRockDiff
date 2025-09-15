@@ -410,16 +410,14 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
----
+----
 </details>
----
+----
 </details>
-tails>
+
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
-
-<div style="margin-left: 20px;">
 
 <details>
 <summary>Parameters Values</summary>
@@ -503,8 +501,8 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 | `CloudCompare_path` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
 
 </details>
-</div>
 </details>
+
 <details>
 <summary><strong style="font-size:1.2em;">Output Folder Structure</strong></summary>
 

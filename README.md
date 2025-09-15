@@ -86,6 +86,7 @@ The code requires specific input formats and parameters to execute successfully:
 - Excluding parts of the scan that are not relevant to the specific study area
 - Cropping the point clouds to the zone of interest
 
+![Preprocessing Example](bin/Cleaning.jpg)
 ***
 
 </details>

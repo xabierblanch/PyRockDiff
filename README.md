@@ -63,6 +63,7 @@ pip install -r requirements.txt
 ## ⚙️ How It Works
 
 <details>
+<br>
 <summary><strong style="font-size:1.2em;">Input Data</strong></summary>
 
 The code requires specific input formats and parameters to execute successfully:
@@ -73,14 +74,23 @@ The code requires specific input formats and parameters to execute successfully:
   - `.xyz` (ASCII Point Cloud)
   - `.txt` (Custom ASCII format)
   
+
 - A pre-defined parameters and paths file: `xxx.JSON` file.
  
 **Critical Note:** All point clouds must share the same coordinate reference system (CRS) and units (meters recommended).
+
+**⚠️ Preprocessing Recommendation:** Although PyRockDiff is designed to automatically process point clouds obtained via TLS, **preliminar "cleaning" is highly recommended** to optimize results.
+
+**This "cleaning" may include:**
+- Removing non-overlapping or inconsistent areas between different epochs
+- Excluding parts of the scan that are not relevant to the specific study area
+- Cropping the point clouds to the zone of interest
+---
 </details>
 
 <details>
 <summary><strong style="font-size:1.2em;">Workflow</strong></summary>
-
+<br>
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 1. **Preprocessing**  
@@ -101,6 +111,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 4. **Volum Computation**
    - Volume Estimation (`volume_calculation`)
+---
 </details>
 
 <details>
@@ -109,8 +120,6 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
-<br>
-
 <details>
 <summary>Transform and Subsample</summary>
 

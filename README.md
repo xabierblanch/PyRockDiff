@@ -12,24 +12,6 @@
 - **Change Detection**: Identifies differences between two epochs using the M3C2 algorithm.
 - **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes using alpha-shape triangulation
 
-## 📚 Table of Contents
-- [Overview](#overview)
-- [Installation & Requirements](#installation--requirements)
-  - [Installation](#installation)
-- [How It Works](#how-it-works)
-  - [Input Data](#input-data)
-  - [Workflow](#workflow)
-  - [Function Reference](#function-reference)
-  - [JSON File (Configuration file)](#json-file-configuration-file)
-    - [Parameters Values](#parameters-values)
-    - [Option Booleans](#option-booleans)
-    - [Configuration Paths](#configuration-paths)
-  - [Output Folder Structure](#output-folder-structure)
-- [Development Stages & Future Updates](#development-stages--future-updates)
-- [Contact](#contact)
-- [Acknowledgments](#acknowledgments)
-- [License](#license)
-
 ## 📖 Overview
 <details>
 <summary>Click to expand</summary>
@@ -423,6 +405,7 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
+---
 
 </details>
 </div>

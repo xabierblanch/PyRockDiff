@@ -85,9 +85,13 @@ The code requires specific input formats and parameters to execute successfully:
 - Removing non-overlapping or inconsistent areas between different epochs
 - Excluding parts of the scan that are not relevant to the specific study area
 - Cropping the point clouds to the zone of interest
----
+
+***
+
 </details>
+
 <details>
+
 <summary><strong style="font-size:1.2em;">Workflow</strong></summary>
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
@@ -110,15 +114,24 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 4. **Volum Computation**
    - Volume Estimation (`volume_calculation`)
----
-</details>
-<details>
-<summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
----
+
+***
+
 </details>
 
 <details>
+
+<summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
+
+***
+
+</details>
+
+<details>
+
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
+
+The following **functions** can be enabled or configured in the JSON file. Each section provides a detailed description of the function's purpose, parameters, and usage instructions.
 
 <details>
 <summary>Transform and Subsample</summary>
@@ -141,10 +154,13 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 
 - **`transform_and_subsample`**: Toggle to enable or disable the transformation and subsampling step.
 - **`spatial_resolution`**: Defines minimum spacing (in meters) between points for spatial subsampling.
----
+
+***
 
 </details>
+
 <details>
+
 <summary>Vegetation Filter</summary>
 
 Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). CANUPO classifies point clouds by analyzing 3D geometric features at multiple scales to automatically separate vegetation from rock surfaces.
@@ -175,10 +191,13 @@ When training your CANUPO classifier, ensure that:
 The pipeline automatically extracts Class 1 points as rock surfaces for geomorphological analysis. Incorrect class assignment will result in analysis of vegetation instead of rock surfaces.
 
 **⚠️ The `.prm` file must be trained specifically for your study area to ensure optimal vegetation filtering and classification performance.**
----
+
+***
 
 </details>
+
 <details>
+
 <summary>Statistical Outlier Filter</summary>
 
 Applies a **Statistical Outlier Filter** to remove noise and spurious points from the point cloud using Open3D's statistical outlier removal algorithm, enhancing data quality for downstream analysis.
@@ -208,10 +227,13 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 **Technical Notes:**
 - Uses Open3D's `remove_statistical_outlier()` implementation
 - Typical `std_ratio` values: 1.0 (aggressive) to 2.0 (conservative)
----
+
+***
 
 </details>
+
 <details>
+
 <summary>Fast Global Registration (FGR)</summary>
 
 Performs **Fast Global Registration (FGR)** to quickly align two point clouds based on geometric feature descriptors. This method provides robust initial alignment that serves as a starting point for more precise registration methods.
@@ -251,10 +273,13 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 - Automatically saves transformation matrices with timestamp
 - Voxel sizes are calculated from `spatial_resolution` - no manual voxel parameter needed
 - Set `fgr_visualization: false` for headless/batch processing environments
----
+
+***
 
 </details>
+
 <details>
+
 <summary>Iterative Closest Point (ICP) Registration</summary>
 
 Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment precision of two point clouds after initial registration (typically FGR). ICP provides high-precision refinement by iteratively minimizing point-to-point distances.
@@ -286,9 +311,11 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 **Performance Considerations:**
 - ICP is computationally intensive; limit iterations to 2-3 for efficiency
 - Works best after good initial alignment from FGR
----
+
+***
 
 </details>
+
 <details>
 <summary>M3C2 Change Detection</summary>
 
@@ -327,10 +354,13 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
----
+
+***
 
 </details>
+
 <details>
+
 <summary>DBSCAN Clustering</summary>
 
 **Identifies Clusters** of significant surface changes (rockfalls) using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
@@ -364,9 +394,13 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - Two visualizations of the clusters are also saved in the output path
 - Cluster labels are assigned sequentially starting from 0
 - Noise points (label = -1) are automatically filtered from results
----
+
+***
+
 </details>
+
 <details>
+
 <summary>Volume Estimation</summary>
 
 Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape), a computational geometry method that generalizes convex hulls to capture concave geometries for volume calculations.
@@ -411,9 +445,13 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
-----
+
+***
+
 </details>
-----
+
+***
+
 </details>
 
 <details>
@@ -471,6 +509,9 @@ All main processing steps can be enabled or disabled via boolean flags. This all
 
 
 **Warning:** The input files must be properly prepared for each enabled processing stage. Enabling a step without the required input data or pre-processing may result in errors or incomplete results.
+
+***
+
 </details>
 
 <details>
@@ -502,7 +543,12 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 |----------------|---------------------------------------|-----------------------------------------------|
 | `CloudCompare_path` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
 
+***
+
 </details>
+
+***
+
 </details>
 
 <details>

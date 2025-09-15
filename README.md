@@ -112,7 +112,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
    - DBSCAN clustering (`dbscan_clustering`)
 
 
-4. **Volum Computation**
+4. **Volume Computation**
    - Volume Estimation (`volume_calculation`)
 
 ***
@@ -128,8 +128,50 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 </details>
 
 <details>
+<summary><strong style="font-size:1.2em;">Output Folder Structure</strong></summary>
 
-<summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
+The pipeline generates the following folder and file structure in the output directory:
+
+```
+📂 output_directory/
+
+├── 1_XYZ_sub/
+│ ├── epoch1_sub.xyz
+│ └── epoch2_sub.xyz
+│
+├── 1.2_canupo/
+│ ├── epoch1_canupo.xyz
+│ └── epoch2_canupo.xyz
+│
+├── 1.3_clean/
+│ ├── epoch1_clean.xyz
+│ └── epoch2_clean.xyz
+│
+├── 2_registration/
+│ ├── epoch1_reg.xyz
+│ └── epoch2_reg.xyz
+│
+├── 3_change_detection/
+│ └── epoch1_vs_epoch2_m3c2.xyz
+│
+├── 4_dbscan/
+│ └── epoch1_vs_epoch2_dbscan.xyz
+│
+├── 5_volume/
+│ └── volumes.csv
+│
+├── log.txt
+└── config_used.json
+```````
+
+- Each folder corresponds to a processing stage.
+- Intermediate and final results are saved in clearly named subfolders.
+- The log file and a copy of the configuration used are stored at the root of the output directory.
+</details>
+
+
+
+## 🔧 Function Reference
 
 The following **functions** can be enabled or configured in the JSON file. Each section provides a detailed description of the function's purpose, parameters, and usage instructions.
 
@@ -450,12 +492,8 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 
 </details>
 
-***
 
-</details>
-
-<details>
-<summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
+## 📋 JSON File (Configuration file)
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
@@ -545,52 +583,6 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 
 ***
 
-</details>
-
-***
-
-</details>
-
-<details>
-<summary><strong style="font-size:1.2em;">Output Folder Structure</strong></summary>
-
-The pipeline generates the following folder and file structure in the output directory:
-
-```
-📂 output_directory/
-
-├── 1_XYZ_sub/
-│ ├── epoch1_sub.xyz
-│ └── epoch2_sub.xyz
-│
-├── 1.2_canupo/
-│ ├── epoch1_canupo.xyz
-│ └── epoch2_canupo.xyz
-│
-├── 1.3_clean/
-│ ├── epoch1_clean.xyz
-│ └── epoch2_clean.xyz
-│
-├── 2_registration/
-│ ├── epoch1_reg.xyz
-│ └── epoch2_reg.xyz
-│
-├── 3_change_detection/
-│ └── epoch1_vs_epoch2_m3c2.xyz
-│
-├── 4_dbscan/
-│ └── epoch1_vs_epoch2_dbscan.xyz
-│
-├── 5_volume/
-│ └── volumes.csv
-│
-├── log.txt
-└── config_used.json
-```````
-
-- Each folder corresponds to a processing stage.
-- Intermediate and final results are saved in clearly named subfolders.
-- The log file and a copy of the configuration used are stored at the root of the output directory.
 </details>
 
 ## 🚧 Development stages & Future Updates

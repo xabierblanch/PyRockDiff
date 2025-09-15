@@ -79,15 +79,11 @@ if options['analysis']['m3c2_distance']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
     e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_reg_path, e2_reg_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'], parameters['diff']['auto_parameters_m3c2'])
-else:
-    e1e2_change_path = paths['inputs']['m3c2_result']
 
 if options['analysis']['dbscan_clustering']:
     print("\nClustering (DBSCAN)")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
     e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters['clustering'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'])
-else:
-    e1ve2_DBSCAN_path = paths['inputs']['m3c2_result']
 
 if options['analysis']['volume_calculation'] and e1ve2_DBSCAN_path:
     print("\nComputing volumes")

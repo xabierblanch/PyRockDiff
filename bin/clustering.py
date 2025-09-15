@@ -32,22 +32,25 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, cha
             subsampled_data = data_sorted[::15]
             labels = subsampled_data[:, 3]
             colors = np.where(labels == 1, 'lightgrey', 'green')
-            plt.scatter(subsampled_data[:, 0], subsampled_data[:, 2], color=colors, s=1, marker='.')
+            plt.scatter(-subsampled_data[:, 0], subsampled_data[:, 2], color=colors, s=1, marker='.')
             file_name = '_vegetation'
         else:
             _print("No vegetation files. This plot will be skipped")
             return
     else:
-        pc = loadPC(e1e2_change_path)
+        project_path = Path(dbscan_folder).parent
+        name = get_file_name(e1e2_change_path).split('__')[0]
+        point_cloud = os.path.join(project_path, '3_change_detection', name + '__m3c2.xyz')
+        pc = loadPC(point_cloud)
         data_sorted = pc.sort_values(by='x')
         subsampled_data = data_sorted.iloc[::15]
-        plt.scatter(subsampled_data['x'], subsampled_data['z'], color='lightgrey', s=1, marker='.')
+        plt.scatter(-subsampled_data['x'], subsampled_data['z'], color='lightgrey', s=1, marker='.')
         file_name = ''
 
-    plt.scatter(diff_cluster['x'], diff_cluster['z'], s=1.5, c='orange', marker='.')
+    plt.scatter(-diff_cluster['x'], diff_cluster['z'], s=1.5, c='orange', marker='.')
     grouped = diff_cluster.groupby('rockfall_label').agg({'x': 'mean', 'z': 'mean'}).reset_index()
     for index, row in grouped.iterrows():
-        plt.text(int(row['x']+2), int(row['z']+2), f"{int(row['rockfall_label'])}", fontsize=12, ha='center', va='center')
+        plt.text(int(-row['x']-1), int(row['z']+1), f"{int(row['rockfall_label'])}", fontsize=12, ha='center', va='center')
     plt.axis('off')
     plt.tight_layout(pad=0.1)
     plt.title(f"{get_file_name(e1e2_change_path)} with DBSCAN (eps = {parameters['eps']}, minPts = {parameters['min_samples']}) and DiffThreshold = {change_threshold} m", fontsize=20)

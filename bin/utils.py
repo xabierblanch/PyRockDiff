@@ -48,73 +48,79 @@ def check_path(path, path_name, warning, is_required=True):
     print(f"{path_name}: {status}")
     return warning
 
-def start_code(options, parameters, paths):
 
+def start_code(options, parameters, paths):
     GREEN = "\033[92m"
     RED = "\033[91m"
     RESET = "\033[0m"
     BLUE = "\033[94m"
     YELLOW = "\033[93m"
 
-    print("\n" + "="*50 + "\n")
+    print("\n" + "=" * 50 + "\n")
     print("\033[1mReading JSON file:\033[0m\n")
 
-    requires_two_clouds = any([options['preprocessing']['transform_and_subsample'],
-                               options['preprocessing']['vegetation_filter'],
-                               options['preprocessing']['outlier_filter'],
-                               options['registration']['fgr'],
-                               options['registration']['icp'],
-                               options['analysis']['m3c2_distance']])
+    # Always check for both epochs since they're required
+    try:
+        e1 = get_file_name(paths['inputs']['epoch1'])
+    except:
+        print(f'{RED}ERROR: Could not find epoch1 point cloud{RESET}')
+        e1 = None
 
-    if requires_two_clouds:
-        try:
-            e1 = get_file_name(paths['inputs']['epoch1'])
-        except:
-            print('ERROR: Not e1 pointcloud')
-        try:
-            e2 = get_file_name(paths['inputs']['epoch2'])
-        except:
-            print('ERROR: Not e2 pointcloud')
+    try:
+        e2 = get_file_name(paths['inputs']['epoch2'])
+    except:
+        print(f'{RED}ERROR: Could not find epoch2 point cloud{RESET}')
+        e2 = None
 
+    if e1 and e2:
         print(f'PyRockDiff will automatically perform a 3D comparison '
               f'between the point cloud: {BLUE}{e1}{RESET} and the point cloud: {BLUE}{e2}{RESET}')
-
-    elif options['analysis']['auto_parameters_dbscan'] or options['analysis']['dbscan_clustering'] or options['analysis']['volume_calculation']:
-        try:
-            e1_e2 = get_file_name(paths['inputs']['m3c2_result'])
-        except:
-            print('ERROR: Not e1_e2 pointcloud')
-        print(f'PyRockDiff will process the precomputed comparison of two different epochs using the point cloud: {BLUE}{e1_e2}{RESET}')
-
     else:
-        print("Invalid configuration in JSON. Please check the options.")
+        print(f'{RED}ERROR: Both epoch1 and epoch2 point clouds are required. Please check input paths.{RESET}')
+
+    # Check if workflow starts from beginning
+    preprocessing_complete = all([
+        options['preprocessing']['transform_and_subsample'],
+        options['preprocessing']['vegetation_filter'],
+        options['preprocessing']['outlier_filter']
+    ])
+
+    registration_complete = all([
+        options['registration']['fgr'],
+        options['registration']['icp']
+    ])
+
+    workflow_from_start = preprocessing_complete and registration_complete
 
     print('\033[1m\nThe following functions are enabled:\033[0m')
 
-    for option in options:
-        if options[option]:
-            print(f'{option}: {GREEN}{options[option]}{RESET}')
+    # Display all options with colors
+    for category, category_options in options.items():
+        if isinstance(category_options, dict):
+            for option, value in category_options.items():
+                color = GREEN if value else RED
+                print(f'{category}.{option}: {color}{value}{RESET}')
         else:
-            print(f'{option}: {RED}{options[option]}{RESET}')
+            color = GREEN if category_options else RED
+            print(f'{category}: {color}{category_options}{RESET}')
+
+    # Warning if not starting from beginning
+    if not workflow_from_start:
+        print(f'\n{YELLOW}WARNING: The workflow does not start from the beginning.')
+        print(f'User is responsible for providing appropriate input data for the enabled pipeline stages.{RESET}')
 
     print('\033[1m\nAnd the following parameters will be used:\033[0m')
-    for parameter in parameters:
-        print(f'{parameter}: {YELLOW}{parameters[parameter]}{RESET}')
+    for parameter, value in parameters.items():
+        print(f'{parameter}: {YELLOW}{value}{RESET}')
 
-    print('\033[1m\nFile Paths and PointClouds Verification:\033[0m')
+    print('\033[1m\nFile Paths and Dependencies Verification:\033[0m')
     warning = False
     warning = check_path(paths['CloudCompare'], "CloudCompare", warning)
     warning = check_path(paths['output_folder'], "output", warning)
+    warning = check_path(paths['inputs']['epoch1'], "epoch1", warning)
+    warning = check_path(paths['inputs']['epoch2'], "epoch2", warning)
 
-    if requires_two_clouds:
-        warning = check_path(paths['inputs']['epoch1'], "e1", warning)
-        warning = check_path(paths['inputs']['epoch2'], "e2", warning)
-        warning = check_path(paths['inputs']['m3c2_result'], "e1_e2", warning, is_required=False)
-    else:
-        warning = check_path(paths['inputs']['epoch1'], "e1", warning, is_required=False)
-        warning = check_path(paths['inputs']['epoch2'], "e2", warning, is_required=False)
-        warning = check_path(paths['inputs']['m3c2_result'], "e1_e2", warning)
-
+    # Check optional files based on what's enabled
     if options['analysis']['m3c2_distance']:
         warning = check_path(paths['inputs']['m3c2_file'], "m3c2_param", warning)
     else:
@@ -126,7 +132,7 @@ def start_code(options, parameters, paths):
         warning = check_path(paths['inputs']['canupo_file'], "canupo_file", warning, is_required=False)
 
     if warning:
-        print("\n\033[91mWarning: One or more required paths were not found. Code will not run properly\033[0m")
+        print(f"\n{RED}Warning: One or more required paths were not found. Code will not run properly{RESET}")
 
     while True:
         user_response = input("\nDo you want to start the code with these parameters? (y/n): ").strip().lower()
@@ -139,6 +145,7 @@ def start_code(options, parameters, paths):
             sys.exit()
         else:
             print("\nInvalid input. Please enter 'y' or 'n'.")
+
 
 def loadPC(path, array=False):
     _print(f'File {get_file_name(path)}: Loading')

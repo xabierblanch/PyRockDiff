@@ -12,7 +12,6 @@
         "inputs": {
             "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\241024_UPC__ICP.xyz",
             "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\250404_UPC__ICP.xyz",
-            "m3c2_result": "",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\castellfollit.prm"
         },
@@ -34,7 +33,7 @@
         "analysis": {
             "m3c2_distance": true,
             "dbscan_clustering": true,
-            "volume_calculation": true
+            "volume_calculation": false
         }
     },
 

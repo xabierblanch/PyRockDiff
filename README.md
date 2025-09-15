@@ -63,7 +63,7 @@ pip install -r requirements.txt
 ## ⚙️ How It Works
 
 <details>
-&nbsp;
+
 <summary><strong style="font-size:1.2em;">Input Data</strong></summary>
 
 The code requires specific input formats and parameters to execute successfully:
@@ -89,7 +89,7 @@ The code requires specific input formats and parameters to execute successfully:
 </details>
 <details>
 <summary><strong style="font-size:1.2em;">Workflow</strong></summary>
-&nbsp;
+
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 1. **Preprocessing**  
@@ -118,10 +118,10 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 </details>
 <details>
 <summary><strong style="font-size:1.2em;">Function Reference</strong></summary>
-&nbsp;
+
 <details>
 <summary>Transform and Subsample</summary>
-&nbsp;
+
 **Transforms** and **Spatially Subsamples** the point clouds using CloudCompare. This step accomplishes two primary goals: converting input files to `.xyz` ASCII format and reducing point density through spatial subsampling.
 
 #### How it works:
@@ -145,7 +145,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 </details>
 <details>
 <summary>Vegetation Filter</summary>
-&nbsp;
+
 Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). CANUPO classifies point clouds by analyzing 3D geometric features at multiple scales to automatically separate vegetation from rock surfaces.
 
 #### How it works:
@@ -179,7 +179,7 @@ The pipeline automatically extracts Class 1 points as rock surfaces for geomorph
 </details>
 <details>
 <summary>Statistical Outlier Filter</summary>
-&nbsp;
+
 Applies a **Statistical Outlier Filter** to remove noise and spurious points from the point cloud using Open3D's statistical outlier removal algorithm, enhancing data quality for downstream analysis.
 
 #### How it works:
@@ -212,7 +212,7 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 </details>
 <details>
 <summary>Fast Global Registration (FGR)</summary>
-&nbsp;
+
 Performs **Fast Global Registration (FGR)** to quickly align two point clouds based on geometric feature descriptors. This method provides robust initial alignment that serves as a starting point for more precise registration methods.
 
 #### How it works:
@@ -255,7 +255,7 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 </details>
 <details>
 <summary>Iterative Closest Point (ICP) Registration</summary>
-&nbsp;
+
 Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment precision of two point clouds after initial registration (typically FGR). ICP provides high-precision refinement by iteratively minimizing point-to-point distances.
 
 #### How it works:
@@ -290,7 +290,7 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 </details>
 <details>
 <summary>M3C2 Change Detection</summary>
-&nbsp;
+
 Computes precise **distances** between two point clouds using the [M3C2 algorithm](https://www.sciencedirect.com/science/article/abs/pii/S0924271613001184) (Lague et al., 2013). M3C2 measures distance changes along surface normals, providing robust change detection for geomorphological analysis.
 
 #### How it works:
@@ -331,7 +331,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 </details>
 <details>
 <summary>DBSCAN Clustering</summary>
-&nbsp;
+
 **Identifies Clusters** of significant surface changes (rockfalls) using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
 
 #### How it works:
@@ -367,7 +367,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 </details>
 <details>
 <summary>Volume Estimation</summary>
-&nbsp;
+
 Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape), a computational geometry method that generalizes convex hulls to capture concave geometries for volume calculations.
 
 #### How it works:
@@ -416,7 +416,7 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 </details>
 tails>
 <summary><strong style="font-size:1.2em;">JSON File (Configuration file)</strong></summary>
-&nbsp;
+
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 <div style="margin-left: 20px;">

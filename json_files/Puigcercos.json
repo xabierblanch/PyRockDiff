@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\20190205.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\20191021.xyz",
+            "epoch1": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\PC_Test\\20190205.xyz",
+            "epoch2": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\PC_Test\\20191021.xyz",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": ""
         },
@@ -39,7 +39,7 @@
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.05
+            "spatial_resolution": 0.04
         },
         "registration": {
             "fgr_iterations": 2,
@@ -56,7 +56,8 @@
         "clustering": {
             "auto_parameters_dbscan": true,
             "eps": 0.3,
-            "min_samples": 15
+            "min_samples": 15,
+            "image_mirror": false
         }
     }
 }

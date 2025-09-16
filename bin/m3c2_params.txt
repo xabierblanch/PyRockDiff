@@ -1,13 +1,13 @@
 [General]
 M3C2VER=1
-NormalScale=0.15000000000000002
+NormalScale=0.15
 NormalMode=2
 NormalMinScale=0.05
 NormalStep=0.025
 NormalMaxScale=0.25
 NormalUseCorePoints=false
 NormalPreferedOri=9
-SearchScale=0.15000000000000002
+SearchScale=0.15
 SearchDepth=3
 SubsampleRadius=0.40007
 SubsampleEnabled=false

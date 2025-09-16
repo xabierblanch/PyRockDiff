@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\241024_UPC__ICP.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\241024_UPC_to_250404_UPC\\2_registration\\250404_UPC__ICP.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\241024_Castellfollit.xyz",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\250404_Castellfollit.xyz",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\castellfollit.prm"
         },
@@ -21,14 +21,14 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": false,
-            "vegetation_filter": false,
-            "outlier_filter": false
+            "transform_and_subsample": true,
+            "vegetation_filter": true,
+            "outlier_filter": true
         },
         "registration": {
-            "fgr": false,
+            "fgr": true,
             "fgr_visualization": false,
-            "icp": false
+            "icp": true
         },
         "analysis": {
             "m3c2_distance": true,
@@ -56,7 +56,8 @@
         "clustering": {
             "auto_parameters_dbscan": true,
             "eps": 0.3,
-            "min_samples": 15
+            "min_samples": 15,
+            "image_mirror": true
         }
     }
 }

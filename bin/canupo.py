@@ -10,7 +10,7 @@ def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     _print(f'CANUPO Algorithm: {get_file_name(epoch_path)}')
 
     CC_canupo_Command = [CloudComapare_path,
-                         "-VERBOSITY", "0", "-SILENT",
+                         "-VERBOSITY", "1", "-SILENT",
                          "-AUTO_SAVE", "OFF",
                          "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                          "-O", epoch_path,

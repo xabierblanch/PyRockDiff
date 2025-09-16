@@ -16,6 +16,8 @@
 #TODO v3.0 -> Use ML for better vegetation removal
 
 ''' Import libraries '''
+import matplotlib
+matplotlib.use('Agg')
 import bin.utils as utils
 import bin.registration as reg
 import bin.m3c2 as m3c2
@@ -23,6 +25,7 @@ import bin.canupo as cp
 import bin.cleaning as cl
 import bin.clustering as rf
 import bin.volume as vl
+import webbrowser
 
 paths, options, parameters, file = utils.select_json_file()
 
@@ -75,12 +78,12 @@ if options['registration']['icp']:
 if options['analysis']['m3c2_distance']:
     print("\nM3C2 Computation")
     m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
-    e1e2_change_path = m3c2.m3c2_core(paths['CloudCompare'], e1_reg_path, e2_reg_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'], parameters['diff']['auto_parameters_m3c2'])
+    e1e2_change_path, m3c2_result_path = m3c2.m3c2_core(paths['CloudCompare'], e1_reg_path, e2_reg_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'], parameters['diff']['auto_parameters_m3c2'])
 
 if options['analysis']['dbscan_clustering']:
     print("\nClustering (DBSCAN)")
     dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, parameters['clustering'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'])
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters['clustering'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'])
 
 if options['analysis']['volume_calculation'] and e1ve2_DBSCAN_path:
     print("\nComputing volumes")
@@ -94,4 +97,5 @@ print("\n" + "="*50)
 print("The code has finished running successfully!")
 print("\nResults are available at: \033[94m{}\033[0m".format(project_folder))
 print("Log can be found at: \033[92m{}\033[0m".format(log_path))
+webbrowser.open(project_folder)
 print("="*50 + "\n")

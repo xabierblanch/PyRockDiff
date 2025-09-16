@@ -20,13 +20,13 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
     CC_m3c2_Command = [CloudComapare_path,
-                       "-VERBOSITY", "0", "-SILENT",
+                       "-VERBOSITY", "1", "-SILENT",
                        "-AUTO_SAVE", "OFF",
                        "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                        "-O", e2_path,
                        "-O", e1_path,
                        "-M3C2", m3c2_file,
-                       "-SAVE_CLOUDS", "FILE", f'"{e1_path}" "{e2_path}" "{output}"']
+                       "-SAVE_CLOUDS", "FILE", f'"{e2_path}" "{e1_path}" "{output}"']
 
     subprocess.run(CC_m3c2_Command)
     _print("M3C2 algorithm completed successfully")
@@ -39,7 +39,7 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     pc_filtered = threshold_filter(threshold, pc)
     filtered_path = savePC(os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__threshold.xyz"), pc_filtered)
 
-    return filtered_path
+    return filtered_path, output
 
 def threshold_filter(threshold, pc):
     _print(f'Filtering Point Cloud: Difference threshold: {threshold}')
@@ -51,10 +51,10 @@ def threshold_filter(threshold, pc):
     return pc_filtered
 
 def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path):
-    normal_scale = spatial_resolution * 3
-    NormalMinScale = spatial_resolution * 2
-    NormalStep = spatial_resolution
-    NormalMaxScale = spatial_resolution * 5
+    normal_scale = round(spatial_resolution * 3, 2)
+    NormalMinScale = round(spatial_resolution * 2, 2)
+    NormalStep = round(spatial_resolution, 2)
+    NormalMaxScale = round(spatial_resolution * 5, 2)
 
     search_scale = spatial_resolution * 4
 

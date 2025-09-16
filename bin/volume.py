@@ -4,13 +4,13 @@ from sklearn.neighbors import NearestNeighbors
 from bin.utils import loadPC, _print, get_file_name
 import pandas as pd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
 from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
 import os
-import matplotlib
-matplotlib.use('TkAgg')  #Activate/Deactivate interactive plot
 
 #TODO: use original epoch2 points instead of epoch1+diff
 
@@ -18,7 +18,7 @@ def estimate_alpha(points, percentile=50):
     nbrs = NearestNeighbors(n_neighbors=2, algorithm='ball_tree').fit(points)
     distances, _ = nbrs.kneighbors(points)
     typical_distance = np.percentile(distances[:, 1], percentile)
-    return 1 / (typical_distance * 2)
+    return round(1 / (typical_distance * 2),4)
 
 def alphashape_delaunay(points, alpha):
     alpha_shape = alphashape.alphashape(points, alpha)
@@ -38,13 +38,14 @@ def calculate_triangle_volumes(points, simplices, diff):
         triangle = points[simplex]
         area = 0.5 * np.abs(np.cross(triangle[1] - triangle[0], triangle[2] - triangle[0]))
         avg_diff = np.mean(diff[simplex])
-        volume = area * avg_diff
+        volume = area * (-avg_diff)
         volumes.append(volume)
     total_volume = np.sum(volumes)
-    return total_volume
+    return round(total_volume, 6)
 
 
 def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, points_xz, volume_folder, i, file_name):
+    matplotlib.use('Agg')
     try:
         fig, ax = plt.subplots(figsize=(6, 6))
 
@@ -86,6 +87,7 @@ def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, po
         _print(f"ERROR: Plot {i} can't be done: {str(e)}")
 
 def rockfall_plot(points_xyz, y_diff, valid_simplices, volume_folder, i, file_name):
+    matplotlib.use('Agg')
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
     ax.plot_trisurf(points_xyz[:,0], points_xyz[:,1], points_xyz[:,2], triangles=valid_simplices, color='lightgreen', shade=True, alpha=0.80, edgecolor='black', linewidth=0.15, label='Epoch1')
@@ -114,6 +116,9 @@ def volume(e1ve2_DBSCAN_path, volume_folder):
     for i in range(rockfalls['rockfall_label'].max()+1):
         _print(f'Computing volume: cluster {i} of {rockfalls["rockfall_label"].max()+1}')
         rockfall = rockfalls[rockfalls["rockfall_label"] == i]
+        if len(rockfall) < 4:
+            _print(f"Cluster {i} has less than 4 points. Will not be computed.")
+            continue
         points_xz = rockfall[['x', 'z']].values
         points_xyz = rockfall[['x', 'y', 'z']].values
         diff = rockfall['m3c2_diff'].values*(-1)

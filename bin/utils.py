@@ -11,7 +11,6 @@ import time
 import json
 import pandas as pd
 import logging
-import webbrowser
 import sys
 import re
 
@@ -239,7 +238,6 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
         print("\nERROR: Folder can't be created. Check the output path in the JSON file")
     shutil.copy(file, os.path.join(project_path, Path(file).name))
     print(f"\nFolder created at: \033[94m{project_path}\033[0m\nThis folder will now be opened.")
-    webbrowser.open(project_path)
     return project_path
 
 def create_folder(project_path, folder):
@@ -274,7 +272,7 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
 
     CC_SUB_Command = [CloudComapare_path,
                       "-AUTO_SAVE", "OFF",
-                      "-VERBOSITY", "0", "-SILENT",
+                      "-VERBOSITY", "1", "-SILENT",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,
                       "-SS", "SPATIAL", str(spatial_distance),
@@ -290,7 +288,7 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
     radius = spatial_resolution*2.5
     _print(f'Computing point density {get_file_name(path)}. Sphere radius: {radius} m')
     CC_DEN_Command = [CloudCompare_path,
-                      "-VERBOSITY", "0", "-SILENT",
+                      "-VERBOSITY", "1", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,
@@ -332,7 +330,7 @@ def transform_subsample(CloudComapare_path, path, data_folder, spatial_distance)
     _print(f'Converting to XYZ and subsampling {get_file_name(path)}. Spatial distance: {spatial_distance} cm')
 
     CC_TRA_Command = [CloudComapare_path,
-                      "-VERBOSITY", "2", "-SILENT",
+                      "-VERBOSITY", "1", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-O", path,
                       "-SS", "SPATIAL", str(spatial_distance),
@@ -350,7 +348,7 @@ def transform_file(CloudComapare_path, path, data_folder):
     output_path = os.path.join(data_folder, get_file_name(path) + ".xyz")
 
     CC_TRA_Command = [CloudComapare_path,
-                      "-VERBOSITY", "0", "-SILENT",
+                      "-VERBOSITY", "1", "-SILENT",
                       "-AUTO_SAVE", "OFF",
                       "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                       "-O", path,

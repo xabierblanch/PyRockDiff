@@ -56,7 +56,8 @@
         "clustering": {
             "auto_parameters_dbscan": true,
             "eps": 0.3,
-            "min_samples": 15
+            "min_samples": 15,
+            "image_mirror": false
         }
     }
 }

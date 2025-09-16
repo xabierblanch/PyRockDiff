@@ -1,6 +1,6 @@
 import subprocess
 import os
-from bin.utils import get_file_name, loadPC, savePC, _print
+from bin.utils import get_file_name, loadPC, savePC, _print, run_command
 import numpy as np
 
 def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
@@ -17,7 +17,7 @@ def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
                          "-CANUPO_CLASSIFY", canupo_file,
                          "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    subprocess.run(CC_canupo_Command)
+    run_command(CC_canupo_Command)
 
     _print(f'CANUPO Algorithm: {get_file_name(epoch_path)} done')
     _print(f'CANUPO Algorithm: {get_file_name(output_path)} saved')

@@ -278,7 +278,7 @@ def subsampling(path, spatial_distance, CloudComapare_path, subsample_folder):
                       "-SS", "SPATIAL", str(spatial_distance),
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    subprocess.run(CC_SUB_Command)
+    run_command(CC_SUB_Command)
     _print(f'Subsampling {get_file_name(path)} completed')
 
     return os.path.join(subsample_folder, get_file_name(path) + "_sub.xyz")
@@ -295,7 +295,7 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
                       "-DENSITY", str(radius), "-TYPE", "KNN",
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    subprocess.run(CC_DEN_Command)
+    run_command(CC_DEN_Command)
     _print(f"Computing the median density points for {get_file_name(path)}: Done")
     time.sleep(5)
     densPC = loadPC(output_path, array=True)
@@ -354,7 +354,7 @@ def transform_file(CloudComapare_path, path, data_folder):
                       "-O", path,
                       "-SAVE_CLOUDS", "FILE", f'"{output_path}"']
 
-    subprocess.run(CC_TRA_Command)
+    run_command(CC_TRA_Command)
     time.sleep(5)
     pc_xyz = loadPC(output_path)
     pc_name = get_file_name(path)

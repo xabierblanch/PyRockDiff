@@ -1,6 +1,6 @@
 import subprocess
 import os
-from bin.utils import get_file_name, _print, loadPC, savePC
+from bin.utils import get_file_name, _print, loadPC, savePC, run_command
 import pandas as pd
 
 def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch1_path, epoch2_path, spatial_resolution, threshold, auto_m3c2):
@@ -28,7 +28,7 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
                        "-M3C2", m3c2_file,
                        "-SAVE_CLOUDS", "FILE", f'"{e2_path}" "{e1_path}" "{output}"']
 
-    subprocess.run(CC_m3c2_Command)
+    run_command(CC_m3c2_Command)
     _print("M3C2 algorithm completed successfully")
     _print("M3C2 adding file headings")
 

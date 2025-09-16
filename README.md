@@ -77,7 +77,15 @@ The code requires specific input formats and parameters to execute successfully:
 
 - A pre-defined parameters and paths file: `xxx.JSON` file.
  
-**Critical Note:** All point clouds must share the same coordinate reference system (CRS) and units (meters recommended).
+All point clouds must share the same coordinate reference system (CRS) and units (meters recommended).
+
+**The temporal order of input files is essential for accurate change detection:**
+
+- **`epoch1`**: Must be the **older/baseline** point cloud (reference survey)
+- **`epoch2`**: Must be the **newer/recent** point cloud (comparison survey)
+
+**Warning:** Reversing this order will cause rockfalls to be detected as surface growth instead of erosion, leading to incorrect change analysis and unreliable results.
+
 
 **⚠️ Preprocessing Recommendation:** Although PyRockDiff is designed to automatically process point clouds obtained via TLS, **preliminar "cleaning" is highly recommended** to optimize results.
 

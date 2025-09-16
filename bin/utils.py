@@ -308,18 +308,6 @@ def density(path, CloudCompare_path, dbscan_folder, spatial_resolution):
     _print(f'Point cloud spatial distance: {spatial_distance:.3f} m')
     return density_points, spatial_distance
 
-def auto_param(spatial_resolution, correction_factor=0.8):
-    eps = spatial_resolution * 3
-    area_eps = math.pi * (eps ** 2)
-    area_per_point = spatial_resolution ** 2
-    expected_points = area_eps / area_per_point
-
-    minpts = (area_eps / area_per_point) * correction_factor
-    _print(f'DBSCAN Automatic Parameters:')
-    _print(f'DBSCAN eps: {eps:.2f}')
-    _print(f'DBSCAN min_points: {math.ceil(minpts):.0f}')
-    return math.ceil(minpts), eps
-
 def _print(message):
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("[%d/%m/%Y - %H:%M]")

@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
-from bin.utils import loadPC, savePC, get_file_name, create_folder, _print, auto_param
+from bin.utils import loadPC, savePC, get_file_name, create_folder, _print
 from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
 import pandas as pd
 import numpy as np
+import math
 import open3d as o3d
+from sklearn.neighbors import NearestNeighbors
 import os
 
 def dbscan_core(e1e2_change_path, eps, min_samples):
@@ -110,13 +112,26 @@ def plot_clusters(diff_cluster, e1e2_change_path, dbscan_folder, parameters, cha
     plt.savefig(os.path.join(dbscan_folder, get_file_name(e1e2_change_path) + f'{file_name}.jpg'), dpi=300, pad_inches=0.1)
     plt.close()
 
+def auto_param(e1e2_change_path, spatial_resolution):
+    points = loadPC(e1e2_change_path)
+    nbrs = NearestNeighbors(n_neighbors=10).fit(points[["x", "y", "z"]])
+    distances, _ = nbrs.kneighbors(points[["x", "y", "z"]])
+    k_distances = np.sort(distances[:, -1])
+    eps = np.percentile(k_distances, 90)
+    expected_pts = (math.pi * eps**2) / (spatial_resolution**2)
+    alpha = 0.5
+    minpts = math.ceil(alpha * expected_pts)
+    _print(f'DBSCAN Automatic Parameters:')
+    _print(f'DBSCAN eps: {eps:.2f}')
+    _print(f'DBSCAN min_points: {minpts:.0f}')
+    return minpts, eps
 
 def dbscan(dbscan_folder, e1e2_change_path, parameters, spatial_resolution, change_threshold):
     file_name = get_file_name(e1e2_change_path)
 
     if parameters['auto_parameters_dbscan']:
         print("\nAuto DBSCAN parameters computation")
-        parameters['min_samples'], parameters['eps'] = auto_param(spatial_resolution)
+        parameters['min_samples'], parameters['eps'] = auto_param(e1e2_change_path, spatial_resolution)
 
     diff_cluster = dbscan_core(e1e2_change_path, parameters['eps'], parameters['min_samples'])
     _print(f"DBSCAN -> eps:{parameters['eps']} and min_samples: {parameters['min_samples']}")

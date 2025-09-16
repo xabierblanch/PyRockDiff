@@ -1,13 +1,13 @@
 from scipy.spatial import Delaunay
 import alphashape
-from shapely.geometry import Polygon, MultiPolygon
 from sklearn.neighbors import NearestNeighbors
 from bin.utils import loadPC, _print, get_file_name
-from matplotlib.collections import PolyCollection
 import pandas as pd
-import numpy as np
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.collections import PolyCollection
+from shapely.geometry import Polygon, MultiPolygon
+import numpy as np
 import os
 import matplotlib
 matplotlib.use('TkAgg')  #Activate/Deactivate interactive plot
@@ -43,9 +43,11 @@ def calculate_triangle_volumes(points, simplices, diff):
     total_volume = np.sum(volumes)
     return total_volume
 
+
 def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, points_xz, volume_folder, i, file_name):
     try:
         fig, ax = plt.subplots(figsize=(6, 6))
+
         for simplex in valid_simplices:
             ax.plot(points_xz[simplex, 0], points_xz[simplex, 1], 'c-', linewidth=0.5, alpha=0.5)
 
@@ -66,15 +68,22 @@ def volume_plot(valid_simplices, alpha_shape, diff, auto_alpha, total_volume, po
 
         ax.add_collection(triangle_patchs)
         ax.set_aspect('equal', adjustable='box')
-        cbar = plt.colorbar(triangle_patchs)
+
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.1)
+        cbar = fig.colorbar(triangle_patchs, cax=cax)
         cbar.set_label('Differences [m]')
+
+        ax.set_title(f'{file_name} - Cluster: {i} | Volume: {total_volume:.2f} m³',
+                     loc='center', pad=10, fontsize=14)
+
         os.makedirs(os.path.join(volume_folder, 'vol_plots'), exist_ok=True)
         output_path = os.path.join(volume_folder, 'vol_plots', f'{file_name}_{i}_Vol.png')
-        plt.title(f'{file_name} - Cluster: {i} | Volume: {total_volume:.2f} m³')
-        plt.savefig(output_path, bbox_inches='tight', dpi=300)
+        plt.savefig(output_path, dpi=300)
         plt.close()
-    except:
-        _print(f"ERROR: Plot {i} can't be done")
+
+    except Exception as e:
+        _print(f"ERROR: Plot {i} can't be done: {str(e)}")
 
 def rockfall_plot(points_xyz, y_diff, valid_simplices, volume_folder, i, file_name):
     fig = plt.figure(figsize=(10, 8))

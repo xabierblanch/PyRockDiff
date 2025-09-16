@@ -10,10 +10,10 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\230529_Degotalls_N_clean_to_231023_Degotalls_N_clean\\2_registration\\230529_Degotalls_N_clean__ICP.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\230529_Degotalls_N_clean_to_231023_Degotalls_N_clean\\2_registration\\231023_Degotalls_N_clean__ICP.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\220530_MU36_1cm.las",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\241030_MU36_1cm.las",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
-            "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Degotalls.prm"
+            "canupo_file": ""
         },
         "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
@@ -21,25 +21,25 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": false,
+            "transform_and_subsample": true,
             "vegetation_filter": false,
-            "outlier_filter": false
+            "outlier_filter": true
         },
         "registration": {
-            "fgr": false,
+            "fgr": true,
             "fgr_visualization": false,
-            "icp": false
+            "icp": true
         },
         "analysis": {
             "m3c2_distance": true,
             "dbscan_clustering": true,
-            "volume_calculation": false
+            "volume_calculation": true
         }
     },
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.05
+            "spatial_resolution": 0.01
         },
         "registration": {
             "fgr_iterations": 2,
@@ -51,7 +51,7 @@
         },
         "diff": {
             "auto_parameters_m3c2": true,
-            "change_threshold": 0.05
+            "change_threshold": -0.05
         },
         "clustering": {
             "auto_parameters_dbscan": true,

@@ -135,8 +135,8 @@ def start_code(options, parameters, paths):
         print(f"\n{RED}Warning: One or more required paths were not found. Code will not run properly{RESET}")
 
     while True:
-        user_response = input("\nDo you want to start the code with these parameters? (y/n): ").strip().lower()
-        if user_response == "y":
+        user_response = input("\nDo you want to start the code with these parameters? [Y/n]: ").strip().lower()
+        if user_response == "y" or user_response == "":
             print("\n" + "=" * 50 + "\n")
             _print("Executing the code")
             break
@@ -201,10 +201,10 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
         sys.exit()
 
     while True:
-        filename = input(f"\nDefault folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? (y/n):").strip().lower()
+        filename = input(f"\nDefault folder name: {epoch1_name + '_to_' + epoch2_name}, do you want to modify it? [y/N]:").strip().lower()
         if filename == 'y':
             while True:
-                include_timestamp = input(f"\nDo you want to include timestamp in the folder name? (y/n): ").strip().lower()
+                include_timestamp = input(f"\nDo you want to include timestamp in the folder name? [y/n]: ").strip().lower()
                 if include_timestamp == 'y':
                     project_path = os.path.join(output_path, timestamp + "_to_" + epoch1_name + '__' + epoch2_name)
                     break
@@ -215,7 +215,7 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
                 else:
                     print("\nInvalid input. Please enter 'y' or 'n'")
             break
-        if filename == "n":
+        if filename == "n" or filename == "":
             project_path = os.path.join(output_path, epoch1_name + '_to_' + epoch2_name)
             break
         else:
@@ -223,12 +223,12 @@ def create_project_folders(output_path, epoch1_path, epoch2_path, file):
 
     if os.path.exists(project_path):
         while True:
-            overwrite = input(f"\n\033[91mWarning:\033[0m The folder '\033[94m{project_path}\033[0m' already exists. Do you want to overwrite the contents? (y/n) (If not, an automatic timestamp will be added): ").strip().lower()
+            overwrite = input(f"\n\033[91mWarning:\033[0m The folder '\033[94m{project_path}\033[0m' already exists. Do you want to overwrite the contents? [Y/n] (If not, an automatic timestamp will be added): ").strip().lower()
             if overwrite == 'n':
                 print("\nThe folder will be created with a new timestamp to avoid overwriting.")
                 project_path = os.path.join(output_path, f"{timestamp}__{epoch1_name}_to_{epoch2_name}")
                 break
-            if overwrite == 'y':
+            if overwrite == 'y' or overwrite == "":
                 print("\nThe files in the folder will be overwritten.")
                 break
             else:

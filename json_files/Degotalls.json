@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N_clean.las",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N_clean.las",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\230529_Degotalls_N_clean_to_231023_Degotalls_N_clean\\2_registration\\230529_Degotalls_N_clean__ICP.xyz",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs\\230529_Degotalls_N_clean_to_231023_Degotalls_N_clean\\2_registration\\231023_Degotalls_N_clean__ICP.xyz",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },
@@ -21,19 +21,19 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": true,
-            "vegetation_filter": true,
-            "outlier_filter": true
+            "transform_and_subsample": false,
+            "vegetation_filter": false,
+            "outlier_filter": false
         },
         "registration": {
-            "fgr": true,
-            "fgr_visualization": true,
-            "icp": true
+            "fgr": false,
+            "fgr_visualization": false,
+            "icp": false
         },
         "analysis": {
             "m3c2_distance": true,
             "dbscan_clustering": true,
-            "volume_calculation": true
+            "volume_calculation": false
         }
     },
 

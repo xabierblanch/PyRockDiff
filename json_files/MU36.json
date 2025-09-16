@@ -51,12 +51,13 @@
         },
         "diff": {
             "auto_parameters_m3c2": true,
-            "change_threshold": -0.05
+            "change_threshold": 0.05
         },
         "clustering": {
             "auto_parameters_dbscan": true,
             "eps": 0.3,
-            "min_samples": 15
+            "min_samples": 15,
+            "image_mirror": false
         }
     }
 }

@@ -20,7 +20,7 @@ def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch
     output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
     CC_m3c2_Command = [CloudComapare_path,
-                       "-VERBOSITY", "1", "-SILENT",
+                       "-VERBOSITY", "2", "-SILENT",
                        "-AUTO_SAVE", "OFF",
                        "-C_EXPORT_FMT", "ASC", "-PREC", "3",
                        "-O", e2_path,

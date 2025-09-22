@@ -2,13 +2,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from pathlib import Path
-from bin.utils import loadPC, savePC, get_file_name, create_folder, _print
+from bin.utils import loadPC, savePC, get_file_name, _print
 from sklearn.cluster import DBSCAN
 from sklearn.decomposition import PCA
 import pandas as pd
 import numpy as np
 import math
-import open3d as o3d
 from sklearn.neighbors import NearestNeighbors
 import os
 
@@ -35,7 +34,6 @@ def ransac_plane_fit(points, n_iterations=1000, distance_threshold=0.05, min_inl
         sample_indices = np.random.choice(n_points, 3, replace=False)
         sample_points = points[sample_indices]
 
-        # Calcular plano usando los 3 puntos
         v1 = sample_points[1] - sample_points[0]
         v2 = sample_points[2] - sample_points[0]
         normal = np.cross(v1, v2)
@@ -108,7 +106,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     y = diff_cluster['y'].values if 'y' in diff_cluster.columns else np.zeros(len(diff_cluster))
     z = diff_cluster['z'].values
 
-    # ✅ CALCULAR RANSAC CON BACKGROUND
     pc_background = loadPC(m3c2_result_path)
     data_sorted = pc_background.sort_values(by='x')
     subsampled_background = data_sorted.iloc[::15]
@@ -159,7 +156,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
 
         return x_transformed, z_vals
 
-    # ✅ TRANSFORMAR CLUSTERS
     points_3d = np.column_stack([x, y, z])
     x_clusters, z_clusters = transform_points(x, z, y, apply_inversion=False)
 
@@ -169,7 +165,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     else:
         invert_background = False
 
-    # ✅ CALCULAR FIGSIZE
     width = x_clusters.max() - x_clusters.min()
     height = z_clusters.max() - z_clusters.min()
     fixed_max = 20
@@ -180,13 +175,11 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         fig_width = width * scale
         fig_height = height * scale
 
-    # ✅ CONTROLAR MIRRORING
     if parameters["image_mirror"]:
         beta = 1
     else:
         beta = -1
 
-    # ✅ PREPARAR DATOS SEGÚN VEGETATION (SOLO UNA OPCIÓN)
     if vegetation:
         project_path = Path(dbscan_folder).parent
         name = get_file_name(e1e2_change_path).split('_vs_')[0]
@@ -209,7 +202,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             _print("No vegetation files. This plot will be skipped")
             return
     else:
-        # Usar background sin vegetación
         y_vals = subsampled_background['y'].values if 'y' in subsampled_background.columns else None
         x_plot, z_plot = transform_points(
             subsampled_background['x'].values,
@@ -220,7 +212,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         colors = 'silver'  # Solo color plata
         file_name = ''
 
-    # ✅ FUNCIÓN PARA CREAR PLOT (EVITAR DUPLICACIÓN)
     def create_and_save_plot(include_labels=False):
         plt.figure(figsize=(fig_width, fig_height), dpi=300)
 
@@ -233,7 +224,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         # Plotear clusters
         plt.scatter(beta * x_clusters, z_clusters, s=1.5, c='orange', marker='.', alpha=0.8)
 
-        # ✅ AÑADIR ETIQUETAS SI CORRESPONDE
         if include_labels:
             grouped = diff_cluster.groupby('rockfall_label').agg({
                 'x': 'mean',
@@ -262,16 +252,14 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             f"{get_file_name(e1e2_change_path)} with DBSCAN (eps = {parameters['eps']:.2f}, minPts = {parameters['min_samples']}) and DiffThreshold = {change_threshold} m",
             fontsize=20)
 
-        # Determinar nombre del archivo
         suffix = '_labels' if include_labels else ''
         output_filename = get_file_name(e1e2_change_path) + f'{file_name}{suffix}.jpg'
 
         plt.savefig(os.path.join(dbscan_folder, output_filename), dpi=300, pad_inches=0.1)
         plt.close()
 
-    # ✅ GENERAR SOLO 2 PLOTS SEGÚN EL MODO
-    create_and_save_plot(include_labels=False)  # Plot sin etiquetas
-    create_and_save_plot(include_labels=True)  # Plot con etiquetas
+    create_and_save_plot(include_labels=False)
+    create_and_save_plot(include_labels=True)
 
 
 def auto_param(m3c2_result_path, spatial_resolution):
@@ -288,7 +276,16 @@ def auto_param(m3c2_result_path, spatial_resolution):
     _print(f'DBSCAN min_points: {minpts:.0f}')
     return minpts, eps
 
-def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, spatial_resolution, change_threshold):
+def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deformation):
+    spatial_resolution = parameters['subsampling']['spatial_resolution']
+
+    if deformation:
+        parameters = parameters['deformation']
+    else:
+        parameters = parameters['rockfall']
+
+    threshold = parameters['change_threshold']
+
     file_name = get_file_name(e1e2_change_path)
 
     if parameters['auto_parameters_dbscan']:
@@ -305,7 +302,7 @@ def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, spatia
 
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
 
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, change_threshold, vegetation=True)
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, change_threshold, vegetation=False)
+    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, vegetation=True)
+    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, vegetation=False)
 
     return dbscan_path

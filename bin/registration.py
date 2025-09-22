@@ -2,7 +2,6 @@ import open3d as o3d
 import copy
 import numpy as np
 import os
-import subprocess
 from bin.utils import get_file_name, _print, run_command
 from pathlib import Path
 import datetime

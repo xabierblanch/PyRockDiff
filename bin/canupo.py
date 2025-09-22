@@ -1,7 +1,5 @@
-import subprocess
 import os
 from bin.utils import get_file_name, loadPC, savePC, _print, run_command
-import numpy as np
 
 def canupo_core(CloudComapare_path, epoch_path, canupo_file, canupo_folder):
     name = get_file_name(epoch_path)

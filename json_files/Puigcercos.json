@@ -30,10 +30,14 @@
             "fgr_visualization": false,
             "icp": true
         },
-        "analysis": {
-            "m3c2_distance": true,
-            "dbscan_clustering": true,
-            "volume_calculation": true
+        "deformation": {
+            "change_detection": true,
+            "clustering": true
+        },
+        "rockfall": {
+            "change_detection": true,
+            "clustering": true,
+            "volume": true
         }
     },
 
@@ -49,11 +53,17 @@
             "neighbors": 25,
             "std_ratio": 1.5
         },
-        "diff": {
+        "deformation": {
             "auto_parameters_m3c2": true,
-            "change_threshold": 0.05
+            "change_threshold": -0.01,
+            "auto_parameters_dbscan": true,
+            "eps": 0.3,
+            "min_samples": 15,
+            "image_mirror": false
         },
-        "clustering": {
+        "rockfall": {
+            "auto_parameters_m3c2": true,
+            "change_threshold": 0.05,
             "auto_parameters_dbscan": true,
             "eps": 0.3,
             "min_samples": 15,

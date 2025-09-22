@@ -75,22 +75,32 @@ if options['registration']['icp']:
     registration_folder = utils.create_folder(project_folder, '2_registration')
     e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['registration']['icp_iterations'])
 
-if options['analysis']['m3c2_distance']:
-    print("\nM3C2 Computation")
-    m3c2_folder = utils.create_folder(project_folder, '3_change_detection')
-    e1e2_change_path, m3c2_result_path = m3c2.m3c2_core(paths['CloudCompare'], e1_reg_path, e2_reg_path, paths['inputs']['m3c2_file'], m3c2_folder, paths['inputs']['epoch1'], paths['inputs']['epoch2'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'], parameters['diff']['auto_parameters_m3c2'])
+if options['deformation']['change_detection']:
+    print("\nPre-failure Deformation Computation")
+    def_m3c2_folder = utils.create_folder(project_folder, '3.1_Deformation_m3c2')
+    e1e2_def_change_path, m3c2_def_result_path = m3c2.m3c2_core(e1_reg_path, e2_reg_path, def_m3c2_folder, paths, parameters, deformation=True)
 
-if options['analysis']['dbscan_clustering']:
-    print("\nClustering (DBSCAN)")
-    dbscan_folder = utils.create_folder(project_folder, '4_dbscan')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters['clustering'], parameters['subsampling']['spatial_resolution'], parameters['diff']['change_threshold'])
+if options['deformation']['clustering']:
+    print("\nPre-failure Deformation Clustering (DBSCAN)")
+    def_dbscan_folder = utils.create_folder(project_folder, '3.2_Deformation_dbscan')
+    e1ve2_DBSCAN_path = rf.dbscan(def_dbscan_folder, e1e2_def_change_path, m3c2_def_result_path, parameters,  deformation=True)
 
-if options['analysis']['volume_calculation'] and e1ve2_DBSCAN_path:
-    print("\nComputing volumes")
-    volume_folder = utils.create_folder(project_folder, '5_volume')
+if options['rockfall']['change_detection']:
+    print("\nRockfall Computation")
+    m3c2_folder = utils.create_folder(project_folder, '4.1_Rockfall_m3c2')
+    e1e2_change_path, m3c2_result_path = m3c2.m3c2_core(e1_reg_path, e2_reg_path, m3c2_folder, paths, parameters, deformation=True)
+
+if options['rockfall']['clustering']:
+    print("\nRockfall Clustering (DBSCAN)")
+    dbscan_folder = utils.create_folder(project_folder, '4.2_Rockfall_dbscan')
+    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters['rockfall'], parameters['subsampling']['spatial_resolution'])
+
+if options['rockfall']['volume'] and e1ve2_DBSCAN_path:
+    print("\nRockfall Volumes")
+    volume_folder = utils.create_folder(project_folder, '4.3_Rockfall_volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
 
-elif options['analysis']['volume_calculation']:
+elif options['analysis']['rockfall_volume']:
     print("\nNo clusters detected — volume calculation skipped.")
 
 print("\n" + "="*50)

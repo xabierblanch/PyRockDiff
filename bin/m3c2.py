@@ -1,13 +1,24 @@
-import subprocess
 import os
 from bin.utils import get_file_name, _print, loadPC, savePC, run_command
-import pandas as pd
 
-def m3c2_core(CloudComapare_path, e1_path, e2_path, m3c2_param, m3c2_path, epoch1_path, epoch2_path, spatial_resolution, threshold, auto_m3c2):
+def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation):
+
+    CloudComapare_path = paths['CloudCompare']
+    m3c2_param = paths['inputs']['m3c2_file']
+    epoch1_path = paths['inputs']['epoch1']
+    epoch2_path = paths['inputs']['epoch2']
+    spatial_resolution = parameters['subsampling']['spatial_resolution']
+
+    if deformation:
+        threshold = parameters['deformation']['change_threshold']
+        auto_m3c2 = parameters['deformation']['auto_parameters_m3c2']
+    else:
+        threshold = parameters['rockfall']['change_threshold']
+        auto_m3c2 = parameters['rockfall']['auto_parameters_m3c2']
 
     if auto_m3c2:
         _print("Using auto M3C2 parameters")
-        m3c2_file = update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path)
+        m3c2_file = update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path, deformation)
     else:
         _print("Using default M3C2 parameters")
         m3c2_file = m3c2_param
@@ -50,16 +61,24 @@ def threshold_filter(threshold, pc):
     _print(f'Point Cloud after threshold filter: {pc_filtered.shape[0]} points')
     return pc_filtered
 
-def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path):
-    normal_scale = round(spatial_resolution * 3, 2)
-    NormalMinScale = round(spatial_resolution * 2, 2)
-    NormalStep = round(spatial_resolution, 2)
-    NormalMaxScale = round(spatial_resolution * 5, 2)
+def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path, deformation):
+    if deformation:
+        normal_scale = round(spatial_resolution * 3, 2)
+        NormalMinScale = round(spatial_resolution * 4, 2)
+        NormalStep = round(spatial_resolution, 2)
+        NormalMaxScale = round(spatial_resolution * 10, 2)
+        search_scale = spatial_resolution * 8
+        _print(f"New NormalScale: {normal_scale}")
+        _print(f"New SearchScale: {search_scale}")
 
-    search_scale = spatial_resolution * 4
-
-    _print(f"New NormalScale: {normal_scale}")
-    _print(f"New SearchScale: {search_scale}")
+    else:
+        normal_scale = round(spatial_resolution * 3, 2)
+        NormalMinScale = round(spatial_resolution * 2, 2)
+        NormalStep = round(spatial_resolution, 2)
+        NormalMaxScale = round(spatial_resolution * 5, 2)
+        search_scale = spatial_resolution * 4
+        _print(f"New NormalScale: {normal_scale}")
+        _print(f"New SearchScale: {search_scale}")
 
     with open(m3c2_param, 'r') as f:
         lines = f.readlines()
@@ -85,9 +104,14 @@ def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path):
         else:
             new_lines.append(line)
 
-    output = os.path.join(m3c2_path, "m3c2_auto_params.txt")
-    with open(output, 'w') as f:
-        f.writelines(new_lines)
+    if deformation:
+        output = os.path.join(m3c2_path, "m3c2_auto_params.txt")
+        with open(output, 'w') as f:
+            f.writelines(new_lines)
+    else:
+        output = os.path.join(m3c2_path, "m3c2_auto_params.txt")
+        with open(output, 'w') as f:
+            f.writelines(new_lines)
 
     _print(f"Updated M3C2 config saved to: {output}")
     return output

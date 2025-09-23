@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N.xyz",
-            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N.xyz",
+            "epoch1": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\230529_Degotalls_N_clean_icp_sub.txt",
+            "epoch2": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\raw_pc\\231023_Degotalls_N_clean_icp_sub.txt",
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },
@@ -21,25 +21,29 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": true,
-            "vegetation_filter": true,
-            "outlier_filter": true
+            "transform_and_subsample": false,
+            "vegetation_filter": false,
+            "outlier_filter": false
         },
         "registration": {
-            "fgr": true,
+            "fgr": false,
             "fgr_visualization": false,
-            "icp": true
+            "icp": false
         },
-        "analysis": {
-            "m3c2_distance": true,
-            "dbscan_clustering": true,
-            "volume_calculation": true
+        "deformation": {
+            "change_detection": true,
+            "clustering": true
+        },
+        "rockfall": {
+            "change_detection": true,
+            "clustering": true,
+            "volume": true
         }
     },
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.05
+            "spatial_resolution": 0.10
         },
         "registration": {
             "fgr_iterations": 2,
@@ -49,12 +53,20 @@
             "neighbors": 25,
             "std_ratio": 1.5
         },
-        "diff": {
+        "deformation": {
             "auto_parameters_m3c2": true,
-            "change_threshold": 0.05
-        },
-        "clustering": {
+            "change_threshold": -0.01,
             "auto_parameters_dbscan": true,
+            "auto_parameters_dbscan_alpha": 0.75,
+            "eps": 0.3,
+            "min_samples": 15,
+            "image_mirror": false
+        },
+        "rockfall": {
+            "auto_parameters_m3c2": true,
+            "change_threshold": 0.05,
+            "auto_parameters_dbscan": true,
+            "auto_parameters_dbscan_alpha": 0.6,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": false

@@ -91,7 +91,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     ])
     x_clusters_proj, z_clusters_proj = project_to_wall_view(cluster_points_3d, wall_dir, center)
 
-    fig_width, fig_height = compute_plot_dimensions(x_clusters_proj, z_clusters_proj)
+    fig_width, fig_height = compute_plot_dimensions(x_bg_proj, z_bg_proj)
     beta = 1 if parameters["image_mirror"] else -1
 
     _print(f"Plot data: {len(diff_cluster)} points from {diff_cluster['rockfall_label'].max() + 1} DBSCAN clusters")

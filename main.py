@@ -36,7 +36,7 @@ log_path = utils.create_log(project_folder)
 utils.start_code(options, parameters, paths)
 
 if options['preprocessing']['transform_and_subsample']:
-    print(f"\nConverting PointClouds to XYZ and Subsampling with a spatial resolution: {parameters['subsampling']['spatial_resolution']} cm")
+    print(f"\nConverting PointClouds to XYZ and Subsampling with a spatial resolution: {parameters['subsampling']['spatial_resolution']} m")
     XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
     e1_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch1'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])
     e2_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch2'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])

@@ -101,7 +101,7 @@ def pca_fallback(points):
     return plane_coeffs, inliers, aligned_points
 
 
-def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, change_threshold,
+def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, change_threshold, deformation=False,
                   vegetation=True):
     x = diff_cluster['x'].values
     y = diff_cluster['y'].values if 'y' in diff_cluster.columns else np.zeros(len(diff_cluster))
@@ -210,20 +210,21 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             y_vals,
             apply_inversion=invert_background
         )
-        colors = 'silver'  # Solo color plata
+        colors = 'silver'
         file_name = ''
 
     def create_and_save_plot(include_labels=False):
         plt.figure(figsize=(fig_width, fig_height), dpi=300)
 
-        # Plotear background
         if vegetation:
-            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.75, marker='.', alpha=0.6)
+            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.85, marker='.', alpha=0.8)
         else:
-            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.75, marker='.', alpha=0.6)
+            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.85, marker='.', alpha=0.8)
 
-        # Plotear clusters
-        plt.scatter(beta * x_clusters, z_clusters, s=1.5, c='orange', marker='.', alpha=0.8)
+        if deformation:
+            plt.scatter(beta * x_clusters, z_clusters, s=1.25, c='cadetblue', marker='.', alpha=0.6)
+        else:
+            plt.scatter(beta * x_clusters, z_clusters, s=1.25, c='salmon', marker='.', alpha=0.6)
 
         if include_labels:
             grouped = diff_cluster.groupby('rockfall_label').agg({
@@ -250,7 +251,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         plt.tight_layout(pad=0.1)
         plt.subplots_adjust(top=0.95)
         plt.title(
-            f"{get_file_name(e1e2_change_path)} with DBSCAN (eps = {parameters['eps']:.2f}, minPts = {parameters['min_samples']}) and DiffThreshold = {change_threshold} m",
+            f"{get_file_name(e1e2_change_path)} | DBSCAN (eps = {parameters['eps']:.2f}, minPts = {parameters['min_samples']}) | DiffThreshold = {change_threshold} m",
             fontsize=20)
 
         suffix = '_labels' if include_labels else ''
@@ -304,7 +305,7 @@ def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deform
 
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
 
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, vegetation=True)
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, vegetation=False)
+    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=True)
+    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=False)
 
     return dbscan_path

@@ -17,7 +17,6 @@ def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation=False)
         auto_m3c2 = parameters['rockfall']['auto_parameters_m3c2']
 
     if auto_m3c2:
-        _print("Using auto M3C2 parameters")
         m3c2_file = update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path, deformation)
     else:
         _print("Using default M3C2 parameters")

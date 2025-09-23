@@ -37,7 +37,7 @@ utils.start_code(options, parameters, paths)
 
 if options['preprocessing']['transform_and_subsample']:
     print(f"\nConverting PointClouds to XYZ and Subsampling with a spatial resolution: {parameters['subsampling']['spatial_resolution']} m")
-    XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_sub')
+    XYZ_sub_folder = utils.create_folder(project_folder, '1_XYZ_Subsampled')
     e1_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch1'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])
     e2_sub_path = utils.transform_subsample(paths['CloudCompare'], paths['inputs']['epoch2'], XYZ_sub_folder, parameters['subsampling']['spatial_resolution'])
 else:
@@ -46,7 +46,7 @@ else:
 
 if options['preprocessing']['vegetation_filter']:
     print("\nData vegetation filtering")
-    canupo_folder = utils.create_folder(project_folder, '1.2_canupo')
+    canupo_folder = utils.create_folder(project_folder, '2_Vegetation_Filter')
     e1_canupo_path = cp.canupo_core(paths['CloudCompare'], e1_sub_path, paths['inputs']['canupo_file'], canupo_folder)
     e2_canupo_path = cp.canupo_core(paths['CloudCompare'], e2_sub_path, paths['inputs']['canupo_file'], canupo_folder)
 else:
@@ -55,7 +55,7 @@ else:
 
 if options['preprocessing']['outlier_filter']:
     print("\nStatistical outlier removal")
-    clean_folder = utils.create_folder(project_folder, '1.3_clean')
+    clean_folder = utils.create_folder(project_folder, '3_Outlier_Filter')
     e1_filtered_path = cl.outlier_filter(e1_canupo_path, parameters['outlier_filter']['neighbors'], parameters['outlier_filter']['std_ratio'], clean_folder)
     e2_filtered_path = cl.outlier_filter(e2_canupo_path, parameters['outlier_filter']['neighbors'], parameters['outlier_filter']['std_ratio'], clean_folder)
 else:
@@ -64,7 +64,7 @@ else:
 
 if options['registration']['fgr']:
     print("\nFast Global Registration")
-    registration_folder = utils.create_folder(project_folder, '2_registration')
+    registration_folder = utils.create_folder(project_folder, '4_Registration')
     e1_reg_path, e2_reg_path = reg.FGR_reg(e1_filtered_path, e2_filtered_path, registration_folder, parameters['registration']['fgr_iterations'], parameters['subsampling']['spatial_resolution'], options['registration']['fgr_visualization'])
 else:
     e1_reg_path = e1_filtered_path
@@ -72,32 +72,32 @@ else:
 
 if options['registration']['icp']:
     print("ICP registration")
-    registration_folder = utils.create_folder(project_folder, '2_registration')
+    registration_folder = utils.create_folder(project_folder, '4_Registration')
     e1_reg_path, e2_reg_path = reg.ICP_reg(e1_reg_path, e2_reg_path, paths['CloudCompare'], parameters['registration']['icp_iterations'])
 
 if options['deformation']['change_detection']:
     print("Pre-failure Deformation Computation")
-    def_m3c2_folder = utils.create_folder(project_folder, '3.1_Deformation_m3c2')
+    def_m3c2_folder = utils.create_folder(project_folder, '5.1_Deformation_Detection')
     e1e2_def_change_path, m3c2_def_result_path = m3c2.m3c2_core(e1_reg_path, e2_reg_path, def_m3c2_folder, paths, parameters, deformation=True)
 
 if options['deformation']['clustering']:
     print("\nPre-failure Deformation Clustering (DBSCAN)")
-    def_dbscan_folder = utils.create_folder(project_folder, '3.2_Deformation_dbscan')
+    def_dbscan_folder = utils.create_folder(project_folder, '5.2_Deformation_Clustering')
     e1ve2_DBSCAN_path = rf.dbscan(def_dbscan_folder, e1e2_def_change_path, m3c2_def_result_path, parameters,  deformation=True)
 
 if options['rockfall']['change_detection']:
     print("\nRockfall Computation")
-    m3c2_folder = utils.create_folder(project_folder, '4.1_Rockfall_m3c2')
+    m3c2_folder = utils.create_folder(project_folder, '6.1_Rockfall_Detection')
     e1e2_change_path, m3c2_result_path = m3c2.m3c2_core(e1_reg_path, e2_reg_path, m3c2_folder, paths, parameters)
 
 if options['rockfall']['clustering']:
     print("\nRockfall Clustering (DBSCAN)")
-    dbscan_folder = utils.create_folder(project_folder, '4.2_Rockfall_dbscan')
+    dbscan_folder = utils.create_folder(project_folder, '6.2_Rockfall_Clustering')
     e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters)
 
 if options['rockfall']['volume'] and e1ve2_DBSCAN_path:
     print("\nRockfall Volumes")
-    volume_folder = utils.create_folder(project_folder, '4.3_Rockfall_volume')
+    volume_folder = utils.create_folder(project_folder, '6.3_Rockfall_Volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
 
 elif options['analysis']['rockfall_volume']:

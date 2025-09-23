@@ -119,15 +119,13 @@ def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution, visu
     return e1_path_out, e2_path_out
 
 def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
-    _print(f"Running ICP algorithm to refine registration - {ite} iterations will be executed")
-
     e1_file = get_file_name(e1_path)
     e2_file = get_file_name(e2_path)
     e1_path_out = os.path.join(Path(e1_path).parent, e1_file + "__ICP.xyz")
     e2_path_out = os.path.join(Path(e2_path).parent, e2_file + "__ICP.xyz")
 
     for i in range(ite):
-        _print(f"Running ICP algorithm to refine registration (Iteration {i + 1} of {ite})")
+        print(f"Running ICP algorithm to refine registration (Iteration {i + 1} of {ite})")
         CC_ICP_Command = [CloudComapare_path,
                           "-VERBOSITY", "2", "-SILENT",
                           "-AUTO_SAVE", "OFF",

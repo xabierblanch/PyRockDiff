@@ -25,7 +25,7 @@ def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation=False)
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
 
-    print("M3C2 Algorithm")
+    print("\nM3C2 Algorithm")
 
     output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
@@ -52,7 +52,7 @@ def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation=False)
     return filtered_path, output
 
 def threshold_filter(threshold, pc):
-    print("Change-detection Filter")
+    print("\nChange-detection Filter")
     _print(f'Filtering Point Cloud: Difference threshold: {threshold}')
     if threshold < 0:
         pc_filtered = pc[pc['m3c2_diff'] < threshold]

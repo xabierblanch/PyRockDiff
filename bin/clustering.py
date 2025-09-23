@@ -12,7 +12,7 @@ from sklearn.neighbors import NearestNeighbors
 import os
 
 def dbscan_core(e1e2_change_path, eps, min_samples):
-    print("DBSCAN Algorithm")
+    print("\nDBSCAN Algorithm")
     diff_filter = loadPC(e1e2_change_path)
     _print(f'Running DBSCAN algorithm for clustering the {diff_filter.shape[0]} points')
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(diff_filter[['x','y','z']])
@@ -25,10 +25,9 @@ def dbscan_core(e1e2_change_path, eps, min_samples):
     _print(f'DBSCAN algorithm applied correctly: {diff_cluster.shape[0]} points in {diff_cluster["rockfall_label"].max()} clusters identified')
     return diff_cluster
 
-def ransac_plane_fit(points, n_iterations=1000, distance_threshold=0.05, min_inliers=100):
+def ransac_plane_fit(points, n_iterations=1000, distance_threshold=0.1, min_inliers=100):
     best_inliers = []
     best_plane = None
-
     n_points = len(points)
 
     for _ in range(n_iterations):
@@ -57,7 +56,8 @@ def ransac_plane_fit(points, n_iterations=1000, distance_threshold=0.05, min_inl
             best_plane = np.append(normal, d)
 
     if best_plane is None:
-        return pca_fallback(points)
+        plane_coeffs, inliers, _ = pca_fallback(points)
+        return plane_coeffs, inliers
 
     return best_plane, best_inliers
 
@@ -101,15 +101,19 @@ def pca_fallback(points):
     return plane_coeffs, inliers, aligned_points
 
 
-def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, change_threshold, deformation=False,
+def plot_clusters(diff_cluster, r, e1e2_change_path, dbscan_folder, parameters, change_threshold, deformation=False,
                   vegetation=True):
+
+    print('\nRendering Plots')
     x = diff_cluster['x'].values
     y = diff_cluster['y'].values if 'y' in diff_cluster.columns else np.zeros(len(diff_cluster))
     z = diff_cluster['z'].values
 
-    pc_background = loadPC(m3c2_result_path)
+    _print(f"Plot data: {len(diff_cluster)} points from {diff_cluster['rockfall_label'].max()+1} DBSCAN clusters")
+
+    pc_background = loadPC(e1e2_change_path)
     data_sorted = pc_background.sort_values(by='x')
-    subsampled_background = data_sorted.iloc[::15]
+    subsampled_background = data_sorted.iloc[::11]
 
     bg_points_3d = np.column_stack([
         subsampled_background['x'].values,
@@ -118,14 +122,17 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         subsampled_background['z'].values
     ])
 
-    plane_coeffs, inliers = ransac_plane_fit(
+    _print("Computing RANSAC plane fit")
+    plane_coeffs, inliers  = ransac_plane_fit(
         bg_points_3d,
         n_iterations=1000,
-        distance_threshold=0.05,
+        distance_threshold=0.10,
         min_inliers=max(100, len(bg_points_3d) // 20)
     )
 
     if plane_coeffs is None:
+        _print("RANSAC plane fit failed")
+        _print("Computing PCA plane fit")
         pca = PCA(n_components=3)
         centered = bg_points_3d - np.mean(bg_points_3d, axis=0)
         pca.fit(centered)
@@ -142,6 +149,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     xy_mean = np.mean(xy_bg_aligned, axis=0)
 
     def transform_points(x_vals, z_vals, y_vals=None, apply_inversion=False):
+
         if y_vals is None:
             y_vals = np.zeros_like(x_vals)
 
@@ -158,6 +166,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         return x_transformed, z_vals
 
     points_3d = np.column_stack([x, y, z])
+    _print(f'Transforming PointCloud for plotting')
     x_clusters, z_clusters = transform_points(x, z, y, apply_inversion=False)
 
     if np.mean(x_clusters) < 0:
@@ -182,13 +191,14 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         beta = -1
 
     if vegetation:
+        _print(f'Plotting results with vegetation background')
         project_path = Path(dbscan_folder).parent
         name = get_file_name(e1e2_change_path).split('_vs_')[0]
-        point_cloud = os.path.join(project_path, '1.2_canupo', name + '__canupo.xyz')
+        point_cloud = os.path.join(project_path, '2_Vegetation_Filter', name + '__canupo.xyz')
         if os.path.exists(point_cloud):
             canupo = loadPC(point_cloud, array=True)
             data_sorted = canupo[canupo[:, 0].argsort()]
-            subsampled_data = data_sorted[::15]
+            subsampled_data = data_sorted[::11]
             labels = subsampled_data[:, 3]
             colors = np.where(labels == 1, 'silver', 'green')
 
@@ -203,6 +213,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             _print("No vegetation files. This plot will be skipped")
             return
     else:
+        _print(f'Plotting results with standard background')
         y_vals = subsampled_background['y'].values if 'y' in subsampled_background.columns else None
         x_plot, z_plot = transform_points(
             subsampled_background['x'].values,
@@ -217,14 +228,14 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         plt.figure(figsize=(fig_width, fig_height), dpi=300)
 
         if vegetation:
-            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.85, marker='.', alpha=0.8)
+            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.8, marker='.', alpha=0.9)
         else:
-            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.85, marker='.', alpha=0.8)
+            plt.scatter(beta * x_plot, z_plot, color=colors, s=0.8, marker='.', alpha=0.9)
 
         if deformation:
-            plt.scatter(beta * x_clusters, z_clusters, s=1.25, c='cadetblue', marker='.', alpha=0.6)
+            plt.scatter(beta * x_clusters, z_clusters, s=1.1, c='cadetblue', marker='.', alpha=0.5)
         else:
-            plt.scatter(beta * x_clusters, z_clusters, s=1.25, c='salmon', marker='.', alpha=0.6)
+            plt.scatter(beta * x_clusters, z_clusters, s=1.1, c='salmon', marker='.', alpha=0.5)
 
         if include_labels:
             grouped = diff_cluster.groupby('rockfall_label').agg({
@@ -256,7 +267,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
 
         suffix = '_labels' if include_labels else ''
         output_filename = get_file_name(e1e2_change_path) + f'{file_name}{suffix}.jpg'
-
+        _print(f'Saving plot (including labels = {include_labels})...')
         plt.savefig(os.path.join(dbscan_folder, output_filename), dpi=300, pad_inches=0.1)
         plt.close()
 
@@ -305,7 +316,17 @@ def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deform
 
     dbscan_path = savePC(os.path.join(dbscan_folder, file_name + '__dbscan.xyz'), diff_cluster)
 
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=True)
-    plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=False)
+    project_path = Path(dbscan_folder).parent
+    name = get_file_name(e1e2_change_path).split('_vs_')[0]
+    point_cloud = os.path.join(project_path, '2_Vegetation_Filter', name + '__canupo.xyz')
+    if os.path.exists(point_cloud):
+        try:
+            plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=True)
+        except Exception as e:
+            _print(f"Error creating vegetation plot: {e}")
+    try:
+        plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold, deformation, vegetation=False)
+    except Exception as e:
+        _print(f"Error creating standard plot: {e}")
 
     return dbscan_path

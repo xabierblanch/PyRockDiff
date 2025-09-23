@@ -140,13 +140,8 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         z_clusters
     ])
     x_clusters_proj = compute_plane_projection(cluster_points_3d, plane_coeffs, xy_mean, pca_2d)
-
     x_bg_proj = compute_plane_projection(bg_points_3d, plane_coeffs, xy_mean, pca_2d)
     z_bg = subsampled_background['z'].values
-
-    if np.mean(x_clusters_proj) < 0:
-        x_clusters_proj = -x_clusters_proj
-        x_bg_proj = -x_bg_proj
 
     fig_width, fig_height = compute_plot_dimensions(x_clusters_proj, z_clusters)
     beta = 1 if parameters["image_mirror"] else -1
@@ -168,8 +163,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
                 y_val = row.get('y', 0) if 'y' in row else 0
                 label_points_3d = np.column_stack([[row['x']], [y_val], [row['z']]])
                 x_label_transformed = compute_plane_projection(label_points_3d, plane_coeffs, xy_mean, pca_2d)[0]
-                if np.mean(x_clusters_proj) < 0:
-                    x_label_transformed = -x_label_transformed
 
                 plt.text(float(beta * x_label_transformed) - 1, float(row['z']) + 1,
                          f"{int(row['rockfall_label'])}",
@@ -202,8 +195,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
 
             veg_points_3d = np.column_stack([subsampled_data[:, 0], subsampled_data[:, 1], subsampled_data[:, 2]])
             x_veg_proj = compute_plane_projection(veg_points_3d, plane_coeffs, xy_mean, pca_2d)
-            if np.mean(x_clusters_proj) < 0:
-                x_veg_proj = -x_veg_proj
 
             labels = subsampled_data[:, 3]
             colors = np.where(labels == 1, 'silver', 'green')
@@ -216,7 +207,6 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     _print('Plotting with standard background')
     create_and_save_plot(x_bg_proj, z_bg, 'silver', '', False)
     create_and_save_plot(x_bg_proj, z_bg, 'silver', '', True)
-
 
 def auto_param(m3c2_result_path, spatial_resolution, parameters):
     points = loadPC(m3c2_result_path)

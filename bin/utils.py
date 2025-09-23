@@ -120,7 +120,7 @@ def start_code(options, parameters, paths):
     warning = check_path(paths['inputs']['epoch2'], "epoch2", warning)
 
     # Check optional files based on what's enabled
-    if options['analysis']['m3c2_distance']:
+    if options['deformation']['change_detection'] or options['rockfall']['change_detection']:
         warning = check_path(paths['inputs']['m3c2_file'], "m3c2_param", warning)
     else:
         warning = check_path(paths['inputs']['m3c2_file'], "m3c2_param", warning, is_required=False)
@@ -137,7 +137,7 @@ def start_code(options, parameters, paths):
         user_response = input("\nDo you want to start the code with these parameters? [Y/n]: ").strip().lower()
         if user_response == "y" or user_response == "":
             print("\n" + "=" * 50 + "\n")
-            _print("Executing the code")
+            _print("Running the code")
             break
         elif user_response == "n":
             print("\nOperation canceled. Exiting the program")

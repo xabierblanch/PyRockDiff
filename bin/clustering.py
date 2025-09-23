@@ -12,6 +12,7 @@ from sklearn.neighbors import NearestNeighbors
 import os
 
 def dbscan_core(e1e2_change_path, eps, min_samples):
+    print("DBSCAN Algorithm")
     diff_filter = loadPC(e1e2_change_path)
     _print(f'Running DBSCAN algorithm for clustering the {diff_filter.shape[0]} points')
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(diff_filter[['x','y','z']])
@@ -276,7 +277,8 @@ def auto_param(m3c2_result_path, spatial_resolution):
     _print(f'DBSCAN min_points: {minpts:.0f}')
     return minpts, eps
 
-def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deformation):
+def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deformation=False):
+
     spatial_resolution = parameters['subsampling']['spatial_resolution']
 
     if deformation:
@@ -289,7 +291,7 @@ def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deform
     file_name = get_file_name(e1e2_change_path)
 
     if parameters['auto_parameters_dbscan']:
-        print("\nAuto DBSCAN parameters computation")
+        print("Auto DBSCAN parameters computation")
         parameters['min_samples'], parameters['eps'] = auto_param(m3c2_result_path, spatial_resolution)
 
     diff_cluster = dbscan_core(e1e2_change_path, parameters['eps'], parameters['min_samples'])

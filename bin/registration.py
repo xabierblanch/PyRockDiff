@@ -139,15 +139,9 @@ def ICP_reg(e1_path, e2_path, CloudComapare_path, ite):
                           "-SAVE_CLOUDS", "FILE", f'"{e1_path_out}" "{e2_path_out}"']
         try:
             run_command(CC_ICP_Command)
-            _print(f"ICP algorithm - Iteration {i + 1} of {ite} completed successfully")
+            _print(f"ICP algorithm - Iteration {i + 1} of {ite} completed successfully\n")
         except:
             _print(f"ICP command failed with exit code")
-
-        # try:
-        #     subprocess.run(CC_ICP_Command, check=True)
-        #     _print(f"ICP algorithm - Iteration {i+1} of {ite} completed successfully")
-        # except subprocess.CalledProcessError as e:
-        #     _print(f"ICP command failed with exit code {e.returncode}")
 
         e1_path = e1_path_out
         e2_path = e2_path_out

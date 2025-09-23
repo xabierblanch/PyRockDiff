@@ -1,7 +1,7 @@
 import os
 from bin.utils import get_file_name, _print, loadPC, savePC, run_command
 
-def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation):
+def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation=False):
 
     CloudComapare_path = paths['CloudCompare']
     m3c2_param = paths['inputs']['m3c2_file']
@@ -26,7 +26,7 @@ def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation):
     epoch1_name = get_file_name(epoch1_path)
     epoch2_name = get_file_name(epoch2_path)
 
-    _print("Running M3C2 algorithm to compute the differences")
+    print("M3C2 Algorithm")
 
     output = os.path.join(m3c2_path, epoch1_name + "_vs_" + epoch2_name + "__m3c2.xyz")
 
@@ -53,6 +53,7 @@ def m3c2_core(e1_path, e2_path, m3c2_path, paths, parameters, deformation):
     return filtered_path, output
 
 def threshold_filter(threshold, pc):
+    print("Change-detection Filter")
     _print(f'Filtering Point Cloud: Difference threshold: {threshold}')
     if threshold < 0:
         pc_filtered = pc[pc['m3c2_diff'] < threshold]
@@ -62,12 +63,13 @@ def threshold_filter(threshold, pc):
     return pc_filtered
 
 def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path, deformation):
+    print("Auto M3C2 parameters computation")
     if deformation:
         normal_scale = round(spatial_resolution * 3, 2)
-        NormalMinScale = round(spatial_resolution * 4, 2)
+        NormalMinScale = round(spatial_resolution * 5, 2)
         NormalStep = round(spatial_resolution, 2)
         NormalMaxScale = round(spatial_resolution * 10, 2)
-        search_scale = spatial_resolution * 8
+        search_scale = spatial_resolution * 9
         _print(f"New NormalScale: {normal_scale}")
         _print(f"New SearchScale: {search_scale}")
 
@@ -75,8 +77,8 @@ def update_m3c2_config(m3c2_param, spatial_resolution, m3c2_path, deformation):
         normal_scale = round(spatial_resolution * 3, 2)
         NormalMinScale = round(spatial_resolution * 2, 2)
         NormalStep = round(spatial_resolution, 2)
-        NormalMaxScale = round(spatial_resolution * 5, 2)
-        search_scale = spatial_resolution * 4
+        NormalMaxScale = round(spatial_resolution * 10, 2)
+        search_scale = spatial_resolution * 5
         _print(f"New NormalScale: {normal_scale}")
         _print(f"New SearchScale: {search_scale}")
 

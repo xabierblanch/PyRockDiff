@@ -27,74 +27,33 @@ def dbscan_core(e1e2_change_path, eps, min_samples):
     return diff_cluster
 
 
-def ransac_plane_fit(points, n_iterations=1000, distance_threshold=0.1, min_inliers=100):
-    best_inliers = []
-    best_plane = None
-    n_points = len(points)
-
-    for _ in range(n_iterations):
-        sample_indices = np.random.choice(n_points, 3, replace=False)
-        sample_points = points[sample_indices]
-
-        v1 = sample_points[1] - sample_points[0]
-        v2 = sample_points[2] - sample_points[0]
-        normal = np.cross(v1, v2)
-
-        if np.linalg.norm(normal) < 1e-6:
-            continue
-
-        normal = normal / np.linalg.norm(normal)
-        d = -np.dot(normal, sample_points[0])
-        distances = np.abs(np.dot(points, normal) + d)
-        inliers = np.where(distances < distance_threshold)[0]
-
-        if len(inliers) > len(best_inliers) and len(inliers) >= min_inliers:
-            best_inliers = inliers
-            best_plane = np.append(normal, d)
-
-    if best_plane is None:
-        return pca_plane_fallback(points)
-
-    return best_plane, best_inliers
-
-
-def pca_plane_fallback(points):
-    _print("RANSAC failed, using PCA fallback")
+def find_wall_plane(points):
     pca = PCA(n_components=3)
-    centered_points = points - np.mean(points, axis=0)
-    pca.fit(centered_points)
+    pca.fit(points)
+
     normal = pca.components_[2]
-    d = -np.dot(normal, np.mean(points, axis=0))
-    plane_coeffs = np.append(normal, d)
-    inliers = np.arange(len(points))
-    return plane_coeffs, inliers
+    if normal[2] < 0:
+        normal = -normal
 
-
-def align_to_plane(points, plane_coeffs):
-    [a, b, c, d] = plane_coeffs
-    normal = np.array([a, b, c])
-    normal = normal / np.linalg.norm(normal)
+    center = np.mean(points, axis=0)
 
     z_axis = np.array([0, 0, 1])
-    v = np.cross(normal, z_axis)
-    s = np.linalg.norm(v)
-    c_dot = np.dot(normal, z_axis)
+    wall_dir = np.cross(normal, z_axis)
+    wall_dir = wall_dir / np.linalg.norm(wall_dir)
 
-    if s < 1e-6:
-        R = np.eye(3)
-    else:
-        vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
-        R = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c_dot) / (s ** 2))
+    if np.dot(wall_dir, [1, 0, 0]) < 0:
+        wall_dir = -wall_dir
 
-    return np.dot(points, R.T)
+    return wall_dir, center
 
 
-def compute_plane_projection(points_3d, plane_coeffs, xy_mean, pca_2d):
-    pts_aligned = align_to_plane(points_3d, plane_coeffs)
-    xy_pts = pts_aligned[:, :2]
-    xy_centered = xy_pts - xy_mean
-    xy_rotated = pca_2d.transform(xy_centered)
-    return xy_rotated[:, 0]
+def project_to_wall_view(points, wall_dir, center):
+    centered_points = points - center
+
+    x_wall = np.dot(centered_points, wall_dir)
+    z_wall = centered_points[:, 2]
+
+    return x_wall, z_wall
 
 
 def compute_plot_dimensions(x_data, z_data, fixed_max=20):
@@ -109,10 +68,6 @@ def compute_plot_dimensions(x_data, z_data, fixed_max=20):
 def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder,
                   parameters, change_threshold, deformation=False, vegetation=True):
     print('\nRendering Plots')
-    x_clusters = diff_cluster['x'].values
-    z_clusters = diff_cluster['z'].values
-
-    _print(f"Plot data: {len(diff_cluster)} points from {diff_cluster['rockfall_label'].max() + 1} DBSCAN clusters")
 
     pc_background = loadPC(m3c2_result_path)
     subsampled_background = pc_background.sort_values(by='x').iloc[::11]
@@ -124,27 +79,22 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         subsampled_background['z'].values
     ])
 
-    _print("Computing RANSAC plane fit")
-    plane_coeffs, inliers = ransac_plane_fit(bg_points_3d, n_iterations=1000, distance_threshold=0.10)
+    _print("Finding wall plane orientation")
+    wall_dir, center = find_wall_plane(bg_points_3d)
 
-    bg_aligned = align_to_plane(bg_points_3d, plane_coeffs)
-    xy_bg_aligned = bg_aligned[:, :2]
-    pca_2d = PCA(n_components=2)
-    xy_centered = xy_bg_aligned - np.mean(xy_bg_aligned, axis=0)
-    pca_2d.fit(xy_centered)
-    xy_mean = np.mean(xy_bg_aligned, axis=0)
+    x_bg_proj, z_bg_proj = project_to_wall_view(bg_points_3d, wall_dir, center)
 
     cluster_points_3d = np.column_stack([
-        x_clusters,
-        diff_cluster['y'].values if 'y' in diff_cluster.columns else np.zeros(len(x_clusters)),
-        z_clusters
+        diff_cluster['x'].values,
+        diff_cluster['y'].values if 'y' in diff_cluster.columns else np.zeros(len(diff_cluster)),
+        diff_cluster['z'].values
     ])
-    x_clusters_proj = compute_plane_projection(cluster_points_3d, plane_coeffs, xy_mean, pca_2d)
-    x_bg_proj = compute_plane_projection(bg_points_3d, plane_coeffs, xy_mean, pca_2d)
-    z_bg = subsampled_background['z'].values
+    x_clusters_proj, z_clusters_proj = project_to_wall_view(cluster_points_3d, wall_dir, center)
 
-    fig_width, fig_height = compute_plot_dimensions(x_clusters_proj, z_clusters)
+    fig_width, fig_height = compute_plot_dimensions(x_clusters_proj, z_clusters_proj)
     beta = 1 if parameters["image_mirror"] else -1
+
+    _print(f"Plot data: {len(diff_cluster)} points from {diff_cluster['rockfall_label'].max() + 1} DBSCAN clusters")
 
     def create_and_save_plot(x_plot, z_plot, colors, file_suffix, include_labels=False):
         plt.figure(figsize=(fig_width, fig_height), dpi=300)
@@ -152,7 +102,7 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
         plt.scatter(beta * x_plot, z_plot, color=colors, s=0.8, marker='.', alpha=0.9)
 
         cluster_color = 'cadetblue' if deformation else 'salmon'
-        plt.scatter(beta * x_clusters_proj, z_clusters, s=1.1, c=cluster_color, marker='.', alpha=0.8)
+        plt.scatter(beta * x_clusters_proj, z_clusters_proj, s=1.1, c=cluster_color, marker='.', alpha=0.8)
 
         if include_labels:
             grouped = diff_cluster.groupby('rockfall_label').agg({
@@ -160,11 +110,10 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             }).reset_index()
 
             for _, row in grouped.iterrows():
-                y_val = row.get('y', 0) if 'y' in row else 0
-                label_points_3d = np.column_stack([[row['x']], [y_val], [row['z']]])
-                x_label_transformed = compute_plane_projection(label_points_3d, plane_coeffs, xy_mean, pca_2d)[0]
+                label_point_3d = np.array([[row['x'], row.get('y', 0), row['z']]])
+                x_label_proj, z_label_proj = project_to_wall_view(label_point_3d, wall_dir, center)
 
-                plt.text(float(beta * x_label_transformed) - 1, float(row['z']) + 1,
+                plt.text(float(beta * x_label_proj[0]) - 1, float(z_label_proj[0]) + 1,
                          f"{int(row['rockfall_label'])}",
                          fontsize=13, ha='center', va='center',
                          bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.7))
@@ -194,19 +143,20 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
             subsampled_data = canupo[canupo[:, 0].argsort()][::11]
 
             veg_points_3d = np.column_stack([subsampled_data[:, 0], subsampled_data[:, 1], subsampled_data[:, 2]])
-            x_veg_proj = compute_plane_projection(veg_points_3d, plane_coeffs, xy_mean, pca_2d)
+            x_veg_proj, z_veg_proj = project_to_wall_view(veg_points_3d, wall_dir, center)
 
             labels = subsampled_data[:, 3]
             colors = np.where(labels == 1, 'silver', 'green')
 
-            create_and_save_plot(x_veg_proj, subsampled_data[:, 2], colors, '_veg', False)
-            create_and_save_plot(x_veg_proj, subsampled_data[:, 2], colors, '_veg', True)
+            create_and_save_plot(x_veg_proj, z_veg_proj, colors, '_veg', False)
+            create_and_save_plot(x_veg_proj, z_veg_proj, colors, '_veg', True)
         else:
             _print("No vegetation files found")
 
     _print('Plotting with standard background')
-    create_and_save_plot(x_bg_proj, z_bg, 'silver', '', False)
-    create_and_save_plot(x_bg_proj, z_bg, 'silver', '', True)
+    create_and_save_plot(x_bg_proj, z_bg_proj, 'silver', '', False)
+    create_and_save_plot(x_bg_proj, z_bg_proj, 'silver', '', True)
+
 
 def auto_param(m3c2_result_path, spatial_resolution, parameters):
     points = loadPC(m3c2_result_path)

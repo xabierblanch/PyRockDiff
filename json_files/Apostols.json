@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Detall_Cinglera\\210712.xyz",
-            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Detall_Cinglera\\240424.xyz",
+            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Apostols\\190711_Apostols.xyz",
+            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Apostols\\240423_Apostols.xyz",
             "m3c2_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },
@@ -21,8 +21,8 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": false,
-            "vegetation_filter": false,
+            "transform_and_subsample": true,
+            "vegetation_filter": true,
             "outlier_filter": true
         },
         "registration": {

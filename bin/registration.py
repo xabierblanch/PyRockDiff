@@ -108,7 +108,7 @@ def FGR_reg(e1_path, e2_path, registration_folder, ite, spatial_resolution, visu
         now = datetime.datetime.now()
         formatted_date = now.strftime("%Y-%m-%d")
         formatted_time = now.strftime("%Hh%M")
-        transformation_matrix_path = os.path.join(registration_folder, e2_name + f'__FGR_REGISTRATION_MATRIX_{formatted_date}_{formatted_time}.txt')
+        transformation_matrix_path = os.path.join(registration_folder, e2_name + f'__FGR_REGISTRATION_MATRIX_ITER{i+1}_{formatted_date}_{formatted_time}.txt')
         np.savetxt(transformation_matrix_path, result_fast.transformation, fmt='%.6f')  # Guarda la matriz con 6 decimales
 
         e1_path = e1_path_out

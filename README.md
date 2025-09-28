@@ -95,7 +95,7 @@ All point clouds must share the same coordinate reference system (CRS) and units
 - Cropping the point clouds to the zone of interest
 
 ![Preprocessing Example](bin/Cleaning.jpg)
-***
+<hr>
 
 </details>
 
@@ -128,7 +128,7 @@ The code follows a sequential execution pattern, but it is flexible. You can sta
 PyRockDiff always starts from two point-cloud epochs (`epoch1`, `epoch2`).  
 If you skip any preprocessing or registration step, you must supply the corresponding intermediate files yourself.
 
-***
+<hr>
 
 </details>
 
@@ -136,7 +136,9 @@ If you skip any preprocessing or registration step, you must supply the correspo
 
 <summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation</strong></summary>
 
-***
+This feature is currently under development and will be available in future versions.
+
+<hr>
 
 </details>
 
@@ -194,8 +196,6 @@ The pipeline generates the following folder and file structure in the output dir
 - The log file and a copy of the configuration used are stored at the root of the output directory.
 </details>
 
-
-
 ## 🔧 Function Reference
 
 The following **functions** can be enabled or configured in the JSON file. Each section provides a detailed description of the function's purpose, parameters, and usage instructions.
@@ -223,7 +223,7 @@ The following **functions** can be enabled or configured in the JSON file. Each 
 - **`transform_and_subsample`**: Toggle to enable or disable the transformation and subsampling step.
 - **`spatial_resolution`**: Defines minimum spacing (in meters) between points for spatial subsampling.
 
-***
+<hr>
 
 </details>
 
@@ -260,7 +260,7 @@ The pipeline automatically extracts Class 1 points as rock surfaces for geomorph
 
 **⚠️ The `.prm` file must be trained specifically for your study area to ensure optimal vegetation filtering and classification performance.**
 
-***
+<hr>
 
 </details>
 
@@ -296,7 +296,7 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 - Uses Open3D's `remove_statistical_outlier()` implementation
 - Typical `std_ratio` values: 1.0 (aggressive) to 2.0 (conservative)
 
-***
+<hr>
 
 </details>
 
@@ -342,7 +342,7 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 - Voxel sizes are calculated from `spatial_resolution` - no manual voxel parameter needed
 - Set `fgr_visualization: false` for headless/batch processing environments
 
-***
+<hr>
 
 </details>
 
@@ -380,7 +380,7 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 - ICP is computationally intensive; limit iterations to 2-3 for efficiency
 - Works best after good initial alignment from FGR
 
-***
+<hr>
 
 </details>
 
@@ -423,7 +423,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
 
-***
+<hr>
 
 </details>
 
@@ -463,7 +463,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - Cluster labels are assigned sequentially starting from 0
 - Noise points (label = -1) are automatically filtered from results
 
-***
+<hr>
 
 </details>
 
@@ -514,7 +514,7 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
 
-***
+<hr>
 
 </details>
 
@@ -573,7 +573,7 @@ All main processing steps can be enabled or disabled via boolean flags. This all
 
 **Warning:** The input files must be properly prepared for each enabled processing stage. Enabling a step without the required input data or pre-processing may result in errors or incomplete results.
 
-***
+<hr>
 
 </details>
 
@@ -605,7 +605,7 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 |----------------|---------------------------------------|-----------------------------------------------|
 | `CloudCompare_path` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
 
-***
+<hr>
 
 </details>
 

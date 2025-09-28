@@ -100,7 +100,7 @@ if options['rockfall']['volume'] and e1ve2_DBSCAN_path:
     volume_folder = utils.create_folder(project_folder, '6.3_Rockfall_Volume')
     volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
 
-elif options['analysis']['rockfall_volume']:
+elif options['rockfall']['volume']:
     print("\n\033[1mNo clusters detected — volume calculation skipped.\033[0m")
 
 print("\n" + "="*50)

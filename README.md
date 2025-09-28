@@ -99,6 +99,8 @@ All point clouds must share the same coordinate reference system (CRS) and units
 - Cropping the point clouds to the zone of interest
 
 ![Preprocessing Example](bin/Cleaning.jpg)
+![Preprocessing Example](bin/Overlap.jpg)
+
 <hr>
 
 </details>

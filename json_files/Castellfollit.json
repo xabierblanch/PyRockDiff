@@ -10,8 +10,8 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Detall_Cinglera\\210712.xyz",
-            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data\\Detall_Cinglera\\240424.xyz",
+            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\240424_UPC.xyz",
+            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\250212_UPC.xyz",
             "m3c2_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\canupo_Degotalls.prm"
         },
@@ -21,7 +21,7 @@
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": false,
+            "transform_and_subsample": true,
             "vegetation_filter": false,
             "outlier_filter": true
         },
@@ -43,7 +43,7 @@
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.03
+            "spatial_resolution": 0.04
         },
         "registration": {
             "fgr_iterations": 2,

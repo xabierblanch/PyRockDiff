@@ -10,19 +10,19 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\240424_UPC.xyz",
-            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\250212_UPC.xyz",
-            "m3c2_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\m3c2_params.txt",
-            "canupo_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\canupo_Degotalls.prm"
+            "epoch1": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\mod\\240424_Castellfollit.las",
+            "epoch2": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\mod\\250212_Castellfollit.las",
+            "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
+            "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Castellfollit.prm"
         },
-        "output_folder": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2",
+        "output_folder": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
     "options": {
         "preprocessing": {
             "transform_and_subsample": true,
-            "vegetation_filter": false,
+            "vegetation_filter": true,
             "outlier_filter": true
         },
         "registration": {

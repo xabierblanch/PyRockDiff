@@ -55,18 +55,18 @@
         },
         "deformation": {
             "auto_parameters_m3c2": true,
-            "change_threshold": -0.01,
+            "change_threshold": -0.02,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.5,
+            "auto_parameters_dbscan_alpha": 0.25,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": true
         },
         "rockfall": {
             "auto_parameters_m3c2": true,
-            "change_threshold": 0.05,
+            "change_threshold": 0.03,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.5,
+            "auto_parameters_dbscan_alpha": 0.25,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": true

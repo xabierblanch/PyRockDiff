@@ -15,7 +15,7 @@
             "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
             "canupo_file": ""
         },
-        "output_folder": "C:\\Users\\Xabier\\Desktop\\PyRockDiff_test_v2\\outputs",
+        "output_folder": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
@@ -55,8 +55,9 @@
         },
         "deformation": {
             "auto_parameters_m3c2": true,
-            "change_threshold": -0.01,
+            "change_threshold": -0.005,
             "auto_parameters_dbscan": true,
+            "auto_parameters_dbscan_alpha": 0.5,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": false
@@ -65,6 +66,7 @@
             "auto_parameters_m3c2": true,
             "change_threshold": 0.05,
             "auto_parameters_dbscan": true,
+            "auto_parameters_dbscan_alpha": 0.5,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": false

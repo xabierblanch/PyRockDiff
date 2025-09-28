@@ -10,7 +10,7 @@
 - **User-Friendly Configuration**: Designed for ease of use, even without programming experience.
 - **Preprocessing**: Cleans point clouds by removing noise and vegetation, and aligns them using robust registration algorithms.
 - **Change Detection**: Identifies differences between two epochs using the M3C2 algorithm.
-- **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes using alpha-shape triangulation
+- **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes using alpha-shape triangulation.
 
 ## 📖 Overview
 <details>
@@ -187,7 +187,7 @@ The pipeline generates the following folder and file structure in the output dir
 ├── log.txt                             # Complete processing log
 └── config_used.json                    # Copy of configuration file used
 
-```````
+```
 
 - Each folder corresponds to a processing stage.
 - Intermediate and final results are saved in clearly named subfolders.
@@ -201,7 +201,7 @@ The pipeline generates the following folder and file structure in the output dir
 The following **functions** can be enabled or configured in the JSON file. Each section provides a detailed description of the function's purpose, parameters, and usage instructions.
 
 <details>
-<summary>Transform and Subsample</summary>
+<summary><strong style="font-size:1.2em;">Transform and Subsample</strong></summary>
 
 **Transforms** and **Spatially Subsamples** the point clouds using CloudCompare. This step accomplishes two primary goals: converting input files to `.xyz` ASCII format and reducing point density through spatial subsampling.
 
@@ -228,7 +228,7 @@ The following **functions** can be enabled or configured in the JSON file. Each 
 
 <details>
 
-<summary>Vegetation Filter</summary>
+<summary><strong style="font-size:1.2em;">Vegetation Filter </strong></summary>
 
 Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). CANUPO classifies point clouds by analyzing 3D geometric features at multiple scales to automatically separate vegetation from rock surfaces.
 
@@ -265,7 +265,7 @@ The pipeline automatically extracts Class 1 points as rock surfaces for geomorph
 
 <details>
 
-<summary>Statistical Outlier Filter</summary>
+<summary><strong style="font-size:1.2em;">Statistical Outlier Filter </strong></summary>
 
 Applies a **Statistical Outlier Filter** to remove noise and spurious points from the point cloud using Open3D's statistical outlier removal algorithm, enhancing data quality for downstream analysis.
 
@@ -301,7 +301,7 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 
 <details>
 
-<summary>Fast Global Registration (FGR)</summary>
+<summary><strong style="font-size:1.2em;">Fast Global Registration (FGR)</strong></summary>
 
 Performs **Fast Global Registration (FGR)** to quickly align two point clouds based on geometric feature descriptors. This method provides robust initial alignment that serves as a starting point for more precise registration methods.
 
@@ -347,7 +347,7 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 
 <details>
 
-<summary>Iterative Closest Point (ICP) Registration</summary>
+<summary><strong style="font-size:1.2em;">Iterative Closest Point (ICP) Registration</strong></summary>
 
 Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment precision of two point clouds after initial registration (typically FGR). ICP provides high-precision refinement by iteratively minimizing point-to-point distances.
 
@@ -384,7 +384,7 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 </details>
 
 <details>
-<summary>M3C2 Change Detection</summary>
+<summary><strong style="font-size:1.2em;">M3C2 Change Detection</strong></summary>
 
 Computes precise **distances** between two point clouds using the [M3C2 algorithm](https://www.sciencedirect.com/science/article/abs/pii/S0924271613001184) (Lague et al., 2013). M3C2 measures distance changes along surface normals, providing robust change detection for geomorphological analysis.
 
@@ -428,7 +428,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 <details>
 
-<summary>DBSCAN Clustering</summary>
+<summary><strong style="font-size:1.2em;">DBSCAN Clustering</strong></summary>
 
 **Identifies Clusters** of significant surface changes (rockfalls) using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
 
@@ -468,7 +468,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 <details>
 
-<summary>Volume Estimation</summary>
+<summary><strong style="font-size:1.2em;">Volume Estimation</strong></summary>
 
 Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape triangulation](https://en.wikipedia.org/wiki/Alpha_shape), a computational geometry method that generalizes convex hulls to capture concave geometries for volume calculations.
 

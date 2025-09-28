@@ -2,15 +2,15 @@
 
 ## 🚀 Quick Overview
 
-**PyRockDiff** is a Python-based pipeline that automates the comparison of two point clouds obtained from LiDAR or Structure-from-Motion (SfM), specifically targeting rock surfaces. It enables efficient geological change analysis with minimal user input.
+**PyRockDiff** is a Python-based pipeline that automates the comparison of two point clouds obtained from LiDAR or Structure-from-Motion (SfM), specifically targeting rock surfaces. It enables efficient change analysis with minimal user input.
 
 ### 🔑 Key Features
 
 - **Automation**: Fully automated workflow requiring only a single configuration file.
 - **User-Friendly Configuration**: Designed for ease of use, even without programming experience.
 - **Preprocessing**: Cleans point clouds by removing noise and vegetation, and aligns them using robust registration algorithms.
-- **Change Detection**: Identifies differences between two epochs using the M3C2 algorithm.
-- **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes using alpha-shape triangulation.
+- **Dual Change Detection**: Identifies differences between two epochs using the M3C2 algorithm (deformation and rockfalls).
+- **Clustering & Volume Calculation**: Detects and isolates changes with DBSCAN, and estimates volumes for rockfalls using alpha-shape triangulation.
 
 ## 📖 Overview
 <details>
@@ -20,7 +20,9 @@
 
 The process begins with essential pre-processing steps such as noise removal and vegetation filtering. It then aligns the point clouds using Fast Global Registration (FGR) and Iterative Closest Point (ICP) algorithms.
 
-Change detection is performed using the M3C2 algorithm, followed by clustering of significant changes with DBSCAN. Finally, the volume of detected rockfalls is estimated using alpha-shape triangulation.
+The pipeline offers two change-detection applications: **pre-failure deformation detection** and **rockfall identification** with volume quantification.
+
+In both cases, change detection is performed using the M3C2 algorithm, followed by clustering of significant changes with DBSCAN. Finally, the volume of detected rockfalls is estimated using alpha-shape triangulation.
 
 The pipeline is fully automated and user-friendly, requiring minimal input through a configuration file. It is designed to be accessible to users without programming experience and leverages open-source tools to promote transparency and collaboration.
 </details>
@@ -105,24 +107,26 @@ All point clouds must share the same coordinate reference system (CRS) and units
 
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
-1. **Preprocessing**  
-   - Transformation and subsampling (`transform_and_subsample`)  
-   - Vegetation_filter (`vegetation_filter`)  
-   - Statistical cleaning (`outlier_filter`)  
+
+1. **Transformation and subsampling** (`transform_and_subsample`)  
+2. **Vegetation_filter** (`vegetation_filter`)  
+3. **Statistical cleaning** (`outlier_filter`)  
 
 
-2. **Registration**  
+4. **Registration**  
    - FGR (`fgr`)  
    - ICP (`icp`)  
 
 
-3. **Change Detection**  
-   - M3C2 (`m3c2_distance`)  
-   - DBSCAN clustering (`dbscan_clustering`)
+5. **Deformation Detection (Pre-failure)**
+   - 5.1 M3C2 change detection (`deformation.change_detection`)
+   - 5.2 DBSCAN clustering (`deformation.clustering`)
+   
 
-
-4. **Volume Computation**
-   - Volume Estimation (`volume_calculation`)
+6. **Rockfall Detection (Post-failure)**  
+   - 6.1 M3C2 change detection (`rockfall.change_detection`)
+   - 6.2 DBSCAN clustering (`rockfall.clustering`)
+   - 6.3 Volume estimation (`rockfall.volume`)
 
 **Note**  
 PyRockDiff always starts from two point-cloud epochs (`epoch1`, `epoch2`).  
@@ -136,7 +140,29 @@ If you skip any preprocessing or registration step, you must supply the correspo
 
 <summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation</strong></summary>
 
-This feature is currently under development and will be available in future versions.
+PyRockDiff implements **two parallel analysis workflows** designed to detect rockfalls and pre-failure deformation, each with specific parameter configurations optimized for the different analysis processes.
+
+### **⤵️ Rockfall Detection (Post-failure)**
+
+Identifies completed rockfall events where material has already detached from the source rock face.
+
+**Key Parameters:**
+- **Change Threshold:** `e.g.: 0.05 meters` (positive values detect surface lowering/material removal)
+- **M3C2 Search Scale:** `5× spatial_resolution` (smaller search radius for higher sensitivity in rockfall boundary delineation)
+- **Output Folders:** `6.1_Rockfall_Detection`, `6.2_Rockfall_Clustering`, `6.3_Rockfall_Volume`
+- **Final Output:** Calculated volumes for each identified cluster
+
+### **⤴️ Prefailure Deformation Detection (Pre-failure)**
+
+Detects subtle surface movements and micro-deformations that may precede rockfall events, enabling early warning systems.
+
+**Key Parameters:**
+- **Change Threshold:** `e.g.: -0.01 meters` (negative values detect surface displacement/movement)
+- **M3C2 Search Scale:** `9× spatial_resolution` (larger search radius to smooth difference values, enabling detection of heterogeneous deformation zones that might otherwise be classified as noise)
+- **Output Folders:** `5.1_Deformation_Detection`, `5.2_Deformation_Clustering`
+- **Final Output:** Identified deformation clusters
+
+The activation of each workflow depends on the configuration settings in the .json file.
 
 <hr>
 
@@ -151,43 +177,53 @@ The pipeline generates the following folder and file structure in the output dir
 📂 output_directory/
 
 ├── 1_XYZ_sub/
-│   ├── epoch1_sub.xyz                  # Transformed & subsampled epoch1
-│   └── epoch2_sub.xyz                  # Transformed & subsampled epoch2
+│ ├── epoch1_sub.xyz                                # Transformed & subsampled epoch1
+│ └── epoch2_sub.xyz                                # Transformed & subsampled epoch2
 │
-├── 1.2_canupo/
-│   ├── epoch1_canupo.xyz               # Vegetation-filtered epoch1 (rock points only)
-│   └── epoch2_canupo.xyz               # Vegetation-filtered epoch2 (rock points only)
+├── 2_Vegetation_Filter/
+│ ├── epoch1__canupo.xyz                            # Vegetation-filtered epoch1 (rock points only)
+│ └── epoch2__canupo.xyz                            # Vegetation-filtered epoch2 (rock points only)
 │
-├── 1.3_clean/
-│   ├── epoch1_clean.xyz                # Statistical outlier-filtered epoch1
-│   └── epoch2_clean.xyz                # Statistical outlier-filtered epoch2
+├── 3_Clean/
+│ ├── epoch1_clean.xyz                              # Statistical outlier-filtered epoch1
+│ └── epoch2_clean.xyz                              # Statistical outlier-filtered epoch2
 │
-├── 2_registration/
-│   ├── epoch1_reg.xyz                  # Registered epoch1
-│   ├── epoch2_reg.xyz                  # Registered epoch2
-│   └── *_REGISTRATION_MATRIX_*.txt     # Transformation matrices (timestamped)
+├── 4_Registration/
+│ ├── epoch1_reg.xyz                                # Registered epoch1
+│ ├── epoch2_reg.xyz                                # Registered epoch2
+│ └── REGISTRATION_MATRIX.txt                       # Transformation matrices (timestamped)
 │
-├── 3_change_detection/
-│   ├── epoch1_vs_epoch2_m3c2.xyz       # Full M3C2 results
-│   ├── epoch1_vs_epoch2_threshold.xyz  # Filtered significant changes only
-│   └── m3c2_auto_params.txt            # Auto-generated M3C2 parameters (if enabled)
+├── 5.1_Deformation_Detection/
+│ ├── epoch1_vs_epoch2__m3c2.xyz                    # M3C2 results (deformation)
+│ ├── epoch1_vs_epoch2__threshold.xyz               # Filtered deformation changes only
+│ └── m3c2_auto_params.txt                          # Auto-generated M3C2 parameters (if enabled)
 │
-├── 4_dbscan/
-│   ├── epoch1_vs_epoch2_dbscan.xyz     # DBSCAN clustered rockfall points
-│   ├── epoch1_vs_epoch2.jpg            # Cluster visualization (no vegetation)
-│   └── epoch1_vs_epoch2_veg.jpg        # Cluster visualization (with vegetation context)
+├── 5.2_Deformation_Clustering/
+│ ├── epoch1_vs_epoch2__dbscan.xyz                  # DBSCAN clustered deformation points
+│ ├── epoch1_vs_epoch2.jpg                          # Deformation cluster visualization
+│ └── epoch1_vs_epoch2_veg.jpg                      # Deformation cluster visualization (with vegetation context)
 │
-├── 5_volume/
-│   ├── epoch1_vs_epoch2__db.csv        # Volume database with cluster statistics
-│   ├── vol_plots/                      # 2D alpha-shape visualizations
-│   │   ├── epoch1_vs_epoch2_0_Vol.png      # Cluster 0 alpha-shape plot
-│   │   └── epoch1_vs_epoch2_N_Vol.png      # Additional clusters...
-│   └── 3D_plots/                       # 3D surface comparison plots
-│       ├── epoch1_vs_epoch2_0_3D.png       # Cluster 0 3D surface comparison
-│       └── epoch1_vs_epoch2_N_3D.png       # Additional clusters...
+├── 6.1_Rockfall_Detection/
+│ ├── epoch1_vs_epoch2__m3c2.xyz                    # M3C2 results (rockfall)
+│ ├── epoch1_vs_epoch2__threshold.xyz               # Filtered rockfall changes only
+│ └── m3c2_auto_params.txt                          # Auto-generated M3C2 parameters (if enabled)
 │
-├── log.txt                             # Complete processing log
-└── config_used.json                    # Copy of configuration file used
+├── 6.2_Rockfall_Clustering/
+│ ├── epoch1_vs_epoch2__dbscan.xyz                  # DBSCAN clustered rockfall points
+│ ├── epoch1_vs_epoch2.jpg                          # Rockfall cluster visualization
+│ └── epoch1_vs_epoch2_veg.jpg                      # Rockfall cluster visualization (with vegetation context)
+│
+├── 6.3_Rockfall_Volume/
+│ ├── epoch1_vs_epoch2__db.csv                      # Volume database with cluster statistics
+│ ├── vol_plots/ # 2D alpha-shape figures
+│ │ ├─── epoch1_vs_epoch2_0_Vol.png                 # Cluster 0 shape plot
+│ │ └─── epoch1_vs_epoch2_N_Vol.png                 # Additional clusters...
+│ └── 3D_plots/ # 3D surface comparison plots
+│   ├─── epoch1_vs_epoch2_0_3D.png                  # Cluster 0 3D comparison
+│   └─── epoch1_vs_epoch2_N_3D.png                  # Additional clusters...
+│
+├── log.txt                                         # Complete processing log
+└── config_used.json                                # Copy of configuration file used
 
 ```
 
@@ -393,33 +429,32 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 1. **Surface Normal Computation**: M3C2 estimates surface normals using a multi-scale approach. For each core point, normals are computed at multiple scales, and the scale that produces the flattest surface (most planar neighborhood) is selected for optimal orientation estimation.
 
-
 2. **Automatic Parameter Configuration (Optional)**: 
-   - When `auto_parameters_m3c2` is enabled, M3C2 parameters are automatically scaled based on `spatial_resolution`:
-     - **SearchScale**: `4× spatial_resolution` (neighborhood for distance computation)  
-     - **NormalMinScale**: `2× spatial_resolution` (minimum scale for multi-scale normals)
-     - **NormalMaxScale**: `5× spatial_resolution` (maximum scale for multi-scale normals)
-     - **NormalStep**: `1× spatial_resolution` (step between scales)
+- When `auto_parameters_m3c2` is enabled, M3C2 parameters are automatically scaled based on `spatial_resolution`:
+  - **NormalMinScale**: `2× spatial_resolution` (minimum scale for multi-scale normals)
+  - **NormalMaxScale**: `5× spatial_resolution` (maximum scale for multi-scale normals)
+  - **NormalStep**: `1× spatial_resolution` (step between scales)
+  - **M3C2 Search scale** 
+    - Rockfall **SearchScale**: `5× spatial_resolution` (neighborhood for distance computation)
+    - Pre-failure **SearchScale**: `9× spatial_resolution` (neighborhood for distance computation)
      
-   - When `auto_parameters_m3c2` is disabled, uses parameters from the `m3c2_file` specified in the JSON file.
-
+- When `auto_parameters_m3c2` is disabled, uses parameters from the `m3c2_file` specified in the JSON file.
 
 3. **Threshold Filtering (Mandatory)**: After M3C2 computation, all points are filtered using the `change_threshold` parameter. This step removes noise and stable areas and focuses analysis on significant changes. Points below the threshold are discarded, retaining only meaningful surface changes (negative values typically indicate erosion/rockfall).
 
 #### JSON file parameters:
 
-| Parameter Name        | Type    | Example Value              | JSON Section     |
-|-----------------------|---------|----------------------------|------------------|
-| `m3c2_distance`       | Boolean | `true`                     | options          |
-| `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths            |
-| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/diff  |
-| `change_threshold`    | Float   | `-0.05`                    | parameters/diff  |
+| Parameter Name        | Type    | Example Value              | JSON Section                                 |
+|-----------------------|---------|----------------------------|----------------------------------------------|
+| `m3c2_distance`       | Boolean | `true`                     | options                                      |
+| `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths                                        |
+| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/deformation - parameters/rockfall |
+| `change_threshold`    | Float   | `-0.01` or `0.05` | parameters/deformation - parameters/rockfall |
 
 - **`m3c2_distance`**: Enables or disables M3C2 change detection computation.
 - **`m3c2_file`**: Path to the M3C2 parameter configuration file.
 - **`auto_parameters_m3c2`**: Automatically optimizes M3C2 parameters based on data resolution. When enabled, overrides manual parameter settings.
-- **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface lowering (erosion/rockfall).
-
+- **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface displacement (deformation), positive values detect material removal (rockfall)
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
 

@@ -134,7 +134,7 @@ If you skip any preprocessing or registration step, you must supply the correspo
 
 <details>
 
-<summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation </strong></summary>
+<summary><strong style="font-size:1.2em;">Rockfall Identification vs. Prefailure Deformation</strong></summary>
 
 ***
 
@@ -201,6 +201,7 @@ The pipeline generates the following folder and file structure in the output dir
 The following **functions** can be enabled or configured in the JSON file. Each section provides a detailed description of the function's purpose, parameters, and usage instructions.
 
 <details>
+
 <summary><strong style="font-size:1.2em;">Transform and Subsample</strong></summary>
 
 **Transforms** and **Spatially Subsamples** the point clouds using CloudCompare. This step accomplishes two primary goals: converting input files to `.xyz` ASCII format and reducing point density through spatial subsampling.
@@ -228,7 +229,7 @@ The following **functions** can be enabled or configured in the JSON file. Each 
 
 <details>
 
-<summary><strong style="font-size:1.2em;">Vegetation Filter </strong></summary>
+<summary><strong style="font-size:1.2em;">Vegetation Filter</strong></summary>
 
 Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.brodu.net/common/recherche/publications/canupo.pdf) (N. Brodu and D. Lague). CANUPO classifies point clouds by analyzing 3D geometric features at multiple scales to automatically separate vegetation from rock surfaces.
 
@@ -265,7 +266,7 @@ The pipeline automatically extracts Class 1 points as rock surfaces for geomorph
 
 <details>
 
-<summary><strong style="font-size:1.2em;">Statistical Outlier Filter </strong></summary>
+<summary><strong style="font-size:1.2em;">Statistical Outlier Filter</strong></summary>
 
 Applies a **Statistical Outlier Filter** to remove noise and spurious points from the point cloud using Open3D's statistical outlier removal algorithm, enhancing data quality for downstream analysis.
 

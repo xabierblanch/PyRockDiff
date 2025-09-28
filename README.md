@@ -448,8 +448,8 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 |-----------------------|---------|----------------------------|----------------------------------------------|
 | `m3c2_distance`       | Boolean | `true`                     | options                                      |
 | `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths                                        |
-| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/deformation - parameters/rockfall |
-| `change_threshold`    | Float   | `-0.01` or `0.05` | parameters/deformation - parameters/rockfall |
+| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/deformation   parameters/rockfall |
+| `change_threshold`    | Float   | `-0.01` or `0.05` | parameters/deformation   parameters/rockfall |
 
 - **`m3c2_distance`**: Enables or disables M3C2 change detection computation.
 - **`m3c2_file`**: Path to the M3C2 parameter configuration file.

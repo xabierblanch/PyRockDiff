@@ -25,6 +25,7 @@ The pipeline offers two change-detection applications: **pre-failure deformation
 In both cases, change detection is performed using the M3C2 algorithm, followed by clustering of significant changes with DBSCAN. Finally, the volume of detected rockfalls is estimated using alpha-shape triangulation.
 
 The pipeline is fully automated and user-friendly, requiring minimal input through a configuration file. It is designed to be accessible to users without programming experience and leverages open-source tools to promote transparency and collaboration.
+<hr>
 </details>
 
 ## 🛠️ Installation & Requirements
@@ -60,6 +61,7 @@ git clone https://github.com/xabierblanch/PyRockDiff.git
 cd PyRockDiff
 pip install -r requirements.txt
 ```
+<hr>
 </details>
 
 ## ⚙️ How It Works
@@ -83,8 +85,8 @@ All point clouds must share the same coordinate reference system (CRS) and units
 
 **The temporal order of input files is essential for accurate change detection:**
 
-- **`epoch1`**: Must be the **older/baseline** point cloud (reference survey)
-- **`epoch2`**: Must be the **newer/recent** point cloud (comparison survey)
+- **`epoch1`**: Must be the **older/baseline** point cloud (reference survey) - Set in JSON file: `paths.inputs.epoch1`
+- **`epoch2`**: Must be the **newer/recent** point cloud (comparison survey) - Set in JSON file: `paths.inputs.epoch2`
 
 **Warning:** Reversing this order will cause rockfalls to be detected as surface growth instead of erosion, leading to incorrect change analysis and unreliable results.
 
@@ -230,6 +232,7 @@ The pipeline generates the following folder and file structure in the output dir
 - Each folder corresponds to a processing stage.
 - Intermediate and final results are saved in clearly named subfolders.
 - The log file and a copy of the configuration used are stored at the root of the output directory.
+<hr>
 </details>
 
 ## 🔧 Function Reference
@@ -253,8 +256,8 @@ The following **functions** can be enabled or configured in the JSON file. Each 
 
 | Parameter Name           | Type    | Example Value | JSON Section |
 |--------------------------|---------|---------------|--------------|
-| `transform_and_subsample` | Boolean | `true`        | options      |
-| `spatial_resolution`      | Float   | `0.05`        | parameters   |
+| `transform_and_subsample` | Boolean | `true`        | options.preprocessing      |
+| `spatial_resolution`      | Float   | `0.05`        | parameters.subsampling   |
 
 - **`transform_and_subsample`**: Toggle to enable or disable the transformation and subsampling step.
 - **`spatial_resolution`**: Defines minimum spacing (in meters) between points for spatial subsampling.
@@ -278,10 +281,10 @@ Applies **Vegetation Filtering** using the [CANUPO algorithm](https://nicolas.br
 
 #### JSON file parameters:
 
-| Parameter Name      | Type    | Example Value             | JSON Section |
-|---------------------|---------|---------------------------|--------------|
-| `vegetation_filter` | Boolean | `true`                    | options      |
-| `canupo_file`       | Path    | `C:\\...\\classifier.prm` | paths        |
+| Parameter Name      | Type    | Example Value             | JSON Section          |
+|---------------------|---------|---------------------------|-----------------------|
+| `vegetation_filter` | Boolean | `true`                    | options.preprocessing |
+| `canupo_file`       | Path    | `C:\\...\\classifier.prm` | paths.inputs                |
 
 - **`vegetation_filter`**: Enables or disables the CANUPO vegetation filtering step.
 - **`canupo_file`**: Path to the `.prm` classifier file containing the trained CANUPO model.
@@ -318,11 +321,11 @@ Applies a **Statistical Outlier Filter** to remove noise and spurious points fro
 
 #### JSON file parameters:
 
-| Parameter Name     | Type    | Example Value | JSON Section |
-|--------------------|---------|---------------|--------------|
-| `outlier_filter`   | Boolean | `true`        | options      |
-| `neighbors`        | Integer | `25`          | parameters   |
-| `std_ratio`        | Float   | `1.5`         | parameters   |
+| Parameter Name     | Type    | Example Value | JSON Section              |
+|--------------------|---------|---------------|---------------------------|
+| `outlier_filter`   | Boolean | `true`        | options.preprocessing     |
+| `neighbors`        | Integer | `25`          | parameters.outlier_filter |
+| `std_ratio`        | Float   | `1.5`         | parameters.outlier_filter |
 
 - **`outlier_filter`**: Enables or disables the statistical outlier removal step.
 - **`neighbors`**: Number of nearest neighbors used for statistical analysis (higher values = more robust but slower).
@@ -364,9 +367,9 @@ Performs **Fast Global Registration (FGR)** to quickly align two point clouds ba
 
 | Parameter Name       | Type    | Example Value | JSON Section |
 |----------------------|---------|---------------|--------------|
-| `fgr`                | Boolean | `false`       | options      |
-| `fgr_visualization`  | Boolean | `false`       | options      |
-| `fgr_iterations`     | Integer | `2`           | parameters   |
+| `fgr`                | Boolean | `false`       | options.registration      |
+| `fgr_visualization`  | Boolean | `false`       | options.registration      |
+| `fgr_iterations`     | Integer | `2`           | parameters.registration   |
 
 - **`fgr`**: Enables or disables the Fast Global Registration step.
 - **`fgr_visualization`**: Shows intermediate registration results (disable for batch processing).
@@ -406,8 +409,8 @@ Executes the **Iterative Closest Point (ICP)** algorithm to refine the alignment
 
 | Parameter Name    | Type    | Example Value | JSON Section |
 |-------------------|---------|---------------|--------------|
-| `icp`             | Boolean | `false`       | options      |
-| `icp_iterations`  | Integer | `2`           | parameters   |
+| `icp`             | Boolean | `false`       | options.registration      |
+| `icp_iterations`  | Integer | `2`           | parameters.registration   |
 
 - **`icp`**: Enables or disables the ICP registration refinement step.
 - **`icp_iterations`**: Number of iterative refinements to perform (typically 2-3 iterations provide optimal results).
@@ -446,10 +449,10 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 | Parameter Name        | Type    | Example Value              | JSON Section                                 |
 |-----------------------|---------|----------------------------|----------------------------------------------|
-| `m3c2_distance`       | Boolean | `true`                     | options                                      |
-| `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths                                        |
-| `auto_parameters_m3c2`| Boolean | `true`                     | parameters/deformation   parameters/rockfall |
-| `change_threshold`    | Float   | `-0.01` or `0.05` | parameters/deformation   parameters/rockfall |
+| `m3c2_distance`       | Boolean | `true`                     | options.deformation options.rockfall         |
+| `m3c2_file`           | Path    | `C:\\...\\m3c2_params.txt` | paths.inputs                                 |
+| `auto_parameters_m3c2`| Boolean | `true`                     | parameters.deformation   parameters.rockfall |
+| `change_threshold`    | Float   | `-0.01` or `0.05` | parameters.deformation   parameters.rockfall |
 
 - **`m3c2_distance`**: Enables or disables M3C2 change detection computation.
 - **`m3c2_file`**: Path to the M3C2 parameter configuration file.
@@ -467,7 +470,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 
 <summary><strong style="font-size:1.2em;">DBSCAN Clustering</strong></summary>
 
-**Identifies Clusters** of significant surface changes (rockfalls) using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
+**Identifies Clusters** of significant surface changes using the density-based spatial clustering algorithm [DBSCAN](https://scikit-learn.org/stable/modules/clustering.html#dbscan) (Ester et al., 1996). This step isolates meaningful change events while filtering out noise and isolated points.
 
 #### How it works:
 
@@ -477,35 +480,43 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
    **Step 1: eps Calculation**
    - Computes k-nearest neighbor distances (k=10) for all points in the dataset
    - Sorts these distances and selects the 85th percentile as the optimal `eps` value
-   - This ensures robust clustering by capturing the typical point spacing  
 
    **Step 2: min_samples Calculation**
    - Estimates expected point density: `expected_pts = (π × eps²) / spatial_resolution²`
-   - Applies analysis-specific alpha multiplier: `min_samples = ceil(alpha × expected_pts)`
+   - applies the `auto_parameters_dbscan_alpha` multiplier: `min_samples = alpha × expected_pts`
+   
+    **Alpha Parameter Role:**
+    - The `auto_parameters_dbscan_alpha` value directly multiplies the calculated expected point density to determine the `min_samples` threshold: higher alpha values increase the `min_samples` required per cluster, making clustering more restrictive.
 
 2. **Density-Based Clustering**: 
-   DBSCAN groups nearby points that exceed the density threshold (`min_samples` within `eps` radius) into clusters representing individual rockfall events. Points that don't meet the density criteria are classified as noise and removed.
+   DBSCAN groups nearby points that exceed the density threshold (`min_samples` within `eps` radius) into clusters representing individual change events. Points that don't meet the density criteria are classified as noise and removed.
 
+3. **Visualization and Output Generation**: 
+   Generates cluster visualizations through PCA-based plane fitting and 2D projection. Creates four visualization outputs: rock-only background (with and without cluster labels) and vegetation context (with and without cluster labels, if vegetation data is available). The `image_mirror` parameter corrects X-axis inversion that may occur during coordinate transformation, ensuring consistent spatial orientation.
+
+   **⚠️ PCA Limitation Warning**: PCA plane fitting is applied automatically to all datasets. Highly irregular or complex working surfaces may result in suboptimal plane fitting, generating distorted 2D visualizations.
+ 
 #### JSON file parameters:
 
 | Parameter Name          | Type    | Example Value | JSON Section                                | Description                            |
 |-------------------------|---------|---------------|---------------------------------------------|----------------------------------------|
-| `dbscan_clustering`     | Boolean | `true`        | options                                     | Enables/disables DBSCAN clustering     |
-| `auto_parameters_dbscan`| Boolean | `true`        | parameters/deformation  parameters/rockfall | Enables automatic parameter estimation |
-| `auto_parameters_dbscan_alpha` | Float | `0.55` | parameters/deformation  parameters/rockfall | Alpha value for min_pts control        |
-| `eps`                   | Float   | `0.3`         | parameters/deformation  parameters/rockfall | Neighborhood radius (meters)           |
-| `min_samples`           | Integer | `15`          | parameters/deformation  parameters/rockfall | Minimum points per cluster             |
+| `dbscan_clustering`     | Boolean | `true`        | options.deformation  options.rockfall       | Enables/disables DBSCAN clustering     |
+| `auto_parameters_dbscan`| Boolean | `true`        | parameters.deformation  parameters.rockfall | Enables automatic parameter estimation |
+| `auto_parameters_dbscan_alpha` | Float | `0.75`        | parameters.deformation  parameters.rockfall | Alpha value for min_pts control        |
+| `eps`                   | Float   | `0.3`         | parameters.deformation  parameters.rockfall | Neighborhood radius (meters)           |
+| `min_samples`           | Integer | `15`          | parameters.deformation  parameters.rockfall | Minimum points per cluster             |
+| `image_mirror`          | Boolean | `true`        | parameters.deformation  parameters.rockfall | Correct X-axis inversion in visualizations |
 
 - **`dbscan_clustering`**: Enables or disables the DBSCAN clustering step.
 - **`auto_parameters_dbscan`**: When enabled, automatically calculates `eps` and `min_samples` from spatial resolution, overriding manual values.
-- **`auto_parameters_dbscan_alpha`**: Alpha multiplier for automatic parameter calculation (higher = more sensitive clustering).
+- **`auto_parameters_dbscan_alpha`**: Alpha multiplier for automatic parameter calculation (higher = more restrictive clustering)
 - **`eps`**: DBSCAN neighborhood radius in meters (used only when auto-parameters disabled).
 - **`min_samples`**: Minimum points required to form a cluster (used only when auto-parameters disabled).
 
 **Technical Notes:**
 - Uses scikit-learn's DBSCAN implementation for robust clustering
 - Automatic parameter estimation is based on point density analysis
-- Two visualizations of the clusters are also saved in the output path
+- Two visualizations of the clusters are also saved in the output path. When `image_mirror` is enabled, visualization images are horizontally flipped for better orientation
 - Cluster labels are assigned sequentially starting from 0
 - Noise points (label = -1) are automatically filtered from results
 
@@ -538,11 +549,13 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
    - **2D Alpha-Shape Plots**: Show triangulation with color-coded M3C2 differences
    - **3D Surface Comparison**: Display pre- and post-event topography
 
+**⚠️ Important:** Volume estimation is **only available for rockfall clusters**. Deformation clusters do not include volume calculation as they represent surface displacement rather than material removal.
+
 #### JSON file parameters:
 
-| Parameter Name      | Type    | Example Value | JSON Section |
-|---------------------|---------|---------------|--------------|
-| `volume_calculation`| Boolean | `false`       | options      |
+| Parameter Name      | Type    | Example Value | JSON Section     |
+|---------------------|---------|---------------|------------------|
+| `volume_calculation`| Boolean | `false`       | options.rockfall |
 
 - **`volume_calculation`**: Enables volume estimation for detected rockfall clusters. Only executes if clusters are present from DBSCAN step.
 
@@ -550,12 +563,12 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - Uses `alphashape` library for robust alpha-shape computation
 - Applies `scipy.spatial.Delaunay` for triangulation
 
-**Critical Validation Steps:**
-- **Visual inspection mandatory**: Always review generated alpha-shape plots in `5_volume/vol_plots/`
-- **Geometric validation**: Check 3D surface plots in `5_volume/3D_plots/` for reasonable surface reconstruction
+**Validation Steps:**
+- **Visual inspection mandatory**: Always review generated alpha-shape plots in `6.3_Rockfall_Volume/vol_plots/`
+- **Geometric validation**: Check 3D surface plots in `6.3_Rockfall_Volume/3D_plots/` for reasonable surface reconstruction
 - **Statistical review**: Examine CSV output for outlier volumes that may indicate calculation errors
 
-**Potential Limitations:**
+- **Potential Limitations:**
 - **Alpha sensitivity**: Automatic parameter estimation may not be optimal for irregular cluster shapes
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
@@ -570,46 +583,97 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 <details>
-<summary>Parameters Values</summary>
+
+<summary><strong style="font-size:1.2em;">Configuration Paths</strong></summary>
+
+All file and folder paths are defined in the configuration file (`.json`).
+
+**Note:** On Windows systems, always use double backslashes (`\\`) in JSON strings to avoid path errors.
+
+#### Input Files (`paths.inputs`)
+| Parameter Name  | Type   | Description                           | Example                          |
+|-----------------|--------|---------------------------------------|----------------------------------|
+| `epoch1`        | String | Path to the first (older) point cloud | `"C:\\...\\epoch1.xyz"`         |
+| `epoch2`        | String | Path to the second (newer) point cloud| `"C:\\...\\epoch2.xyz"`         |
+| `m3c2_file`     | String | Path to M3C2 configuration file      | `"C:\\...\\m3c2_params.txt"`     |
+| `canupo_file`   | String | Path to CANUPO classifier file       | `"C:\\...\\classifier.prm"`      |
+
+#### System Paths
+| Parameter Name   | Type   | Description                           | Example                          |
+|------------------|--------|---------------------------------------|----------------------------------|
+| `output_folder`  | String | Base directory for all outputs       | `"C:\\...\\Results"`             |
+| `CloudCompare`   | String | Path to CloudCompare executable      | `"C:\\Program Files\\CloudCompare\\cloudcompare.exe"` |
+<hr>
+</details>
+
+
+<details>
+
+<summary><strong style="font-size:1.2em;">Parameters Values</strong></summary>
+
 All processing parameters are defined in the configuration file (`config.json`), organized by processing stage:
 
-| Parameter Name              | Type    | Example Value | Description                                                                                               |
-|-----------------------------|---------|---------------|-----------------------------------------------------------------------------------------------------------|
-| `spatial_resolution`        | Float   | `0.05`        | Spatial distance (meters) for point cloud subsampling; controls minimum spacing between points.         |
-| `fgr_iterations`           | Integer | `2`           | **FGR:** Number of iterations to refine alignment progressively.                                         |
-| `icp_iterations`           | Integer | `2`           | **ICP:** Number of iterations to refine registration precision.                                          |
-| `neighbors`                | Integer | `25`          | **Outlier Filter:** Number of nearest neighbors used to calculate median distance.                      |
-| `std_ratio`                | Float   | `1.5`         | **Outlier Filter:** Standard deviation multiplier; points beyond this threshold are removed.            |
-| `auto_parameters_m3c2`     | Boolean | `true`        | **M3C2:** Auto-adjust parameters based on spatial resolution. If false, uses m3c2_params.txt in bin folder. |
-| `change_threshold`         | Float   | `-0.05`       | Threshold (meters) to filter significant changes; negative values detect surface lowering (erosion/rockfalls). |
-| `auto_parameters_dbscan`   | Boolean | `true`        | **DBSCAN:** Auto-calculate parameters, overriding eps and min_samples below.                            |
-| `eps`                      | Float   | `0.3`         | **DBSCAN:** Neighborhood radius (meters); used only when auto_parameters_dbscan is false.              |
-| `min_samples`              | Integer | `15`          | **DBSCAN:** Minimum points per cluster; used only when auto_parameters_dbscan is false.                |
+#### Subsampling Parameters (`parameters.subsampling`)
+| Parameter Name      | Type  | Default | Description                           |
+|---------------------|-------|---------|---------------------------------------|
+| `spatial_resolution`| Float | `0.05`  | Minimum spacing between points (meters)|
+
+#### Outlier Filter Parameters (`parameters.outlier_filter`)
+| Parameter Name | Type    | Default | Description                           |
+|----------------|---------|---------|---------------------------------------|
+| `neighbors`    | Integer | `25`    | Number of nearest neighbors to analyze|
+| `std_ratio`    | Float   | `1.5`   | Standard deviation multiplier threshold|
+
+#### Registration Parameters (`parameters.registration`)
+| Parameter Name   | Type    | Default | Description                           |
+|------------------|---------|---------|---------------------------------------|
+| `fgr_iterations` | Integer | `2`     | Number of FGR refinement iterations   |
+| `icp_iterations` | Integer | `2`     | Number of ICP refinement iterations   |
+
+#### Analysis Parameters (`parameters.deformation` / `parameters.rockfall`)
+| Parameter Name               | Type    | Example Values   | Description                           |
+|------------------------------|---------|------------------|---------------------------------------|
+| `auto_parameters_m3c2`       | Boolean | `true`           | Enable automatic M3C2 parameter calculation|
+| `change_threshold`           | Float   | `-0.01` / `0.05` | Distance threshold for significant changes|
+| `auto_parameters_dbscan`     | Boolean | `true`           | Enable automatic DBSCAN parameter calculation|
+| `auto_parameters_dbscan_alpha`| Float  | `0.75`          | Alpha multiplier for DBSCAN sensitivity|
+| `eps`                        | Float   | `0.3`            | DBSCAN neighborhood radius (meters)   |
+| `min_samples`                | Integer | `15`             | Minimum points required per cluster   |
+| `image_mirror`               | Boolean | `true`         | Mirror visualization images horizontally|
 
 **Important Notes:**
 1. **Critical Parameter**: Many of the software's parameter values are derived using `spatial_resolution` as a starting point for calculations. If results are unsatisfactory or unexpected, we strongly recommend reviewing this parameter's value and ensuring its appropriateness for your specific dataset and analysis requirements.
 2. **Units**: All spatial parameters are specified in **meters**.
 3. **Change Detection**: Negative values of `change_threshold` indicate detection of surface lowering events such as erosion or rockfalls.
 4. **Auto Parameters**: When enabled, auto-calculated parameters will override manual settings for M3C2 and DBSCAN.
-
+<hr>
 </details>
 
 <details>
-<summary>Option Booleans</summary>
+
+<summary><strong style="font-size:1.2em;">Option Booleans</strong></summary>
 
 All main processing steps can be enabled or disabled via boolean flags. This allows flexible workflow control without code modification.
+#### Preprocessing Options (`options.preprocessing`)
+| Parameter Name           | Type    | Default | Description                           |
+|--------------------------|---------|---------|---------------------------------------|
+| `transform_and_subsample`| Boolean | `true`  | Enable transformation and subsampling |
+| `vegetation_filter`      | Boolean | `true`  | Enable CANUPO vegetation filtering    |
+| `outlier_filter`         | Boolean | `true`  | Enable statistical outlier removal    |
 
-| Parameter Name            | Type    | Default Example | Description                                                       |
-|---------------------------|---------|-----------------|-------------------------------------------------------------------|
-| `transform_and_subsample` | Boolean | `false`         | Enable transformation to XYZ and spatial subsampling             |
-| `vegetation_filter`       | Boolean | `false`         | Enable vegetation filtering using CANUPO                         |
-| `outlier_filter`          | Boolean | `false`         | Enable statistical outlier removal                               |
-| `fgr`                     | Boolean | `false`         | Enable Fast Global Registration (FGR)                            |
-| `fgr_visualization`       | Boolean | `false`         | Enable visualization during FGR (disable for batch mode)        |
-| `icp`                     | Boolean | `false`         | Enable Iterative Closest Point (ICP) registration               |
-| `m3c2_distance`           | Boolean | `true`          | Enable M3C2 change detection                                     |
-| `dbscan_clustering`       | Boolean | `true`          | Enable rockfall clustering (DBSCAN)                              |
-| `volume_calculation`      | Boolean | `true`          | Enable volume estimation for detected clusters                   |
+#### Registration Options (`options.registration`)
+| Parameter Name       | Type    | Default | Description                           |
+|----------------------|---------|---------|---------------------------------------|
+| `fgr`                | Boolean | `false` | Enable Fast Global Registration       |
+| `fgr_visualization`  | Boolean | `false` | Show FGR alignment visualization      |
+| `icp`                | Boolean | `false` | Enable ICP refinement registration    |
+
+#### Analysis Options (`options.deformation` / `options.rockfall`)
+| Parameter Name      | Type    | Default | Description                           |
+|---------------------|---------|---------|---------------------------------------|
+| `change_detection`  | Boolean | `true`  | Enable M3C2 change detection         |
+| `clustering`        | Boolean | `true`  | Enable DBSCAN clustering              |
+| `volume`            | Boolean | `false` | Enable volume estimation (rockfall only) |
 
 **Important Notes:**
 - **JSON Format**: Boolean values must be written in lowercase and without quotes: `true` or `false`.  
@@ -623,38 +687,6 @@ All main processing steps can be enabled or disabled via boolean flags. This all
 
 </details>
 
-<details>
-<summary>Configuration Paths</summary>
-
-All file and folder paths are defined in the configuration file (`_config.json`).
-
-**Note:** On Windows systems, always use double backslashes (`\\`) in JSON strings to avoid path errors.
-
-**Input Data Paths**
-
-| Path Name | Description                                | Example Value                                              |
-|-----------|--------------------------------------------|------------------------------------------------------------|
-| `epoch1`      | Path to first input point cloud (epoch 1)  | `C:\...\PointClouds\epoch_1.xyz`                           |
-| `epoch2`      | Path to second input point cloud (epoch 2) | `C:\...\PointClouds\epoch_2.xyz`                           |
-| `m3c2_file`   | Path to M3C2 parameter file           | `.\\bin\\m3c2_params.txt`                     |
-| `canupo_file`  | Path to CANUPO parameter file         | `.\\bin\\canupo.prm`                          |
-
-**Output Path**
-
-| Path Name   | Description                            | Example Value               |
-|-------------|----------------------------------------|-----------------------------|
-| `output_path`    | Output directory for processed results | `C:\...\PyRockDiff_Results` |
-
-**CloudCompare Path**
-
-| Path Name      | Description                           | Example Value                                 |
-|----------------|---------------------------------------|-----------------------------------------------|
-| `CloudCompare_path` | Path to CloudCompare executable       | `C:\Program Files\CloudCompare\cloudcompare.exe` |
-
-<hr>
-
-</details>
-
 ## 🚧 Development stages & Future Updates
 
 <details>
@@ -662,13 +694,13 @@ All file and folder paths are defined in the configuration file (`_config.json`)
 
 The following features and enhancements are planned for future versions of this software:
 
-- [ ] Implement the software for pre-failure deformation identification
+- [x] Implement the software for pre-failure deformation identification
 - [ ] Integrate tools from [**py4dgeo**](https://github.com/3dgeo-heidelberg/py4dgeo) (MIT License)
 - [ ] Provide different approaches for volume calculation
 - [ ] Add AI tools for vegetation filtering
 - [ ] Add AI tools to filter the wrong clusters (Blanch et al, 2020)
 - [ ] Include and process RGB data (for LiDAR or SfM Point Clouds)
-
+<hr>
 </details>
 
 ## 📬 Contact

@@ -110,14 +110,14 @@ All point clouds must share the same coordinate reference system (CRS) and units
 The code follows a sequential execution pattern, but it is flexible. You can start from any step in the workflow, provided the necessary files from earlier steps are supplied as inputs. This modular approach allows skipping steps that have been completed previously or executing the entire workflow from start to finish.
 
 
-1. **Transformation and subsampling** (`transform_and_subsample`)  
-2. **Vegetation_filter** (`vegetation_filter`)  
-3. **Statistical cleaning** (`outlier_filter`)  
+1. **Transformation and subsampling** (`preprocessing.transform_and_subsample`)  
+2. **Vegetation_filter** (`preprocessing.vegetation_filter`)  
+3. **Statistical cleaning** (`preprocessing.outlier_filter`)  
 
 
 4. **Registration**  
-   - FGR (`fgr`)  
-   - ICP (`icp`)  
+   - FGR (`registration.fgr`)  
+   - ICP (`registration.icp`)  
 
 
 5. **Deformation Detection (Pre-failure)**
@@ -591,7 +591,7 @@ All file and folder paths are defined in the configuration file (`.json`).
 **Note:** On Windows systems, always use double backslashes (`\\`) in JSON strings to avoid path errors.
 
 #### Input Files (`paths.inputs`)
-| Parameter Name  | Type   | Description                           | Example                          |
+| Parameter Name  | Type   | Description                           | Example Values                          |
 |-----------------|--------|---------------------------------------|----------------------------------|
 | `epoch1`        | String | Path to the first (older) point cloud | `"C:\\...\\epoch1.xyz"`         |
 | `epoch2`        | String | Path to the second (newer) point cloud| `"C:\\...\\epoch2.xyz"`         |
@@ -599,7 +599,7 @@ All file and folder paths are defined in the configuration file (`.json`).
 | `canupo_file`   | String | Path to CANUPO classifier file       | `"C:\\...\\classifier.prm"`      |
 
 #### System Paths
-| Parameter Name   | Type   | Description                           | Example                          |
+| Parameter Name   | Type   | Description                           | Example Values                          |
 |------------------|--------|---------------------------------------|----------------------------------|
 | `output_folder`  | String | Base directory for all outputs       | `"C:\\...\\Results"`             |
 | `CloudCompare`   | String | Path to CloudCompare executable      | `"C:\\Program Files\\CloudCompare\\cloudcompare.exe"` |
@@ -614,18 +614,18 @@ All file and folder paths are defined in the configuration file (`.json`).
 All processing parameters are defined in the configuration file (`config.json`), organized by processing stage:
 
 #### Subsampling Parameters (`parameters.subsampling`)
-| Parameter Name      | Type  | Default | Description                           |
+| Parameter Name      | Type  | Example Values | Description                           |
 |---------------------|-------|---------|---------------------------------------|
 | `spatial_resolution`| Float | `0.05`  | Minimum spacing between points (meters)|
 
 #### Outlier Filter Parameters (`parameters.outlier_filter`)
-| Parameter Name | Type    | Default | Description                           |
+| Parameter Name | Type    | Example Values | Description                           |
 |----------------|---------|---------|---------------------------------------|
 | `neighbors`    | Integer | `25`    | Number of nearest neighbors to analyze|
 | `std_ratio`    | Float   | `1.5`   | Standard deviation multiplier threshold|
 
 #### Registration Parameters (`parameters.registration`)
-| Parameter Name   | Type    | Default | Description                           |
+| Parameter Name   | Type    | Example Values | Description                           |
 |------------------|---------|---------|---------------------------------------|
 | `fgr_iterations` | Integer | `2`     | Number of FGR refinement iterations   |
 | `icp_iterations` | Integer | `2`     | Number of ICP refinement iterations   |
@@ -655,21 +655,21 @@ All processing parameters are defined in the configuration file (`config.json`),
 
 All main processing steps can be enabled or disabled via boolean flags. This allows flexible workflow control without code modification.
 #### Preprocessing Options (`options.preprocessing`)
-| Parameter Name           | Type    | Default | Description                           |
+| Parameter Name           | Type    | Example Values | Description                           |
 |--------------------------|---------|---------|---------------------------------------|
 | `transform_and_subsample`| Boolean | `true`  | Enable transformation and subsampling |
 | `vegetation_filter`      | Boolean | `true`  | Enable CANUPO vegetation filtering    |
 | `outlier_filter`         | Boolean | `true`  | Enable statistical outlier removal    |
 
 #### Registration Options (`options.registration`)
-| Parameter Name       | Type    | Default | Description                           |
+| Parameter Name       | Type    | Example Values | Description                           |
 |----------------------|---------|---------|---------------------------------------|
 | `fgr`                | Boolean | `false` | Enable Fast Global Registration       |
 | `fgr_visualization`  | Boolean | `false` | Show FGR alignment visualization      |
 | `icp`                | Boolean | `false` | Enable ICP refinement registration    |
 
 #### Analysis Options (`options.deformation` / `options.rockfall`)
-| Parameter Name      | Type    | Default | Description                           |
+| Parameter Name      | Type    | Example Values | Description                           |
 |---------------------|---------|---------|---------------------------------------|
 | `change_detection`  | Boolean | `true`  | Enable M3C2 change detection         |
 | `clustering`        | Boolean | `true`  | Enable DBSCAN clustering              |

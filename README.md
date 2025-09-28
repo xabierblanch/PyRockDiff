@@ -577,6 +577,8 @@ Estimates **Rockfall Volumes** for each detected cluster using [alpha-shape tria
 - **Complex concavities**: Deep indentations or fractures may not be captured accurately
 - **Edge effects**: Boundary points may introduce artifacts in volume calculations
 
+![puigcercos_result.jpg](figures/puigcercos_result.jpg)
+
 <hr>
 
 </details>

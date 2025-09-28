@@ -163,7 +163,7 @@ def auto_param(m3c2_result_path, spatial_resolution, parameters):
     nbrs = NearestNeighbors(n_neighbors=10).fit(points[["x", "y", "z"]])
     distances, _ = nbrs.kneighbors(points[["x", "y", "z"]])
     k_distances = np.sort(distances[:, -1])
-    eps = np.percentile(k_distances, 90)
+    eps = np.percentile(k_distances, 85)
     expected_pts = (math.pi * eps ** 2) / (spatial_resolution ** 2)
     alpha = parameters['auto_parameters_dbscan_alpha']
     minpts = math.ceil(alpha * expected_pts)

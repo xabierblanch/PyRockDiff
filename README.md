@@ -455,7 +455,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - **`m3c2_file`**: Path to the M3C2 parameter configuration file.
 - **`auto_parameters_m3c2`**: Automatically optimizes M3C2 parameters based on data resolution. When enabled, overrides manual parameter settings.
 - **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface displacement (deformation), positive values detect material removal (rockfall)
-- 
+
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
 
@@ -472,23 +472,33 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 #### How it works:
 
 1. **Automatic Parameter Estimation (Optional)**: 
-   When `auto_parameters_dbscan` is enabled, the algorithm automatically calculates optimal `eps` and `min_samples` parameters based on the point cloud's `spatial_resolution`. This overrides any manual parameter values specified in the JSON file.
+   When `auto_parameters_dbscan` is enabled, the algorithm automatically calculates optimal `eps` and `min_samples` parameters based on the point cloud's `spatial_resolution`. This overrides any manual parameter values specified in the JSON file.  
+   
+   **Step 1: eps Calculation**
+   - Computes k-nearest neighbor distances (k=10) for all points in the dataset
+   - Sorts these distances and selects the 85th percentile as the optimal `eps` value
+   - This ensures robust clustering by capturing the typical point spacing  
 
+   **Step 2: min_samples Calculation**
+   - Estimates expected point density: `expected_pts = (π × eps²) / spatial_resolution²`
+   - Applies analysis-specific alpha multiplier: `min_samples = ceil(alpha × expected_pts)`
 
 2. **Density-Based Clustering**: 
    DBSCAN groups nearby points that exceed the density threshold (`min_samples` within `eps` radius) into clusters representing individual rockfall events. Points that don't meet the density criteria are classified as noise and removed.
 
 #### JSON file parameters:
 
-| Parameter Name          | Type    | Example Value | JSON Section | Description                                    |
-|-------------------------|---------|---------------|--------------|------------------------------------------------|
-| `dbscan_clustering`     | Boolean | `true`        | options      | Enables/disables DBSCAN clustering            |
-| `auto_parameters_dbscan`| Boolean | `true`        | parameters   | Enables automatic parameter estimation         |
-| `eps`                   | Float   | `0.3`         | parameters   | Neighborhood radius (meters)                   |
-| `min_samples`           | Integer | `15`          | parameters   | Minimum points per cluster                     |
+| Parameter Name          | Type    | Example Value | JSON Section                                | Description                            |
+|-------------------------|---------|---------------|---------------------------------------------|----------------------------------------|
+| `dbscan_clustering`     | Boolean | `true`        | options                                     | Enables/disables DBSCAN clustering     |
+| `auto_parameters_dbscan`| Boolean | `true`        | parameters/deformation  parameters/rockfall | Enables automatic parameter estimation |
+| `auto_parameters_dbscan_alpha` | Float | `0.55` | parameters/deformation  parameters/rockfall | Alpha value for min_pts control        |
+| `eps`                   | Float   | `0.3`         | parameters/deformation  parameters/rockfall | Neighborhood radius (meters)           |
+| `min_samples`           | Integer | `15`          | parameters/deformation  parameters/rockfall | Minimum points per cluster             |
 
 - **`dbscan_clustering`**: Enables or disables the DBSCAN clustering step.
 - **`auto_parameters_dbscan`**: When enabled, automatically calculates `eps` and `min_samples` from spatial resolution, overriding manual values.
+- **`auto_parameters_dbscan_alpha`**: Alpha multiplier for automatic parameter calculation (higher = more sensitive clustering).
 - **`eps`**: DBSCAN neighborhood radius in meters (used only when auto-parameters disabled).
 - **`min_samples`**: Minimum points required to form a cluster (used only when auto-parameters disabled).
 

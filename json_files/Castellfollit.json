@@ -43,7 +43,7 @@
 
     "parameters": {
         "subsampling": {
-            "spatial_resolution": 0.04
+            "spatial_resolution": 0.03
         },
         "registration": {
             "fgr_iterations": 2,

@@ -57,19 +57,19 @@
             "auto_parameters_m3c2": true,
             "change_threshold": -0.01,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.75,
+            "auto_parameters_dbscan_alpha": 0.55,
             "eps": 0.3,
             "min_samples": 15,
-            "image_mirror": false
+            "image_mirror": true
         },
         "rockfall": {
             "auto_parameters_m3c2": true,
             "change_threshold": 0.05,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.6,
+            "auto_parameters_dbscan_alpha": 0.4,
             "eps": 0.3,
             "min_samples": 15,
-            "image_mirror": false
+            "image_mirror": true
         }
     }
 }

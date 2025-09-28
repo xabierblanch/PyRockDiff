@@ -455,6 +455,7 @@ Computes precise **distances** between two point clouds using the [M3C2 algorith
 - **`m3c2_file`**: Path to the M3C2 parameter configuration file.
 - **`auto_parameters_m3c2`**: Automatically optimizes M3C2 parameters based on data resolution. When enabled, overrides manual parameter settings.
 - **`change_threshold`**: Distance threshold (meters) for filtering significant changes. Negative values detect surface displacement (deformation), positive values detect material removal (rockfall)
+- 
 **Technical Notes:**
 - Updated M3C2 configuration is saved as `m3c2_auto_params.txt` when auto-parameters are enabled
 

@@ -98,8 +98,8 @@ All point clouds must share the same coordinate reference system (CRS) and units
 - Excluding parts of the scan that are not relevant to the specific study area
 - Cropping the point clouds to the zone of interest
 
-![Preprocessing Example](bin/Cleaning.jpg)
-![Preprocessing Example](bin/Overlap.jpg)
+![Preprocessing Example](figures/Cleaning.jpg)
+![Preprocessing Example](figures/Overlap.jpg)
 
 <hr>
 
@@ -155,6 +155,7 @@ Identifies completed rockfall events where material has already detached from th
 - **M3C2 Search Scale:** `5× spatial_resolution` (smaller search radius for higher sensitivity in rockfall boundary delineation)
 - **Output Folders:** `6.1_Rockfall_Detection`, `6.2_Rockfall_Clustering`, `6.3_Rockfall_Volume`
 - **Final Output:** Calculated volumes for each identified cluster
+![Preprocessing Example](figures/puigcercos_rockfall.jpg)
 
 ### **⤴️ Prefailure Deformation Detection (Pre-failure)**
 
@@ -167,6 +168,7 @@ Detects subtle surface movements and micro-deformations that may precede rockfal
 - **Final Output:** Identified deformation clusters
 
 The activation of each workflow depends on the configuration settings in the .json file.
+![Preprocessing Example](figures/puigcercos_def.jpg)
 
 <hr>
 

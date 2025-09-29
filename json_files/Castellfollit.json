@@ -10,29 +10,29 @@
 
     "paths": {
         "inputs": {
-            "epoch1": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\mod\\240424_Castellfollit.las",
-            "epoch2": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\ICGC_Data_v2\\PC Test_PyRockDiff\\mod\\250212_Castellfollit.las",
-            "m3c2_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\m3c2_params.txt",
-            "canupo_file": "C:\\Users\\Xabier\\Documents\\Codis\\Github\\PyRockDiff\\bin\\canupo_Castellfollit.prm"
+            "epoch1": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2\\240424_Castellfollit_to_250212_Castellfollit\\4_Registration\\240424_Castellfollit__ICP.xyz",
+            "epoch2": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2\\240424_Castellfollit_to_250212_Castellfollit\\4_Registration\\250212_Castellfollit__ICP.xyz",
+            "m3c2_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\m3c2_params.txt",
+            "canupo_file": "C:\\Users\\xabier.blanch\\Codis\\PyRockDiff\\bin\\canupo_Castellfollit.prm"
         },
-        "output_folder": "C:\\Users\\Xabier\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2",
+        "output_folder": "C:\\Users\\xabier.blanch\\CaminsDRIVE\\02_Research\\02_Projects\\21_XBG\\2024_ICGC\\Results_v2",
         "CloudCompare": "C:\\Program Files\\CloudCompare\\cloudcompare.exe"
     },
 
     "options": {
         "preprocessing": {
-            "transform_and_subsample": true,
-            "vegetation_filter": true,
-            "outlier_filter": true
+            "transform_and_subsample": false,
+            "vegetation_filter": false,
+            "outlier_filter": false
         },
         "registration": {
-            "fgr": true,
+            "fgr": false,
             "fgr_visualization": false,
-            "icp": true
+            "icp": false
         },
         "deformation": {
-            "change_detection": true,
-            "clustering": true
+            "change_detection": false,
+            "clustering": false
         },
         "rockfall": {
             "change_detection": true,
@@ -57,16 +57,16 @@
             "auto_parameters_m3c2": true,
             "change_threshold": -0.01,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.75,
+            "auto_parameters_dbscan_alpha": 0.5,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": false
         },
         "rockfall": {
             "auto_parameters_m3c2": true,
-            "change_threshold": 0.05,
+            "change_threshold": 0.06,
             "auto_parameters_dbscan": true,
-            "auto_parameters_dbscan_alpha": 0.6,
+            "auto_parameters_dbscan_alpha": 0.8,
             "eps": 0.3,
             "min_samples": 15,
             "image_mirror": false

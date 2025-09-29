@@ -11,6 +11,7 @@ from matplotlib.collections import PolyCollection
 from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
 import os
+from bin.clustering import project_to_wall_view
 
 #TODO: use original epoch2 points instead of epoch1+diff
 
@@ -106,9 +107,16 @@ def rockfall_db(volume_folder, rockfalls, volumes_db, file_name):
     merged_df = merged_df.round(4)
     merged_df.to_csv(os.path.join(volume_folder, file_name + '__db.csv'), sep=' ', index=False)
 
-def volume(e1ve2_DBSCAN_path, volume_folder):
+def volume(e1ve2_DBSCAN_path, volume_folder, parameters, wall_projection=None):
+    image_mirror = parameters['rockfall']['image_mirror']
+    beta = 1 if image_mirror else -1
+
     rockfalls = loadPC(e1ve2_DBSCAN_path)
     file_name = get_file_name(e1ve2_DBSCAN_path)
+    if wall_projection is not None:
+        wall_direction, wall_center = wall_projection
+    else:
+        wall_direction, wall_center = None, None
 
     rockfall_volumes = []
     _print("Computing volume for every cluster")
@@ -119,8 +127,13 @@ def volume(e1ve2_DBSCAN_path, volume_folder):
         if len(rockfall) < 4:
             _print(f"Cluster {i} has less than 4 points. Will not be computed.")
             continue
-        points_xz = rockfall[['x', 'z']].values
         points_xyz = rockfall[['x', 'y', 'z']].values
+        if wall_direction is not None and wall_center is not None:
+            x_proj, z_proj = project_to_wall_view(points_xyz, wall_direction, wall_center)
+            points_xz = np.column_stack([beta * x_proj, z_proj])
+        else:
+            # points_xz = rockfall[['x', 'z']].values
+            points_xz = np.column_stack([beta * rockfall[['x']].values.flatten(), rockfall[['z']].values.flatten()])
         diff = rockfall['m3c2_diff'].values*(-1)
         y_diff = rockfall['y'].values+diff
         auto_alpha = estimate_alpha(points_xz)

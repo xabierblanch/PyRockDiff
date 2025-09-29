@@ -93,12 +93,12 @@ if options['rockfall']['change_detection']:
 if options['rockfall']['clustering']:
     print("\n\033[1mRockfall Clustering (DBSCAN)\033[0m")
     dbscan_folder = utils.create_folder(project_folder, '6.2_Rockfall_Clustering')
-    e1ve2_DBSCAN_path = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters)
+    e1ve2_DBSCAN_path, wall_projection = rf.dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters)
 
 if options['rockfall']['volume'] and e1ve2_DBSCAN_path:
     print("\n\033[1mRockfall Volumes\033[0m")
     volume_folder = utils.create_folder(project_folder, '6.3_Rockfall_Volume')
-    volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder)
+    volumes_db = vl.volume(e1ve2_DBSCAN_path, volume_folder, parameters, wall_projection)
 
 elif options['rockfall']['volume']:
     print("\n\033[1mNo clusters detected — volume calculation skipped.\033[0m")

@@ -157,6 +157,8 @@ def plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folde
     create_and_save_plot(x_bg_proj, z_bg_proj, 'silver', '', False)
     create_and_save_plot(x_bg_proj, z_bg_proj, 'silver', '', True)
 
+    return wall_dir, center
+
 
 def auto_param(m3c2_result_path, spatial_resolution, parameters):
     points = loadPC(m3c2_result_path)
@@ -205,16 +207,16 @@ def dbscan(dbscan_folder, e1e2_change_path, m3c2_result_path, parameters, deform
     if os.path.exists(point_cloud):
         try:
             _print("Plotting results with vegetation background")
-            plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold,
+            wall_dir, center = plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold,
                           deformation, vegetation=True)
         except Exception as e:
             _print(f"Error creating vegetation plot: {e}")
 
     try:
         _print("Plotting results with standard background")
-        plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold,
+        wall_dir, center = plot_clusters(diff_cluster, e1e2_change_path, m3c2_result_path, dbscan_folder, parameters, threshold,
                       deformation, vegetation=False)
     except Exception as e:
         _print(f"Error creating standard plot: {e}")
 
-    return dbscan_path
+    return dbscan_path, (wall_dir, center)
